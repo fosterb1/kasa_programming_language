@@ -1,0 +1,8 @@
+ma n = 1
+bere_a n <= 3
+    ka n
+    ma n = n + 1
+awiei
+mpɛn 2
+    ka "Meda wo ase"
+awiei
