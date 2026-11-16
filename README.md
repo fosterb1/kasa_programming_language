@@ -6,9 +6,9 @@ Kasa is an educational programming-language project intended to become open sour
 
 Kasa's guiding idea is simple: **learners should focus on solving problems, not memorizing unfamiliar English keywords.** The language uses familiar Twi-inspired vocabulary while teaching transferable concepts such as variables, conditions, loops, functions, lists, and debugging.
 
-> **Project status — Specification / pre-implementation.** The language design is documented, but this repository does **not yet contain a working interpreter, installable Python package, command-line tool, or automated test suite**. The examples and commands below describe the intended language and developer experience, not currently verified functionality.
+> **Project status — Early implementation (v0.1.0).** Kasa now includes an initial working Python interpreter, CLI, interactive REPL, five executable examples, and automated tests. The project is **not yet a complete or classroom-ready 1.0 release**; the full engineering specification remains the longer-term target.
 
-## See Kasa in action — proposed syntax
+## See Kasa in action
 
 A first program, saved as `hello.kasa`:
 
@@ -16,7 +16,7 @@ A first program, saved as `hello.kasa`:
 ka "Maakye, Ghana!"
 ```
 
-Expected output **once the interpreter is implemented**:
+Expected output:
 
 ```text
 Maakye, Ghana!
@@ -47,7 +47,7 @@ ka fa_bi(4, 6)
 
 Expected output: `10`.
 
-These examples follow the proposed specification; they have not yet been executed by a Kasa interpreter.
+These programs use implemented Kasa syntax. Runnable versions are available in [`examples/`](./examples/), and the local automated test suite verifies their output.
 
 ## Why Kasa?
 
@@ -97,48 +97,49 @@ Kasa is not intended to replace Python, JavaScript, or other established languag
 
 ### Implementation approach
 
-The intended execution pipeline is:
+The interpreter follows this execution pipeline:
 
 ```text
 .kasa source → Lexer → Tokens → Parser → AST → Interpreter → Output
 ```
 
-The first interpreter will be written in **Python 3.11+**, using the Python standard library for its core runtime. It will not execute Kasa programs through Python `eval()` or `exec()`, translate source into Python for execution, or expose arbitrary operating-system, filesystem, or network access through language built-ins.
+The initial interpreter is written in **Python 3.11+**, using only the Python standard library for its core runtime. It does not execute Kasa programs through Python `eval()` or `exec()`, translate source into Python for execution, or expose arbitrary operating-system, filesystem, or network access through language built-ins.
 
-## Installation and usage — planned, not yet available
+## Installation and usage (v0.1.0)
 
-When the implementation is ready, the intended developer setup will be:
+Install Python 3.11 or newer, clone this repository, and run the following from its root:
 
 ```bash
 python -m venv .venv
+# Activate the virtual environment first (Windows: .venv\\Scripts\\Activate.ps1)
 python -m pip install -e ".[dev]"
+pytest -q
 ```
 
-The planned CLI is:
+Run and check Kasa programs:
 
 ```bash
-kasa run hello.kasa     # Run a program
-kasa check hello.kasa   # Check syntax without running it
-kasa repl               # Start the interactive interpreter
-python -m kasa --help   # View command-line help
-pytest                  # Run automated tests
+kasa run examples/hello.kasa        # Prints Maakye, Ghana!
+kasa check examples/hello.kasa      # Checks syntax without executing
+kasa repl                           # Starts the interactive interpreter
+python -m kasa --version            # Shows the installed version
 ```
 
-**These commands do not work against the present specification-only repository.** Installation steps and supported commands will be verified and updated alongside the implementation.
+The `kasa check` command parses source without running it. Runtime errors include source line and column. This is an early implementation: explore the examples and check [known limitations](./docs/IMPLEMENTATION_PLAN.md) before relying on it in classrooms.
 
 ## Current progress and roadmap
 
 | Area | Status |
 | --- | --- |
 | Language vision and engineering specification | Documented |
-| Lexer, parser, and AST | Not yet implemented |
-| Interpreter and runtime | Not yet implemented |
-| CLI, REPL, and packaging | Not yet implemented |
-| Tests and runnable examples | Not yet implemented |
+| Lexer, parser, and AST | Implemented (0.1.0) |
+| Interpreter and runtime | Implemented (0.1.0; further hardening planned) |
+| CLI, REPL, and packaging | Implemented (0.1.0) |
+| Tests and runnable examples | 58 local tests passed; five examples verified |
 | Tutorials and teacher resources | Planned |
 | Twi community language review | Needed before release |
 
-The initial development sequence is: **packaging → lexer → parser/AST → runtime → control flow → functions/lists → CLI/REPL → examples/docs → testing and release checks**.
+The initial implementation milestone is complete. The next stages are deeper edge-case testing, classroom documentation, an expanded example collection, linguistic review, and release hardening. See [the implementation plan](./docs/IMPLEMENTATION_PLAN.md).
 
 A version 1.0 release will require a working, tested interpreter—not merely completed documentation. The specification calls for at least 15 runnable example programs and tests for successful behavior, invalid input, Unicode, and resource limits.
 
