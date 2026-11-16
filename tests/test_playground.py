@@ -76,12 +76,51 @@ def test_results_json_serializable():
 
 def test_packaged_web_bundle(tmp_path):
     from zipfile import ZipFile
-    from build_site import FILES, build_bundle
+    from build_site import FILES, WASM_FILES, ROOT as SITE_ROOT, build_bundle
 
     archive_path = build_bundle(tmp_path / "kasa_web.zip")
     with ZipFile(archive_path) as archive:
-        assert set(archive.namelist()) == set(FILES.values())
+        expected = set(FILES.values())
+        if all((SITE_ROOT / name).is_file() for name in WASM_FILES):
+            expected.update(WASM_FILES.values())
+        assert set(archive.namelist()) == expected
         assert b'<!doctype html>' in archive.read("index.html")
         assert b'function executeKasa' in archive.read("kasa-runtime.js")
         assert b'kasa-runtime.js' in archive.read("worker.js")
         assert b'pyodide' not in archive.read("worker.js").lower()
+
+
+def test_wasm_bundle_requires_complete_pair(tmp_path, monkeypatch):
+    import build_site
+    from zipfile import ZipFile
+    from shutil import copyfile
+
+    local = tmp_path / "repo"
+    for source in build_site.FILES:
+        (local / source).parent.mkdir(parents=True, exist_ok=True)
+        copyfile(build_site.ROOT / source, local / source)
+    monkeypatch.setattr(build_site, "ROOT", local)
+    output = tmp_path / "site.zip"
+    with pytest.raises(RuntimeError, match="WebAssembly not built"):
+        build_site.build_bundle(output, require_wasm=True)
+
+    native_js = local / "playground/native/kasa-native.js"
+    native_wasm = local / "playground/native/kasa-native.wasm"
+    native_js.parent.mkdir(parents=True, exist_ok=True)
+    native_js.write_text("var createKasaModule = () => {};", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="Incomplete native build"):
+        build_site.build_bundle(output)
+
+    native_wasm.write_bytes(b"not WebAssembly")
+    with pytest.raises(RuntimeError, match="WASM asset is invalid"):
+        build_site.build_bundle(output)
+
+    # Test the packager's file inclusion logic with a valid WASM header;
+    # this is NOT a real Emscripten runtime or an end-to-end WASM test.
+    native_wasm.write_bytes(b"\x00asm\x01\x00\x00\x00")
+    build_site.build_bundle(output, require_wasm=True)
+    with ZipFile(output) as bundle:
+        assert set(bundle.namelist()) == set(build_site.FILES.values()) | set(build_site.WASM_FILES.values())
+        assert b"const KASA_HAS_WASM = true;" in bundle.read("worker.js")
+        assert bundle.read("native/kasa-native.wasm").startswith(b"\x00asm")
+    assert b"const KASA_HAS_WASM = false;" in (local / "playground/worker.js").read_bytes()
