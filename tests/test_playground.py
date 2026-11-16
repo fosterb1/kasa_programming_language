@@ -72,3 +72,15 @@ def test_isolation_between_runs():
 def test_results_json_serializable():
     import json
     assert json.loads(json.dumps(execute_kasa('ka "ɛ"')))["output"] == "ɛ\n"
+
+
+def test_packaged_web_bundle(tmp_path):
+    from zipfile import ZipFile
+    from build_site import FILES, build_bundle
+
+    archive_path = build_bundle(tmp_path / "kasa_web.zip")
+    with ZipFile(archive_path) as archive:
+        assert set(archive.namelist()) == set(FILES.values())
+        assert b'<!doctype html>' in archive.read("index.html")
+        assert b'def execute_kasa' in archive.read("runner.py")
+        assert b'class Interpreter' in archive.read("src/kasa/core.py")
