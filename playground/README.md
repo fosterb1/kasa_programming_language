@@ -14,7 +14,7 @@ Open **http://localhost:8000/playground/** in a modern browser with internet acc
 
 ## Publish immediately with Netlify Drop (no GitHub Actions needed)
 
-The downloadable `Kasa_Playground_Web.zip` bundle has `index.html`, JavaScript, CSS, and the original Kasa `core.py` in the paths expected by the Worker. To publish it, open https://app.netlify.com/drop/ and upload the ZIP. Netlify's current Drop interface accepts ZIP archives (or unzip and drag the containing folder), and it will return a public URL. Open that URL and try the Hello sample. No server-side Python is used. Remember: the browser still downloads the Pyodide engine from jsDelivr.
+From the repository root, build the bundle with `python playground/build_site.py`. This generates `dist/Kasa_Playground_Web.zip`. The ZIP has `index.html`, JavaScript, CSS, and the original Kasa `core.py` in the paths expected by the Worker. To publish it, open https://app.netlify.com/drop/ and upload the ZIP. Netlify's current Drop interface accepts ZIP archives (or unzip and drag the containing folder), and it will return a public URL. Open that URL and try the Hello sample. No server-side Python is used. Remember: the browser still downloads the Pyodide engine from jsDelivr.
 
 ## Publish online (GitHub Pages)
 
