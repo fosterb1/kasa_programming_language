@@ -51,8 +51,8 @@ function stopWorker() {
 
 function prepareWorker() {
   stopWorker();
-  setStatus("Loading Python engine…", "pending");
-  worker = new Worker("./worker.js?v=0.1.1");
+  setStatus("Loading Kasa browser interpreter…", "pending");
+  worker = new Worker("./worker.js?v=0.2.0");
   worker.onmessage = ({ data }) => {
     if (data.type === "LOADING") {
       setStatus(data.message, "pending");
@@ -63,7 +63,7 @@ function prepareWorker() {
       startupTimeout = null;
       setReady(true);
       output.textContent = "Ready! Press Run code to execute your Kasa program.";
-      setStatus("Kasa is ready", "ready");
+      setStatus("Kasa is ready · no downloads required", "ready");
       return;
     }
     if (data.type === "BOOT_ERROR") {
@@ -98,9 +98,9 @@ function prepareWorker() {
   startupTimeout = setTimeout(() => {
     if (ready) return;
     stopWorker();
-    output.textContent = "The browser could not load the Python runtime. Check your internet connection and reload this page.";
+    output.textContent = "The local Kasa interpreter could not start. Click Retry engine or reload the page.";
     setStatus("Interpreter startup timed out", "error");
-  }, 120_000);
+  }, 12_000);
 }
 
 function execute(mode) {

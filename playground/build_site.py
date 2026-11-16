@@ -14,8 +14,7 @@ FILES = {
     "playground/style.css": "style.css",
     "playground/app.js": "app.js",
     "playground/worker.js": "worker.js",
-    "playground/runner.py": "runner.py",
-    "src/kasa/core.py": "src/kasa/core.py",
+    "playground/kasa-runtime.js": "kasa-runtime.js",
 }
 
 

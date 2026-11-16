@@ -171,6 +171,8 @@ Before proposing a major language change, consult the [engineering specification
 
 **Kasa's mission:** make learning to program feel closer to the language learners already know—while building a rigorous, reliable foundation for real computational thinking.
 
-## Browser-based Kasa Playground (prototype)
+## Browser-based Kasa Playground (offline-first prototype)
 
-The new [`playground/`](./playground/) directory contains a Twi code editor with Run, syntax checking, six examples, user input, and downloadable `.kasa` files. The interpreter runs inside the browser using a pinned Pyodide runtime and Kasa's existing Python language core. [Playground setup and hosting instructions](./playground/README.md) explain how to run it locally or configure GitHub Pages; **it is not yet a live hosted site**. The playground requires internet access to load Pyodide.
+The [Kasa Playground](./playground/) now runs a **separate JavaScript implementation of Kasa** directly inside a Web Worker, with no Pyodide download, CDN, or server-side interpreter. The browser editor provides Run, Check syntax, input, six Twi examples and downloadable `.kasa` files. The original Python interpreter (`src/kasa/core.py`) remains the language reference; the browser implementation is tested against its core behaviors but is not guaranteed identical for all edge cases.
+
+Build the standalone hosting ZIP using `python playground/build_site.py`. Redeploy the ZIP on an existing Netlify site to replace any Pyodide-dependent version. See the [playground deployment guide](./playground/README.md).

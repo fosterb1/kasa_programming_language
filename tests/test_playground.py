@@ -82,5 +82,6 @@ def test_packaged_web_bundle(tmp_path):
     with ZipFile(archive_path) as archive:
         assert set(archive.namelist()) == set(FILES.values())
         assert b'<!doctype html>' in archive.read("index.html")
-        assert b'def execute_kasa' in archive.read("runner.py")
-        assert b'class Interpreter' in archive.read("src/kasa/core.py")
+        assert b'function executeKasa' in archive.read("kasa-runtime.js")
+        assert b'kasa-runtime.js' in archive.read("worker.js")
+        assert b'pyodide' not in archive.read("worker.js").lower()
