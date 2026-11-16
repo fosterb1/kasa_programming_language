@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#101c24" />
   <title>Kasa Playground — Kasa Programming Language</title>
   <link rel="stylesheet" href="./style.css" />
-  <script src="./app.js" defer></script>
+  <script src="./app.js?v=0.1.1" defer></script>
 </head>
 <body>
   <div class="page-shell">
@@ -45,7 +45,7 @@
           </div>
         </div>
         <div class="output-panel">
-          <div class="panel-header"><div class="panel-title"><span class="terminal-icon" aria-hidden="true">›_</span> Output</div><button class="button text-button" id="clear" type="button">Clear</button></div>
+          <div class="panel-header"><div class="panel-title"><span class="terminal-icon" aria-hidden="true">›_</span> Output</div><div><button class="button text-button" id="retry" type="button" title="Restart the Python engine and try other download servers">Retry engine</button><button class="button text-button" id="clear" type="button">Clear</button></div></div>
           <div class="output-body"><div class="run-status" id="status" role="status" aria-live="polite"><span class="pulse"></span> Preparing Kasa interpreter…</div><pre id="output" tabindex="0" aria-label="Kasa program output">Interpreter loading…</pre></div>
           <div class="stdin-section"><label for="input">PROGRAM INPUT <small>for bisa() · one response per line</small></label><textarea id="input" rows="3" placeholder="Type any input your program needs, one response per line."></textarea></div>
           <div class="output-footer">Your code runs inside a browser worker. It is not uploaded to our server.</div>
