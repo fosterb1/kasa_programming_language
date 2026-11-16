@@ -12,6 +12,10 @@ python -m http.server 8000
 
 Open **http://localhost:8000/playground/** in a modern browser with internet access. Do not open `index.html` via `file://`: workers and `fetch()` need a web origin. The first load downloads the pinned Pyodide `v314.0.8` engine from jsDelivr and can take several seconds.
 
+## Publish immediately with Netlify Drop (no GitHub Actions needed)
+
+The downloadable `Kasa_Playground_Web.zip` bundle has `index.html`, JavaScript, CSS, and the original Kasa `core.py` in the paths expected by the Worker. To publish it, open https://app.netlify.com/drop/ and upload the ZIP. Netlify's current Drop interface accepts ZIP archives (or unzip and drag the containing folder), and it will return a public URL. Open that URL and try the Hello sample. No server-side Python is used. Remember: the browser still downloads the Pyodide engine from jsDelivr.
+
 ## Publish online (GitHub Pages)
 
 The playground uses relative paths to `/src/kasa/core.py` and `/playground/runner.py`. **Serve the repository root as the site root**. After merging the playground branch, go to **Settings → Pages** in your GitHub repository, choose **Deploy from a branch**, branch **main**, folder **/(root)**, and save. Once GitHub reports a successful deployment, visit:
