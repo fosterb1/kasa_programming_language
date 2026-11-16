@@ -1,0 +1,7 @@
+ma edin = "Ama"
+ma mfe = 12
+sɛ mfe >= 10 a
+    ka "Maakye, " + edin
+anyɛ_saa_a
+    ka "Kɔ so sua!"
+awiei

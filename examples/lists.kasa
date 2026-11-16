@@ -1,0 +1,4 @@
+ma nɔma = [10, 20, 30]
+ma nɔma[1] = 99
+ka nɔma[1]
+ka tentɛn(nɔma)
