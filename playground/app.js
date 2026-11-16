@@ -17,6 +17,7 @@ const status = $("status");
 const runButton = $("run");
 const checkButton = $("check");
 const exampleSelect = $("example");
+const retryButton = $("retry");
 let worker = null;
 let ready = false;
 let active = null;
@@ -51,8 +52,12 @@ function stopWorker() {
 function prepareWorker() {
   stopWorker();
   setStatus("Loading Python engine…", "pending");
-  worker = new Worker("./worker.js");
+  worker = new Worker("./worker.js?v=0.1.1");
   worker.onmessage = ({ data }) => {
+    if (data.type === "LOADING") {
+      setStatus(data.message, "pending");
+      return;
+    }
     if (data.type === "READY") {
       clearTimeout(startupTimeout);
       startupTimeout = null;
@@ -95,7 +100,7 @@ function prepareWorker() {
     stopWorker();
     output.textContent = "The browser could not load the Python runtime. Check your internet connection and reload this page.";
     setStatus("Interpreter startup timed out", "error");
-  }, 75_000);
+  }, 120_000);
 }
 
 function execute(mode) {
@@ -114,6 +119,7 @@ function execute(mode) {
   }, 5_000);
 }
 
+retryButton.addEventListener("click", prepareWorker);
 runButton.addEventListener("click", () => execute("run"));
 checkButton.addEventListener("click", () => execute("check"));
 $("clear").addEventListener("click", () => { output.textContent = ""; });

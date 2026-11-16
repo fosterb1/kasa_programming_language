@@ -1,5 +1,12 @@
 /* Isolate the Pyodide runtime and Kasa execution away from the UI thread. */
-const PYODIDE_CDN = "https://cdn.jsdelivr.net/pyodide/v314.0.8/full/pyodide.js";
+const PYODIDE_VERSION = "314.0.8";
+// Browser networks sometimes block a CDN. Keep the JavaScript and its
+// WebAssembly assets on the same provider to avoid mixed-version downloads.
+const PYODIDE_SOURCES = Object.freeze([
+  { name: "jsDelivr", indexURL: "https://cdn.jsdelivr.net/pyodide/v" + PYODIDE_VERSION + "/full/" },
+  { name: "UNPKG", indexURL: "https://unpkg.com/pyodide@" + PYODIDE_VERSION + "/" },
+  { name: "jsDelivr npm", indexURL: "https://cdn.jsdelivr.net/npm/pyodide@" + PYODIDE_VERSION + "/" },
+]);
 let runtime;
 let ready = false;
 
@@ -7,16 +14,39 @@ function post(type, data = {}) {
   self.postMessage({ type, ...data });
 }
 
+async function loadPythonEngine() {
+  const failures = [];
+  for (const { name, indexURL } of PYODIDE_SOURCES) {
+    post("LOADING", { message: "Connecting to Python engine via " + name + "…" });
+    try {
+      importScripts(indexURL + "pyodide.js");
+      if (typeof loadPyodide !== "function") {
+        throw new Error("The Python engine script did not initialize");
+      }
+      const engine = await loadPyodide({ indexURL });
+      post("LOADING", { message: "Python engine loaded via " + name + ". Preparing Kasa…" });
+      return engine;
+    } catch (error) {
+      failures.push(name + ": " + (error instanceof Error ? error.message : String(error)));
+    }
+  }
+  throw new Error(
+    "Could not download the Python engine from any of the three CDN addresses. " +
+    "Try Retry engine, disable network filtering for jsdelivr.net and unpkg.com, " +
+    "or try a different browser/network. If this continues, check F12 → Network.\n\n" +
+    failures.join("\n")
+  );
+}
+
 async function initialize() {
   try {
-    importScripts(PYODIDE_CDN);
-    runtime = await loadPyodide();
+    runtime = await loadPythonEngine();
     const [coreResponse, runnerResponse] = await Promise.all([
       fetch(new URL("../src/kasa/core.py", self.location.href)),
       fetch(new URL("./runner.py", self.location.href)),
     ]);
     if (!coreResponse.ok || !runnerResponse.ok) {
-      throw new Error("Could not load interpreter files. Serve the entire repository from its root.");
+      throw new Error("Could not load Kasa source files from this website. Redeploy the complete playground ZIP.");
     }
     const [core, bridge] = await Promise.all([coreResponse.text(), runnerResponse.text()]);
     runtime.FS.mkdirTree("/kasa_runtime/kasa");

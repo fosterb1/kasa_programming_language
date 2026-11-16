@@ -10,7 +10,7 @@ From the **repository root** (not `playground/`):
 python -m http.server 8000
 ```
 
-Open **http://localhost:8000/playground/** in a modern browser with internet access. Do not open `index.html` via `file://`: workers and `fetch()` need a web origin. The first load downloads the pinned Pyodide `v314.0.8` engine from jsDelivr and can take several seconds.
+Open **http://localhost:8000/playground/** in a modern browser with internet access. Do not open `index.html` via `file://`: workers and `fetch()` need a web origin. The first load downloads the pinned Pyodide `v314.0.8` engine, trying jsDelivr and UNPKG and can take several seconds.
 
 ## Publish immediately with Netlify Drop (no GitHub Actions needed)
 
@@ -35,8 +35,8 @@ This URL is **not live until Pages has been enabled and deployment succeeds**. G
 
 ## Security, limitations and compatibility
 
-- The Python engine is loaded from the **pinned** CDN address `https://cdn.jsdelivr.net/pyodide/v314.0.8/full/pyodide.js`; the browser therefore requires a network connection, particularly on initial load.
-- Program execution runs locally in a separate Worker and stops after **5 seconds**; interpreter startup has a separate **75-second** timeout. Large/infinite programs are stopped by resource limits, and a timed-out Worker is terminated. This is defense-in-depth, **not a verified security sandbox for untrusted Python source**.
+- The Python engine uses pinned Pyodide **314.0.8** and tries three sources: `https://cdn.jsdelivr.net/pyodide/v314.0.8/full/`, `https://unpkg.com/pyodide@314.0.8/`, and `https://cdn.jsdelivr.net/npm/pyodide@314.0.8/`. An internet connection is required. If the first source fails, the Worker tries the other two. Browser or network policies can still block all of them.
+- Program execution runs locally in a separate Worker and stops after **5 seconds**; interpreter startup has a separate **120-second** timeout. Large/infinite programs are stopped by resource limits, and a timed-out Worker is terminated. This is defense-in-depth, **not a verified security sandbox for untrusted Python source**.
 - Kasa's own parser accepts Kasa syntax, not Python. The playground's Python bridge never `eval()`s or `exec()`s user-entered Kasa source.
 - The page uses plain text output (`textContent`), not HTML rendering, so user program output cannot inject page markup.
 - Colab and the local CLI remain options for programs requiring more time or larger outputs.
@@ -51,3 +51,9 @@ node --check playground/worker.js
 ```
 
 `tests/test_playground.py` exercises the runner against the same interpreter as the CLI. Browser end-to-end smoke tests require a working network connection to load the external Pyodide CDN and are **not** yet performed automatically in GitHub Actions while the account is billing-locked.
+
+## If you see `importScripts` failed
+
+This indicates a blocked/unavailable Pyodide download, **not a Kasa syntax error**. Click **Retry engine** and let the page try alternate CDN providers. If that fails, open browser Developer Tools (F12 → Network), reload, and inspect the failed `pyodide.js` requests. Consider checking filtering extensions, network restrictions, or a different browser. The script URL used in the original playground is valid according to official Pyodide 314.0.8 docs; failure in a particular browser does not establish that the Pyodide release is missing.
+
+If you previously uploaded a ZIP to Netlify Drop, **rebuild and redeploy** it using `python playground/build_site.py`. Updating GitHub does not change an already uploaded Netlify ZIP. If using a restrictive content-security policy, allow the external runtime and Web Worker.
