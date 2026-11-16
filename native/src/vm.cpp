@@ -20,7 +20,7 @@
 namespace kasa {
 using namespace std;
 struct Environment{unordered_map<string,Value> values;shared_ptr<Environment> parent;
- explicit Environment(shared_ptr<Environment> parent=nullptr):parent(move(parent)){}
+ explicit Environment(shared_ptr<Environment> parent=nullptr):parent(std::move(parent)){}
  Value get(const string&name,const Token&t,const string&file){for(auto p=this;p;p=p->parent.get()){
      auto it=p->values.find(name);if(it!=p->values.end())return it->second;}
      throw Failure(t,"NameError","Unknown name '"+name+"'",file);
@@ -73,7 +73,7 @@ static bool equal(const Value&a,const Value&b,int depth=0){
 class VM{
     ostream &out;istream &in;string filename;size_t steps=0,printed=0;int depth=0;
     const size_t maxSteps=100000,maxOutput=64000,maxList=10000,maxText=1000000;
-    static Value pop(vector<Value>&v){if(v.empty())throw runtime_error("VM operand stack underflow");Value x=move(v.back());v.pop_back();return x;}
+    static Value pop(vector<Value>&v){if(v.empty())throw runtime_error("VM operand stack underflow");Value x=std::move(v.back());v.pop_back();return x;}
     [[noreturn]]void error(const Token&t,const string&category,const string&msg)const{throw Failure(t,category,msg,filename);}
     bool truth(const Value&v,const Token&t){if(!holds_alternative<bool>(v.data))error(t,"TypeError","Condition requires a Boolean");return get<bool>(v.data);}
     double number(const Value&v,const Token&t){if(!numeric(v))error(t,"TypeError","Arithmetic requires numbers, not Boolean or text");return asDouble(v);}
@@ -217,7 +217,7 @@ class VM{
         return Value();
     }
 public:
-    VM(string filename,ostream&out,istream&in):out(out),in(in),filename(move(filename)){}
+    VM(string filename,ostream&out,istream&in):out(out),in(in),filename(std::move(filename)){}
     void run(shared_ptr<Chunk>code){
         auto env=make_shared<Environment>();
         for(const char*s:{"bisa","tentɛn","nɔma","nsɛm"})env->values[s]=Value(Builtin{s});

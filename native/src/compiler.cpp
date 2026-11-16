@@ -24,7 +24,7 @@ class Compiler{
     struct Loop{vector<int> breaks,continues;};vector<Loop> loops;
     bool insideFunction=false;int temporary=0;
     int emit(Op op,const Token&t,int n=0,string name="",Value val={},shared_ptr<FunctionDefinition> fn=nullptr){
-        code->code.push_back({op,t,n,move(name),move(val),move(fn)});return static_cast<int>(code->code.size()-1);
+        code->code.push_back({op,t,n,std::move(name),std::move(val),std::move(fn)});return static_cast<int>(code->code.size()-1);
     }
     void patch(int index,int destination){code->code.at(index).number=destination;}
     int pc()const{return static_cast<int>(code->code.size());}
@@ -76,7 +76,7 @@ class Compiler{
         if(s->kind=="while"){
             int begin=pc();expression(s->a);int jexit=emit(Op::JumpFalse,t,-1);
             loops.emplace_back();statements(s->yes);
-            auto loop=move(loops.back());loops.pop_back();
+            auto loop=std::move(loops.back());loops.pop_back();
             for(int j:loop.continues)patch(j,begin);
             emit(Op::Jump,t,begin);patch(jexit,pc());for(int j:loop.breaks)patch(j,pc());return;
         }
@@ -85,7 +85,7 @@ class Compiler{
             expression(s->a);emit(Op::CountCheck,t);emit(Op::Store,t,0,key);
             int begin=pc();emit(Op::Load,t,0,key);emit(Op::Constant,t,0,"",Value(int64_t(0)));emit(Op::Gt,t);
             int jexit=emit(Op::JumpFalse,t,-1);loops.emplace_back();statements(s->yes);
-            auto loop=move(loops.back());loops.pop_back();
+            auto loop=std::move(loops.back());loops.pop_back();
             int next=pc();for(int j:loop.continues)patch(j,next);
             emit(Op::Load,t,0,key);emit(Op::Constant,t,0,"",Value(int64_t(1)));emit(Op::Sub,t);emit(Op::Store,t,0,key);
             emit(Op::Jump,t,begin);patch(jexit,pc());for(int j:loop.breaks)patch(j,pc());return;
@@ -108,7 +108,7 @@ class Compiler{
         throw Failure(t,"CompilerError","Unsupported statement",filename);
     }
 public:
-    Compiler(string filename,bool function=false):filename(move(filename)),insideFunction(function){}
+    Compiler(string filename,bool function=false):filename(std::move(filename)),insideFunction(function){}
     shared_ptr<Chunk> compile(const vector<S>&body){statements(body);return code;}
 };
 

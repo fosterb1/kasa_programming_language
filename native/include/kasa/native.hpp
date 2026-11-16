@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
+#include <utility>
 #include <vector>
 namespace kasa {
 using namespace std;
@@ -22,8 +23,8 @@ struct Value {
     using Data=variant<monostate,int64_t,double,string,bool,shared_ptr<List>,shared_ptr<Function>,Builtin>;
     Data data;
     Value()=default;
-    Value(int64_t x):data(x){} Value(double x):data(x){} Value(string x):data(move(x)){} Value(bool x):data(x){}
-    Value(shared_ptr<List> x):data(move(x)){} Value(shared_ptr<Function> x):data(move(x)){} Value(Builtin x):data(move(x)){}
+    Value(int64_t x):data(x){} Value(double x):data(x){} Value(string x):data(std::move(x)){} Value(bool x):data(x){}
+    Value(shared_ptr<List> x):data(std::move(x)){} Value(shared_ptr<Function> x):data(std::move(x)){} Value(Builtin x):data(std::move(x)){}
 };
 struct List{vector<Value> items;};
 struct Expr;using E=shared_ptr<Expr>;

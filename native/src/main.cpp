@@ -14,7 +14,7 @@ int main(int argc,char **argv){
     string source((istreambuf_iterator<char>(stream)),istreambuf_iterator<char>());
     if(source.size()>1'000'000){cerr<<file<<":1:1: ResourceError: Source file is too large\n";return 1;}
     try{
-        auto tokens=lex(source,file);auto statements=parseSource(move(tokens),file);
+        auto tokens=lex(source,file);auto statements=parseSource(std::move(tokens),file);
         auto code=compileProgram(statements,file);
         if(string(argv[1])=="check")return 0;
         if(string(argv[1])=="disasm"){disasm(code,cout);return 0;}

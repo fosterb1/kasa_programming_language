@@ -31,7 +31,7 @@ static const unordered_map<string,string> words={
 vector<Token> lex(string src, const string &file){
     vector<Token> tokens;size_t i=0;int line=1,col=1;
     auto take=[&](){char ch=src.at(i++);if(ch=='\n'){++line;col=1;}else ++col;return ch;};
-    auto add=[&](string kind,string text,int l,int c){tokens.push_back({move(kind),move(text),l,c});};
+    auto add=[&](string kind,string text,int l,int c){tokens.push_back({std::move(kind),std::move(text),l,c});};
     while(i<src.size()){
         unsigned char ch=static_cast<unsigned char>(src[i]);int l=line,c=col;
         if(ch==' '||ch=='\t'){take();continue;}

@@ -19,8 +19,8 @@
 #include <cctype>
 namespace kasa {
 using namespace std;
-E expr(string kind,const Token&t,string op="",Value val={},vector<E>kids={}){return make_shared<Expr>(Expr{move(kind),move(op),t,move(val),move(kids)});}
-S statement(string kind,Token t){auto s=make_shared<Stmt>();s->kind=move(kind);s->token=t;return s;}
+E expr(string kind,const Token&t,string op="",Value val={},vector<E>kids={}){return make_shared<Expr>(Expr{std::move(kind),std::move(op),t,std::move(val),std::move(kids)});}
+S statement(string kind,Token t){auto s=make_shared<Stmt>();s->kind=std::move(kind);s->token=t;return s;}
 
 class Parser{
     vector<Token> t;size_t i=0;string file;int nesting=0;
@@ -62,7 +62,7 @@ class Parser{
         if(match("[")){
             vector<E> children;
             if(cur().kind!="]")while(true){children.push_back(expression());if(!match(","))break;}
-            require("]","Expected closing ']'");return expr("list",x,"",{},move(children));
+            require("]","Expected closing ']'");return expr("list",x,"",{},std::move(children));
         }
         throw Failure(cur(),"SyntaxError","Expected an expression",file);
     }
@@ -74,7 +74,7 @@ class Parser{
                 ++i;
                 if(op.kind=="("){
                     vector<E> a={left};if(cur().kind!=")")while(true){a.push_back(expression());if(!match(","))break;}
-                    require(")","Expected ')' after function arguments");left=expr("call",op,"",{},move(a));
+                    require(")","Expected ')' after function arguments");left=expr("call",op,"",{},std::move(a));
                 }else{E key=expression();require("]","Expected ']' after list index");left=expr("index",op,"",{}, {left,key});}
                 continue;
             }
@@ -127,12 +127,12 @@ class Parser{
         auto s=statement("expression",x);s->a=expression();eol();return s;
     }
 public:
-    Parser(vector<Token> t,string filename):t(move(t)),file(move(filename)){}
+    Parser(vector<Token> t,string filename):t(std::move(t)),file(std::move(filename)){}
     vector<S> parse(){auto body=block({"EOF"});require("EOF");return body;}
 };
 
 
 vector<S> parseSource(vector<Token> tokens,const string &filename){
-    return Parser(move(tokens),filename).parse();
+    return Parser(std::move(tokens),filename).parse();
 }
 } // namespace kasa
