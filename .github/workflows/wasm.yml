@@ -1,0 +1,52 @@
+name: Kasa WebAssembly build
+on:
+  push:
+    paths:
+      - 'native/wasm/**'
+      - 'native/src/**'
+      - 'native/include/**'
+      - 'playground/**'
+      - 'tests/test_kasa_wasm.cjs'
+      - 'tests/test_playground.py'
+      - '.github/workflows/wasm.yml'
+  pull_request:
+    paths:
+      - 'native/wasm/**'
+      - 'native/src/**'
+      - 'native/include/**'
+      - 'playground/**'
+      - 'tests/test_kasa_wasm.cjs'
+      - 'tests/test_playground.py'
+      - '.github/workflows/wasm.yml'
+  workflow_dispatch:
+
+jobs:
+  browser-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test worker engine selection and JS fallback
+        run: |
+          node --test tests/test_kasa_wasm.cjs
+          node --test tests/test_kasa_browser.cjs
+          python -m pip install pytest
+          python -m pytest -q tests/test_playground.py
+      - uses: emscripten-core/setup-emsdk@v16
+        with:
+          version: latest
+      - name: Compile native C++ compiler to WebAssembly
+        run: bash native/wasm/build.sh
+      - name: Package real WASM, refusing JS-only bundle
+        run: python playground/build_site.py --require-wasm
+      - name: Upload deployable Playground site
+        uses: actions/upload-artifact@v4
+        with:
+          name: kasa-playground-wasm-site
+          path: dist/Kasa_Playground_Web.zip
+          if-no-files-found: error

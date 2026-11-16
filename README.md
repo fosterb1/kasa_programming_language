@@ -182,3 +182,16 @@ Build the standalone hosting ZIP using `python playground/build_site.py`. Redepl
 Kasa's third execution engine lives in [`native/`](./native/). This is a **C++20 compiler and stack-based virtual machine**, not a Python wrapper: it translates Kasa source into *in-memory bytecode* and executes it in a standalone native binary. It currently implements the core Twi syntax, functions, recursion, lists, input and control flow. See [native build and testing instructions](./native/README.md) and the [draft native ecosystem RFC](./docs/RFC-0001-kasa-native-roadmap.md).
 
 **Status:** `0.3.0-alpha`. Python remains the behavioral reference until conformance is standardized. A binary file format, machine-code output, package manager, and self-hosting are future milestones, **not existing features**. Native integers are currently 64-bit, unlike Python's larger integer range.
+
+## WebAssembly browser compiler integration (development)
+
+The [native WebAssembly bridge](./native/wasm/) connects the independent C++ Kasa bytecode compiler and virtual machine to the existing [browser playground](./playground/). The website continues to run the JavaScript interpreter by default and switches to the native VM **only when real Emscripten-generated JavaScript and WASM assets are included in the deployment package**. The browser now has Auto / JavaScript / Native WebAssembly engine selection.
+
+Build with an active Emscripten SDK:
+
+```bash
+bash native/wasm/build.sh
+python playground/build_site.py --require-wasm
+```
+
+The generated ZIP includes both `native/kasa-native.js` and `native/kasa-native.wasm`. See [WebAssembly build and Colab instructions](./native/wasm/README.md). **Important:** This code has passed local C++ C-ABI tests, JavaScript worker simulation tests, and existing interpreter regressions, but this environment did not have Emscripten and therefore an actual browser WebAssembly build has **not** been verified here. The existing JS-only playground remains functional until a real WASM deployment is compiled.

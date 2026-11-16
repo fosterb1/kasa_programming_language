@@ -64,3 +64,8 @@ footer { padding: 28px 0 50px; display: flex; gap: 20px; justify-content: space-
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 @media(max-width: 960px) { .workspace { grid-template-columns: 1fr; } .output-panel { border-left: 0; border-top: 1px solid var(--border); } #source { min-height: 260px; } #output { min-height: 150px; } .below { flex-direction: column; align-items: flex-start; } .vocab { justify-content: flex-start; } .editor-footer { flex-wrap: wrap; } }
 @media(max-width: 600px) { .page-shell { width: min(100% - 28px, 1260px); } .topbar { height: 70px; } .version { display: none; } .intro { padding: 46px 0 30px; } .intro p { font-size: 15px; } h1 { margin-top: 14px; font-size: 42px; } .panel-header { padding: 14px; flex-wrap: wrap; } .example-picker { flex: 1; justify-content: flex-end; } .editor-actions { width: 100%; justify-content: stretch; } .editor-actions .button { flex: 1; } .editor-footer { padding: 12px; } #source { padding: 7px 14px 20px; } .editor-label { margin-left: 14px; } .below { padding: 36px 0; } footer { flex-direction: column; gap: 6px; } }
+
+/* Dual-engine controls (0.4 integration) */
+.engine-picker { display: inline-flex; align-items: center; gap: 7px; padding: 0 3px; color: var(--muted); font-size: 12px; }
+.engine-picker select { background: var(--surface-2); border: 1px solid var(--border); color: var(--cream); border-radius: 8px; padding: 8px 5px; font-size: 12px; }
+.engine-picker option:disabled { color: #80918d; }

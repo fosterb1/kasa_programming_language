@@ -18,12 +18,15 @@ const runButton = $("run");
 const checkButton = $("check");
 const exampleSelect = $("example");
 const retryButton = $("retry");
+const engineSelect = $("engine");
+const nativeOption = engineSelect.querySelector('option[value="native"]');
 let worker = null;
 let ready = false;
 let active = null;
 let timeoutId = null;
 let startupTimeout = null;
 let sequence = 0;
+let nativeAvailable = false;
 
 source.value = EXAMPLES.hello;
 
@@ -44,6 +47,9 @@ function stopWorker() {
   timeoutId = null;
   startupTimeout = null;
   active = null;
+  nativeAvailable = false;
+  nativeOption.disabled = true;
+  if (engineSelect.value === "native") engineSelect.value = "auto";
   setReady(false);
   if (worker) worker.terminate();
   worker = null;
@@ -52,8 +58,25 @@ function stopWorker() {
 function prepareWorker() {
   stopWorker();
   setStatus("Loading Kasa browser interpreter…", "pending");
-  worker = new Worker("./worker.js?v=0.2.0");
+  worker = new Worker("./worker.js?v=0.4.0");
   worker.onmessage = ({ data }) => {
+    if (data.type === "NATIVE_LOADING") {
+      if (!active) setStatus("Kasa ready · Native engine loading…", "ready");
+      return;
+    }
+    if (data.type === "NATIVE_READY") {
+      nativeAvailable = true;
+      nativeOption.disabled = false;
+      if (!active) setStatus("Kasa ready · Native WebAssembly available", "ready");
+      return;
+    }
+    if (data.type === "NATIVE_ERROR") {
+      nativeAvailable = false;
+      nativeOption.disabled = true;
+      if (engineSelect.value === "native") engineSelect.value = "auto";
+      if (!active) setStatus("Kasa ready · JavaScript fallback", "ready");
+      return;
+    }
     if (data.type === "LOADING") {
       setStatus(data.message, "pending");
       return;
@@ -63,7 +86,7 @@ function prepareWorker() {
       startupTimeout = null;
       setReady(true);
       output.textContent = "Ready! Press Run code to execute your Kasa program.";
-      setStatus("Kasa is ready · no downloads required", "ready");
+      setStatus("Kasa ready · JavaScript interpreter", "ready");
       return;
     }
     if (data.type === "BOOT_ERROR") {
@@ -86,7 +109,8 @@ function prepareWorker() {
       }
       const result = data.result;
       output.textContent = result.output + (result.error ? `${result.output ? "\n" : ""}${result.error}` : "") || (mode === "check" ? "Syntax OK. No program code was executed." : "Program finished without output.");
-      setStatus(result.ok ? (mode === "check" ? "Syntax is valid" : "Run completed") : "Kasa reported an error", result.ok ? "ready" : "error");
+      const engineLabel = data.engine === "native-wasm" ? "Native WebAssembly" : "JavaScript";
+      setStatus(result.ok ? (mode === "check" ? "Syntax valid" : "Run completed") + ` · ${engineLabel}` : "Kasa reported an error", result.ok ? "ready" : "error");
     }
   };
   worker.onerror = (event) => {
@@ -110,7 +134,7 @@ function execute(mode) {
   setReady(false);
   setStatus(mode === "check" ? "Checking syntax…" : "Running program…", "pending");
   output.textContent = "";
-  worker.postMessage({ type: "EXECUTE", source: source.value, input: input.value, mode, requestId });
+  worker.postMessage({ type: "EXECUTE", source: source.value, input: input.value, mode, requestId, engine: engineSelect.value });
   timeoutId = setTimeout(() => {
     stopWorker();
     output.textContent = "Your program exceeded the 5-second time limit and was stopped. The interpreter is restarting.";

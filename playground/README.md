@@ -1,60 +1,36 @@
-# Kasa Playground — browser interpreter (v0.2 prototype)
+# Kasa Playground — JavaScript + native WebAssembly integration
 
-**No CDN, Pyodide, remote Python runtime, or server-side code execution needed.**
+Kasa now supports **two execution paths in the browser**:
 
-The browser playground runs a **standalone JavaScript implementation of the Kasa 0.1 language** in a Web Worker. It implements Kasa's grammar and built-ins directly rather than downloading Pyodide. The original Python interpreter in [`src/kasa/core.py`](../src/kasa/core.py) remains the reference implementation for the language and the `kasa` CLI.
+- **JavaScript:** Existing self-contained, tested browser interpreter. Always present, no external dependencies.
+- **Native WebAssembly:** Kasa's independent C++20 bytecode compiler and VM compiled with Emscripten. Available **only after** WASM artifacts are built and packaged. The repository does not include a verified precompiled `.wasm` binary.
 
-This is an independent browser runtime; although tested against the reference, it may have differences at extreme numeric sizes, unusual Unicode edge cases or floating-point representations. Report discrepancies rather than treating the browser version as authoritative.
+Python CLI and native desktop compiler remain separate and unaffected.
 
-## Redeploy to Netlify Drop
+## Deploy to your existing Netlify project
 
-From the repository root, create the standalone ZIP:
+From the repo root:
 
 ```bash
+# Only packages JavaScript when no native build exists
 python playground/build_site.py
+
+# To include the real C++ WASM compiler, install Emscripten first:
+bash native/wasm/build.sh
+python playground/build_site.py --require-wasm
 ```
 
-Upload `dist/Kasa_Playground_Web.zip` to the **existing** Netlify site's **Deploys** page, or upload the extracted contents folder. It contains `index.html`, `app.js`, `style.css`, `worker.js`, and `kasa-runtime.js` at the ZIP root. It does **not** load Python or JavaScript code from any third-party CDN.
+Extract `dist/Kasa_Playground_Web.zip` and drag the containing website folder onto **your existing project's Deploys page**. Do not create a new Netlify project. Hard-refresh the URL once Netlify reports Published.
 
-The old uploaded website remains unchanged until you replace its deployment. After uploading, hard refresh the site (`Ctrl + Shift + R`) and click **Run code**.
+**Important:** If the new bundle contains only JavaScript, your site will still work but the native option will be disabled. The UI never claims to run WASM until a successfully initialized native module is present. See [the native WASM instructions](../native/wasm/README.md), including a Google Colab build path.
 
-## Local hosting
+## Features and behavior
 
-For a local preview, run `python -m http.server 8000` in the repository root and visit http://localhost:8000/playground/ .
+- Twi-first editing; six examples; run and check; `bisa()` input; `.kasa` downloads
+- Engine selector: Auto / JavaScript / Native WebAssembly
+- Auto prefers native once ready, otherwise JavaScript. An unavailable WASM engine does not break the editor.
+- Source code stays in your browser; both engines are local, and no CDN/Pyodide is used.
+- Execution uses a Web Worker. The UI terminates a run after five seconds; the interpreters also impose resource ceilings.
+- **No guarantee of identical behavior yet:** native signed 64-bit integers and some decimal formatting differ from the JavaScript and Python implementations.
 
-Use HTTP or HTTPS (not `file://`) because browsers restrict Web Workers opened from disk. No external network access is needed once the files are available.
-
-## Features
-
-- Twi-first Kasa code editor, six samples, Run / Check syntax, input for `bisa()` and `.kasa` downloads.
-- Zero external runtime requests; output stays on-device, written with `textContent` to avoid HTML injection.
-- Kasa lexer, AST parser, lexical-scope functions, loops, conditions, lists and built-in functions in the browser.
-- 20,000 instruction-step ceiling, 50,000-character source and input caps, 64,000-character output cap, 48 call-depth ceiling and a 5-second Web Worker watchdog.
-- Fresh variables per run; no data sent to a remote service.
-
-## Architecture
-
-```text
-Netlify static files
-  index.html / style.css / app.js
-              |
-           worker.js
-              |
-        kasa-runtime.js
-              |
-    Kasa text -> tokenizer -> parser -> AST -> evaluator -> output
-```
-
-The Web Worker and resource budgets help prevent accidental infinite loops, but this is a programming-language MVP, not a formally verified sandbox. Importantly, source text never passes into JavaScript `eval()` or `new Function()`.
-
-## Developer verification
-
-```bash
-python -m pytest -q
-node --check playground/kasa-runtime.js
-node --check playground/worker.js
-node --check playground/app.js
-node --test tests/test_kasa_browser.cjs
-```
-
-The browser port must continue to match the Python reference interpreter on examples, syntax errors and core language features. Browser end-to-end testing on a deployed Netlify URL is still required after upload. GitHub Actions hosted runners currently cannot start because of the account billing lock; that is separate from the interpreter's local tests.
+The shipped JavaScript interpreter handles all its previously supported language features. Browser-to-WASM end-to-end tests require an actual Emscripten build and have not been verified in environments lacking Emscripten.
