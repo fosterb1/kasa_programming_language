@@ -21,3 +21,12 @@ jobs:
           pytest -q
           kasa run examples/hello.kasa
           kasa check examples/hello.kasa
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test native browser interpreter (no Pyodide)
+        run: |
+          node --check playground/kasa-runtime.js
+          node --check playground/worker.js
+          node --check playground/app.js
+          node --test tests/test_kasa_browser.cjs
