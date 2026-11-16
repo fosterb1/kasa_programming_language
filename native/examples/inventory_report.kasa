@@ -1,0 +1,43 @@
+# Kasa Native - Sales and Inventory Report
+# This program is compiled to bytecode before it runs.
+
+dwumadie mfaso(sales, cogs)
+    sanma sales - cogs
+awiei
+
+ma nneɛma = ["Battery", "Tyre", "Oil", "Filter"]
+ma stock = [20, 12, 50, 30]
+ma cost = [180, 260, 35, 20]
+ma price = [250, 340, 55, 40]
+ma sold = [7, 4, 20, 5]
+ma total_sales = 0
+ma total_cost = 0
+ma total_profit = 0
+ma best_profit = -1
+ma best_product = ""
+
+ma i = 0
+bere_a i < tentɛn(nneɛma)
+    ma sales = price[i] * sold[i]
+    ma cogs = cost[i] * sold[i]
+    ma profit = mfaso(sales, cogs)
+    ma stock[i] = stock[i] - sold[i]
+
+    ka nneɛma[i] + " profit: " + nsɛm(profit)
+    sɛ stock[i] <= 10 a
+        ka "REORDER: " + nneɛma[i]
+    awiei
+    sɛ profit > best_profit a
+        ma best_profit = profit
+        ma best_product = nneɛma[i]
+    awiei
+    ma total_sales = total_sales + sales
+    ma total_cost = total_cost + cogs
+    ma total_profit = total_profit + profit
+    ma i = i + 1
+awiei
+
+ka "TOTAL SALES: " + nsɛm(total_sales)
+ka "TOTAL COGS: " + nsɛm(total_cost)
+ka "GROSS PROFIT: " + nsɛm(total_profit)
+ka "BEST PRODUCT: " + best_product

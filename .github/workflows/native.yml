@@ -1,0 +1,43 @@
+name: Kasa Native compiler
+on:
+  push:
+    paths:
+      - 'native/**'
+      - 'src/kasa/**'
+      - 'examples/**'
+      - 'docs/RFC-0001-kasa-native-roadmap.md'
+      - '.github/workflows/native.yml'
+  pull_request:
+    paths:
+      - 'native/**'
+      - 'src/kasa/**'
+      - 'examples/**'
+      - '.github/workflows/native.yml'
+jobs:
+  native:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            executable: build/kasa-native
+          - os: windows-latest
+            executable: build/Release/kasa-native.exe
+          - os: macos-latest
+            executable: build/kasa-native
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Configure native compiler
+        run: cmake -S native -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build native VM
+        run: cmake --build build --config Release --parallel 2
+      - name: Test against Python reference
+        run: python native/tests/conformance.py ${{ matrix.executable }}
+      - name: Demonstrate compiled bytecode
+        run: ${{ matrix.executable }} disasm examples/functions.kasa

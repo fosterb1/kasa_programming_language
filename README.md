@@ -176,3 +176,9 @@ Before proposing a major language change, consult the [engineering specification
 The [Kasa Playground](./playground/) now runs a **separate JavaScript implementation of Kasa** directly inside a Web Worker, with no Pyodide download, CDN, or server-side interpreter. The browser editor provides Run, Check syntax, input, six Twi examples and downloadable `.kasa` files. The original Python interpreter (`src/kasa/core.py`) remains the language reference; the browser implementation is tested against its core behaviors but is not guaranteed identical for all edge cases.
 
 Build the standalone hosting ZIP using `python playground/build_site.py`. Redeploy the ZIP on an existing Netlify site to replace any Pyodide-dependent version. See the [playground deployment guide](./playground/README.md).
+
+## Kasa Native — C++20 bytecode compiler (alpha)
+
+Kasa's third execution engine lives in [`native/`](./native/). This is a **C++20 compiler and stack-based virtual machine**, not a Python wrapper: it translates Kasa source into *in-memory bytecode* and executes it in a standalone native binary. It currently implements the core Twi syntax, functions, recursion, lists, input and control flow. See [native build and testing instructions](./native/README.md) and the [draft native ecosystem RFC](./docs/RFC-0001-kasa-native-roadmap.md).
+
+**Status:** `0.3.0-alpha`. Python remains the behavioral reference until conformance is standardized. A binary file format, machine-code output, package manager, and self-hosting are future milestones, **not existing features**. Native integers are currently 64-bit, unlike Python's larger integer range.
