@@ -170,3 +170,7 @@ Before proposing a major language change, consult the [engineering specification
 ---
 
 **Kasa's mission:** make learning to program feel closer to the language learners already know—while building a rigorous, reliable foundation for real computational thinking.
+
+## Browser-based Kasa Playground (prototype)
+
+The new [`playground/`](./playground/) directory contains a Twi code editor with Run, syntax checking, six examples, user input, and downloadable `.kasa` files. The interpreter runs inside the browser using a pinned Pyodide runtime and Kasa's existing Python language core. [Playground setup and hosting instructions](./playground/README.md) explain how to run it locally or configure GitHub Pages; **it is not yet a live hosted site**. The playground requires internet access to load Pyodide.
