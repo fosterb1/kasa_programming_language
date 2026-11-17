@@ -32,8 +32,7 @@ vector<Token> lex(string src, const string &file){
     vector<Token> tokens;size_t i=0;int line=1,col=1;
     // Valid UTF-8: increment source columns only for leading bytes, not continuation bytes.
     // Python's reference lexer counts Unicode code points rather than encoded bytes.
-    auto take=[&](){char ch=src.at(i++);if(ch=='
-'){++line;col=1;}
+    auto take=[&](){char ch=src.at(i++);if(ch=='\n'){++line;col=1;}
         else if((static_cast<unsigned char>(ch)&0xC0)!=0x80) ++col;
         return ch;};
     auto add=[&](string kind,string text,int l,int c){tokens.push_back({std::move(kind),std::move(text),l,c});};
