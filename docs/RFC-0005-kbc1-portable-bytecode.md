@@ -73,6 +73,12 @@ A standalone C++20 test target `kasa-kbc1-smoke` exercises the KBC1 writer/reade
 
 The CLI performs filesystem-aware checks against the source path before writing, including relative aliases, symlinks and hardlinks. This helps prevent accidental source loss; it does **not** provide atomic output writes or prevent filesystem time-of-check/time-of-use races.
 
+## Mutation stress and authenticity limitations
+
+A deterministic native test `native/tests/bytecode_mutation_smoke.cpp` modifies valid KBC1 payloads 2,000 times, recalculates CRC32, and tries to parse them **without running the resulting instructions**. In independent AddressSanitizer/UndefinedBehaviorSanitizer testing on 2026-11-17, all attempts completed without reported sanitizer errors: 1,349 mutations were rejected and 651 were structurally accepted. Some mutations create another valid bytecode structure. **This is expected, not evidence of authentication.** Neither a CRC32 checksum nor structural validation establishes who authored a file or whether the program is safe to run.
+
+The test is targeted, deterministic robustness evidence, not exhaustive fuzzing or an independent security audit.
+
 ## Compatibility and future versions
 
 KBC1 is an **alpha-only** format. Future releases must maintain compatibility
