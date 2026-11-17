@@ -6,7 +6,7 @@ Kasa is an educational programming-language project intended to become open sour
 
 Kasa's guiding idea is simple: **learners should focus on solving problems, not memorizing unfamiliar English keywords.** The language uses familiar Twi-inspired vocabulary while teaching transferable concepts such as variables, conditions, loops, functions, lists, and debugging.
 
-> **Project status — Early implementation (v0.1.0).** Kasa now includes an initial working Python interpreter, CLI, interactive REPL, five executable examples, and automated tests. The project is **not yet a complete or classroom-ready 1.0 release**; the full engineering specification remains the longer-term target.
+> **Project status — Experimental alpha.** The Python reference interpreter began at **v0.1.0**; Kasa also has a **C++20 native bytecode VM (0.3 alpha)** and a separate browser JavaScript runtime. The main branch currently includes **nine root `.kasa` examples** and an independent verification runner. **KBC1 disk-based bytecode remains in an unmerged 0.4 development PR**. Kasa is **not yet a stable, fully conformant or classroom-certified 1.0 release**. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) for independently tested progress, discoveries and blockers.
 
 ## See Kasa in action
 
@@ -162,11 +162,11 @@ The `kasa check` command parses source without running it. Runtime errors includ
 | Lexer, parser, and AST | Implemented (0.1.0) |
 | Interpreter and runtime | Implemented (0.1.0; further hardening planned) |
 | CLI, REPL, and packaging | Implemented (0.1.0) |
-| Tests and runnable examples | 58 local tests passed; five examples verified |
-| Tutorials and teacher resources | Planned |
+| Tests and runnable examples | Nine root programs; independent browser checks on the merged educational branch passed 89/89; full current-branch native/Python suites still require end-to-end verification |
+| Tutorials and teacher resources | Practical example starter set available; complete classroom guides and educator review still planned |
 | Twi community language review | Needed before release |
 
-The initial implementation milestone is complete. The next stages are deeper edge-case testing, classroom documentation, an expanded example collection, linguistic review, and release hardening. See [the implementation plan](./docs/IMPLEMENTATION_PLAN.md).
+The initial interpreter and native bytecode-VM alpha milestones have working implementations. Current engineering priorities are cross-runtime conformance, independently executed C++ integration tests, KBC1 verification, classroom documentation, linguistic review and release hardening. Follow the [implementation plan](./docs/IMPLEMENTATION_PLAN.md) and the [engineering development journal](./docs/DEVELOPMENT_JOURNAL.md), which distinguishes merged features, verified checks and outstanding risks.
 
 A version 1.0 release will require a working, tested interpreter—not merely completed documentation. The specification calls for at least 15 runnable example programs and tests for successful behavior, invalid input, Unicode, and resource limits.
 
@@ -218,11 +218,11 @@ Build the standalone hosting ZIP using `python playground/build_site.py`. Redepl
 
 Kasa's third execution engine lives in [`native/`](./native/). This is a **C++20 compiler and stack-based virtual machine**, not a Python wrapper: it translates Kasa source into *in-memory bytecode* and executes it in a standalone native binary. It currently implements the core Twi syntax, functions, recursion, lists, input and control flow. See [native build and testing instructions](./native/README.md) and the [draft native ecosystem RFC](./docs/RFC-0001-kasa-native-roadmap.md).
 
-**Status:** `0.4.0-alpha` on this KBC1 development branch. Python remains the behavioral reference until conformance is standardized. The **experimental binary KBC1 file format is implemented but awaits full current-branch integration testing**; machine-code output, package management, and self-hosting remain future work. Native integers are currently 64-bit, unlike Python's larger integer range.
+**Status:** `0.4.0-alpha` KBC1 preview. The portable bytecode compiler and native VM have now passed independent GCC/Clang integration checks on Linux, including AddressSanitizer validation. The KBC1 format remains experimental and is not a security boundary; full Python/native parity and cross-platform release verification remain pending.
 
 ### KBC1 portable bytecode preview (experimental branch)
 
-This development branch adds an experimental `.kbc` file format to the native compiler. `kasa-native compile file.kasa -o file.kbc` writes a versioned bytecode file; `check-bytecode`, `run-bytecode` and `disasm-bytecode` validate before use. See [RFC-0005](./docs/RFC-0005-kbc1-portable-bytecode.md). **The full native integration test has not yet been rerun against the current main branch**, and the format is not stable or a security boundary.
+This development branch adds an experimental `.kbc` file format to the native compiler. `kasa-native compile file.kasa -o file.kbc` writes a versioned bytecode file; `check-bytecode`, `run-bytecode` and `disasm-bytecode` validate before use. See [RFC-0005](./docs/RFC-0005-kbc1-portable-bytecode.md). **The full native compiler integration passed independent Linux verification with GCC and Clang (see documentation)**, and the format is not stable or a security boundary.
 
 ## WebAssembly browser compiler integration (development)
 
