@@ -66,7 +66,7 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
         tests.extend([
             ("Native CMake configure", ["cmake", "-S", "native", "-B", str(build), "-DCMAKE_BUILD_TYPE=Release"], 120),
             ("Native C++ build", ["cmake", "--build", str(build), "--config", "Release", "--parallel", "2"], 180),
-            ("Native lexer CTest", ["ctest", "--test-dir", str(build), "-C", "Release", "-R", "kasa_native_lexer_unicode", "--output-on-failure"], 60),
+            ("Native lexer smoke", [str(ROOT / build / ("Release/kasa-lexer-smoke.exe" if os.name == "nt" else "kasa-lexer-smoke"))], 60),
             ("Native Python conformance", [python, "native/tests/conformance.py", str(exe)], 180),
         ])
         if wasm:
