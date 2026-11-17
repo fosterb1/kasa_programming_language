@@ -1,0 +1,17 @@
+# Cash-book exercise for a market stall.
+# Use whole pesewas (100 pesewas = 1 Ghana cedi) to avoid float rounding.
+ma opening_pesewas = 250000
+ma receipts_pesewas = 182500
+ma refunds_pesewas = 12500
+ma transport_pesewas = 8000
+ma supplier_pesewas = 143750
+
+ma closing_pesewas = opening_pesewas + receipts_pesewas - refunds_pesewas - transport_pesewas - supplier_pesewas
+
+ka "Closing cash in pesewas:"
+ka closing_pesewas
+sɛ closing_pesewas < 0 a
+    ka "Cash deficit: investigate transactions"
+anyɛ_saa_a
+    ka "Cash position is non-negative"
+awiei
