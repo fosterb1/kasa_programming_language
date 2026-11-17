@@ -150,12 +150,16 @@ int stackEffect(Op op,int n,int& needs) {
     }
     invalid("unsupported opcode");
 }
-void verifyChunk(const std::shared_ptr<Chunk>& chunk,int depth,bool function) {
+void verifyChunk(const std::shared_ptr<Chunk>& chunk,int depth,bool function,uint32_t& total) {
     if(!chunk||depth>kMaxNesting||chunk->code.size()>kMaxInstructions)invalid("invalid code chunk");
+    // The loader enforces a global instruction ceiling across nested functions;
+    // the writer must apply the same limit before emitting a file.
+    if(chunk->code.size()>kMaxInstructions-total)invalid("instruction limit exceeded");
+    total+=static_cast<uint32_t>(chunk->code.size());
     auto N=chunk->code.size();
     for(const auto &i:chunk->code) {
         if (static_cast<uint8_t>(i.op)>kLastOpcode)invalid("unknown opcode");
-        if (i.loc.line<1||i.loc.col<1)invalid("invalid source location");
+        if (i.loc.line<1||i.loc.col<1||i.loc.line>10'000'000||i.loc.col>1'000'000)invalid("invalid source location");
         bool branch=(i.op==Op::Jump||i.op==Op::JumpFalse||i.op==Op::JumpTrue);
         bool count=(i.op==Op::MakeList||i.op==Op::Call);
         if (branch && (i.number<0||static_cast<size_t>(i.number)>N))invalid("jump target outside chunk");
@@ -170,7 +174,7 @@ void verifyChunk(const std::shared_ptr<Chunk>& chunk,int depth,bool function) {
             if(!i.fn||i.fn->name!=i.name||i.fn->params.size()>255)invalid("invalid function definition");
             std::set<std::string> params;
             for (const auto& p:i.fn->params)if(p.empty()||p.size()>kMaxName||!params.insert(p).second)invalid("duplicate/invalid function parameter");
-            verifyChunk(i.fn->code,depth+1,true);
+            verifyChunk(i.fn->code,depth+1,true,total);
         } else if (i.fn)invalid("unexpected function definition");
         if (i.op==Op::Return && !function)invalid("top-level return forbidden");
     }
@@ -201,7 +205,8 @@ void verifyChunk(const std::shared_ptr<Chunk>& chunk,int depth,bool function) {
 } // namespace
 
 void writeBytecode(const std::shared_ptr<Chunk>& code,const std::string& path) {
-    verifyChunk(code,0,false);
+    uint32_t verifiedInstructions=0;
+    verifyChunk(code,0,false,verifiedInstructions);
     Writer payload;writeChunk(payload,code,0);
     if(payload.buf.size()>kMaxPayload)invalid("payload exceeds size limit");
     Writer archive;
@@ -236,7 +241,8 @@ std::shared_ptr<Chunk> readBytecode(const std::string& path) {
     uint32_t total=0;
     auto chunk=readChunk(reader,0,total);
     if(!reader.done())invalid("extra bytes after code");
-    verifyChunk(chunk,0,false);
+    uint32_t verifiedInstructions=0;
+    verifyChunk(chunk,0,false,verifiedInstructions);
     return chunk;
 }
 } // namespace kasa
