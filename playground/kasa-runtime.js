@@ -41,9 +41,17 @@
     const tokens = [];
     let i = 0, line = 1, column = 1;
     function advance() {
-      const c = source[i++];
+      const at = i++;
+      const c = source[at];
       if (c === "\n") { line++; column = 1; }
-      else column++;
+      else {
+        // JS strings use UTF-16. Count a valid surrogate pair as one
+        // Unicode scalar value, to match Python and the C++ UTF-8 lexer.
+        const code = c.charCodeAt(0);
+        const prev = at > 0 ? source.charCodeAt(at - 1) : -1;
+        if (!(code >= 0xDC00 && code <= 0xDFFF &&
+              prev >= 0xD800 && prev <= 0xDBFF)) column++;
+      }
       return c;
     }
     const tok = (kind, text, ln, col) => ({ kind, text, line: ln, column: col });
@@ -77,13 +85,20 @@
         if (digits.length > 1000) syntax("Numeric literal is too long", tok(kind, "", ln, col));
         tokens.push(tok(kind, digits, ln, col)); continue;
       }
-      if (/[\p{L}_]/u.test(ch)) {
+      // Match complete Unicode code points, not individual UTF-16 code units.
+      // This accepts supplementary-plane letters just as the Python lexer does.
+      const cp = String.fromCodePoint(source.codePointAt(i));
+      if (/[\p{L}_]/u.test(cp)) {
         let word = "";
-        while (i < source.length && /[\p{L}\p{N}_]/u.test(source[i])) word += advance();
+        while (i < source.length) {
+          const character = String.fromCodePoint(source.codePointAt(i));
+          if (!/[\p{L}\p{N}_]/u.test(character)) break;
+          for (let j = 0; j < character.length; j++) word += advance();
+        }
         tokens.push(tok(KEYWORDS[word] || "NAME", word, ln, col)); continue;
       }
       const pair = source.slice(i, i + 2);
-      if (OPS.has(pair)) { advance(); advance(); tokens.push(tok(pair, pair, ln, col)); continue; }
+      if (pair.length === 2 && OPS.has(pair)) { advance(); advance(); tokens.push(tok(pair, pair, ln, col)); continue; }
       if (OPS.has(ch)) { advance(); tokens.push(tok(ch, ch, ln, col)); continue; }
       syntax(`Unexpected character '${ch}'`, tok("INVALID", ch, ln, col));
     }

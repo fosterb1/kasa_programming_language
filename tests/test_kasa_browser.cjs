@@ -7,6 +7,22 @@ const vm = require('node:vm');
 const { executeKasa, parse, tokenize } = require('../playground/kasa-runtime.js');
 
 const ROOT = path.join(__dirname, '..');
+const sourceLocationConformance = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_source_locations.json'), 'utf8')
+);
+for (const fixture of sourceLocationConformance.cases) {
+  test(`source position conformance: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source, '', 'check');
+    assert.equal(result.ok, false);
+    assert.ok(
+      result.error.includes(
+        `playground.kasa:${fixture.line}:${fixture.column}: ${fixture.category}:`
+      ),
+      result.error
+    );
+  });
+}
+
 const remainderConformance = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'tests/conformance_remainder.json'), 'utf8')
 );
@@ -54,6 +70,8 @@ const programs = [
   ['dwumadie fa_bi(a,b)\n sanma a+b\nawiei\nka fa_bi(2,7)', '9\n'],
   ['ma xs=[10,20,30]\nka xs[0]\nma xs[1]=99\nka xs[1]\nka tentɛn(xs)', '10\n99\n3\n'],
   ['ma ɛdin="Ama"\nma ɔman="Ghana"\nka ɛdin+" - "+ɔman', 'Ama - Ghana\n'],
+  ['ma 𐐀 = 3\nka 𐐀', '3\n'],
+  ['ma ɛ𐐀 = 5\nka ɛ𐐀', '5\n'],
   ['ka nɔma("12") + 3\nka nsɛm(nokware)', '15\nnokware\n'],
   ['ka bisa()', 'Ama\n', 'Ama\n'],
   ['ma edin = bisa("Wo din de sɛn? ")\nka "Akwaaba, " + edin', 'Wo din de sɛn? Akwaaba, Ama\n', 'Ama\n'],
@@ -114,6 +132,13 @@ failures.forEach(([source, category],i) => {
 test('syntax check does not run Kasa program', () => {
   const result = executeKasa('ka 1/0', '', 'check');
   assert.deepEqual(result, {ok: true,output: '',error: '',steps: 0,mode: 'check'});
+});
+test('single-character operator at EOF is tokenized once', () => {
+  const source = 'ka tentɛn("ɛ")';
+  const tokens = tokenize(source);
+  assert.equal(tokens.at(-2).kind, ')');
+  assert.equal(tokens.at(-1).kind, 'EOF');
+  assert.equal(tokens.at(-1).column, [...source].length + 1);
 });
 test('Unicode Twi identifiers and CRLF locations', () => {
   const tok = tokenize('ma ɛdin = "Kɔfi"\r\nka ɛdin\r\n');

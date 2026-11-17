@@ -22,6 +22,9 @@ sys.argv = sys.argv[:1]
 REMAINDER_FIXTURES = json.loads(
     (ROOT / "tests" / "conformance_remainder.json").read_text(encoding="utf-8")
 )
+SOURCE_LOCATION_FIXTURES = json.loads(
+    (ROOT / "tests" / "conformance_source_locations.json").read_text(encoding="utf-8")
+)
 
 
 CASES = {
@@ -29,6 +32,8 @@ CASES = {
     "variable": ('ma edin="Ama"\nka "Maakye, "+edin\nka 9', ''),
     "arithmetic": ('ka (2 + 3) * 4\nka -3 + 10\nka 8 % 3\nka 14 / 7', ''),
     "unicode": ('ma ɛdin="Kɔfi"\nma ɔman="Ghana"\nka ɛdin + " - " + ɔman', ''),
+    "supplementary_identifier": ('ma 𐐀=3\nka 𐐀', ''),
+    "twi_supplementary_identifier": ('ma ɛ𐐀=5\nka ɛ𐐀', ''),
     "boolean": ('ka nokware\nka atoro\nka hwee\nka ɛnyɛ atoro', ''),
     "boolean_short_circuit": ('ka atoro ne (1 / 0 == 0)\nka nokware anaa (1 / 0 == 0)', ''),
     "if_else": ('ma mfe=15\nsɛ mfe>=18 a\nka "Adult"\nanyɛ_saa_a\nka "Young"\nawiei', ''),
@@ -125,6 +130,22 @@ class Conformance(unittest.TestCase):
                 actual=run_native(fixture["source"])
                 self.assertEqual(actual.returncode, 1, actual.stderr)
                 self.assertIn(fixture["category"], actual.stderr)
+
+    def test_unicode_source_coordinates(self):
+        for case in SOURCE_LOCATION_FIXTURES["cases"]:
+            with self.subTest(name=case["name"]):
+                try:
+                    parse(case["source"], filename="test.kasa")
+                except KasaError as error:
+                    self.assertEqual(error.category, case["category"])
+                    self.assertEqual((error.token.line, error.token.column),
+                                     (case["line"], case["column"]))
+                else:
+                    self.fail(f"Python accepted invalid source: {case['name']}")
+                actual = run_native(case["source"], mode="check")
+                self.assertEqual(actual.returncode, 1, actual.stderr)
+                location = f"test.kasa:{case['line']}:{case['column']}: {case['category']}:"
+                self.assertIn(location, actual.stderr)
 
     def test_syntax_check_never_executes(self):
         p=run_native('ka 1/0\nka "not executed"','', 'check')
