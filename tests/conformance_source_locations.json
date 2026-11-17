@@ -50,6 +50,20 @@
       "line": 2,
       "column": 8,
       "category": "SyntaxError"
+    },
+    {
+      "name": "trailing_operator_eof",
+      "source": "ka 1 +",
+      "line": 1,
+      "column": 7,
+      "category": "SyntaxError"
+    },
+    {
+      "name": "twi_before_eof_error",
+      "source": "ka \"ɔ\" +",
+      "line": 1,
+      "column": 9,
+      "category": "SyntaxError"
     }
   ]
 }
