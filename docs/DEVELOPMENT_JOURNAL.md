@@ -55,7 +55,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 - **Status:** **Fixed on unmerged PR #16**, independently verified at the component level.
 - **Discovery:** The bytecode writer accepted a `NaN` floating-point constant and emitted a file that the reader refused to load. This was demonstrated with a two-instruction C++ probe and recorded as a writer/reader contract violation.
 - **Repair:** Validate `std::isfinite()` in the serializer before writing any floating-point value; reject both `NaN` and infinity and avoid creating an unreadable file.
-- **Verification:** Using GNU g++ 14.2 and strict C++20 flags, **5/5 focused standalone checks passed** after the fix. All three staged source files matched the corresponding PR #16 GitHub blob hashes.
+- **Verification:** Using GNU g++ 14.2 and strict C++20 flags, **5/5 focused standalone checks passed** after the fix; the same **5/5 passed** with AddressSanitizer and UndefinedBehaviorSanitizer enabled, without reported sanitizer errors. All three staged source files matched the corresponding PR #16 GitHub blob hashes.
 - **Evidence:** [Full independent verification record](./verification/2026-11-17-kbc1-serializer-smoke.md).
 - **Remaining risk:** This is not the complete native VM/compiler build; full `test_bytecode.py` and source→file→VM round-trips still need execution before PR #16 can merge.
 
