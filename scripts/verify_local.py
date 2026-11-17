@@ -67,6 +67,7 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
             ("Native CMake configure", ["cmake", "-S", "native", "-B", str(build), "-DCMAKE_BUILD_TYPE=Release"], 120),
             ("Native C++ build", ["cmake", "--build", str(build), "--config", "Release", "--parallel", "2"], 180),
             ("Native lexer smoke", [str(ROOT / build / ("Release/kasa-lexer-smoke.exe" if os.name == "nt" else "kasa-lexer-smoke"))], 60),
+            ("Native KBC1 serializer smoke", [str(ROOT / build / ("Release/kasa-kbc1-smoke.exe" if os.name == "nt" else "kasa-kbc1-smoke"))], 60),
             ("Native Python conformance", [python, "native/tests/conformance.py", str(exe)], 180),
             ("Native KBC1 round-trip and rejection tests", [python, "native/tests/test_bytecode.py", str(exe)], 180),
         ])
