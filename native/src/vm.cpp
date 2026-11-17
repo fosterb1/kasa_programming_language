@@ -109,7 +109,11 @@ class VM{
             int64_t z=get<int64_t>(b.data);if(z==0)error(t,"ZeroDivisionError","Cannot divide by zero");
             int64_t n=get<int64_t>(a.data);
             if(n==INT64_MIN&&z==-1)return Value(int64_t(0));
-            return Value(n%z);
+            // Kasa remainder follows the Python reference, not C++ truncating
+            // remainder: a nonzero result must have the divisor's sign.
+            int64_t remainder=n%z;
+            if(remainder!=0&&((remainder<0)!=(z<0)))remainder+=z;
+            return Value(remainder);
         }
         if(integer(a)&&integer(b)){
             int64_t p=get<int64_t>(a.data),q=get<int64_t>(b.data);
