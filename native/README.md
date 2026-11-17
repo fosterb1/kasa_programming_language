@@ -1,6 +1,6 @@
 # Kasa Native — independent bytecode compiler and VM
 
-**Version:** `0.3.0-alpha` · **Status:** experimental, tested source-to-in-memory-bytecode implementation.
+**Version:** `0.4.0-alpha` (development branch) · **Status:** experimental C++ compiler and stack-based VM.
 
 This is the first Kasa executable **that runs without a Python or JavaScript runtime**. It is written in **C++20**, uses the C++ standard library, and implements its own lexer, parser, abstract syntax tree, bytecode generator, and stack-based virtual machine. It does **not** generate Python source code, call Python, invoke Node.js, or delegate language evaluation to either existing Kasa interpreter.
 
@@ -49,7 +49,7 @@ The harness compares native program output against the current **Python referenc
 
 - **Native integer values are signed 64-bit**, while the Python reference permits considerably larger integers. Native integer overflow produces a `ResourceError` rather than wrapping. This discrepancy is documented and requires a deliberate common numeric specification (e.g. big integers) before v1.
 - Decimal display precision, Unicode source-column counting, exotic Unicode identifiers, and numeric text conversion may differ from Python and JavaScript.
-- Bytecode is **in-memory only**. No `.kbc` file format, bytecode verifier, native machine-code generation, WASM target, debugger, module system, package manager, standard-library ecosystem, or graphical tooling is implemented yet.
+- A draft **`.kbc` bytecode container and structural verifier** now exist. They are experimental and not a stable format or a hardened security boundary. Native machine-code generation, a debugger, modules, imports, a package manager and a comprehensive standard library are still future work. The browser WASM build pipeline exists, but the compiled module has not been verified here.
 - This binary is an **interpreter for compiled bytecode**, not a machine-code ahead-of-time compiler and not a self-hosted Kasa compiler.
 - The VM has safety budgets but is **not a hardened sandbox** for running hostile source code on shared infrastructure.
 - No open-source license has been selected yet. The existing project specification proposes MIT pending the owner's decision.
@@ -75,3 +75,15 @@ vm.cpp  ─────► stack machine ──► output
 ### The roadmap beyond the alpha
 
 The proposal to evolve the project into a complete language ecosystem is documented in [`docs/RFC-0001-kasa-native-roadmap.md`](../docs/RFC-0001-kasa-native-roadmap.md). New syntax, file formats, FFI, packages and system APIs must be designed with explicit RFCs rather than silently introduced into one of the three existing interpreters.
+
+## KBC1 bytecode files (experimental)
+
+```bash
+kasa-native compile examples/functions.kasa -o functions.kbc
+kasa-native check-bytecode functions.kbc
+kasa-native disasm-bytecode functions.kbc
+kasa-native run-bytecode functions.kbc
+```
+
+See [KBC1 binary format and verifier details](../docs/RFC-0003-kasa-bytecode-format.md).
+The loader validates the container, checksum and control-flow stack constraints before execution. CRC32 is not an authenticity signature. Run `python native/tests/test_bytecode.py build/kasa-native` to check roundtrips and deliberate corruption cases.
