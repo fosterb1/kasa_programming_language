@@ -208,6 +208,48 @@
       "url": "https://github.com/aberba/twi-synonyms",
       "accessed": "2026-11-17",
       "publisher": "aberba GitHub contributor"
+    },
+    "NYS_TWI_MATH": {
+      "title": "New York State Education Department, High School Integrated Algebra Glossary, English/Twi (updated January 2018)",
+      "kind": "official",
+      "publisher": "New York State Education Department",
+      "url": "https://www.rcsdk12.org/cms/lib/NY01001156/Centricity/Domain/4194/hs_integrated_algebra_twi-14p.pdf",
+      "accessed": "2026-11-17"
+    },
+    "UG_NUMERAL_STUDY": {
+      "title": "Appah, Broohm & Lawer (2019), Beyond cardinals and ordinals: A constructionist account of other numeral types in Akan",
+      "kind": "academic",
+      "publisher": "Nordic Journal of African Studies",
+      "url": "https://njas.fi/njas/article/view/427",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_WRITING": {
+      "title": "LearnAkan, Common Twi Writing Mistakes (examples of mpɛn and tenten)",
+      "kind": "pedagogy",
+      "publisher": "LearnAkan",
+      "url": "https://learnakan.com/twi-writing-mistakes/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_FIGURE": {
+      "title": "LearnAkan Dictionary: figure (number)",
+      "kind": "lexicographic",
+      "publisher": "LearnAkan",
+      "url": "https://learnakandictionary.com/english-twi/figure/",
+      "accessed": "2026-11-17"
+    },
+    "FSI_TENTEN": {
+      "title": "Foreign Service Institute, Twi Basic Course, Student Text, Unit 10: tenten = long/high/tall",
+      "kind": "educational",
+      "publisher": "U.S. Foreign Service Institute",
+      "url": "https://fsi-languages.yojik.eu/languages/FSI/Twi/Basic/FSI%20-%20Twi%20Basic%20Course%20-%20Student%20Text.pdf",
+      "accessed": "2026-11-17"
+    },
+    "JWAL_NSEM": {
+      "title": "Boadi, Some Twi Phrase Structure Rules, Journal of West African Languages (nsɛm usage)",
+      "kind": "academic",
+      "publisher": "Journal of West African Languages",
+      "url": "https://journalofwestafricanlanguages.org/downloads/send/4-volume0201/43-some-twi-phrase-structure-rules",
+      "accessed": "2026-11-17"
     }
   },
   "terms": {
@@ -269,9 +311,12 @@
       "token": "mpɛn",
       "kind": "keyword",
       "role": "Repeat count",
-      "linguistic_note": "Frequency or 'times' sense requires primary/contextual attestation, pending.",
+      "linguistic_note": "LearnAkan uses mpɛn for frequency ('times'); linguistic research on Akan frequentative/multiplicative numerals provides context, but direct spelling, Asante/Akuapem variants, and the meaning of a programming loop counter still need speaker review.",
       "status": "legacy_review_pending",
-      "reference_ids": [],
+      "reference_ids": [
+        "LEARN_WRITING",
+        "UG_NUMERAL_STUDY"
+      ],
       "reviewers": [],
       "decision": null,
       "reviewed_at": null
@@ -294,11 +339,12 @@
       "token": "dwumadie",
       "kind": "keyword",
       "role": "Function definition",
-      "linguistic_note": "Attested as exercise, task, or function broadly; programming-function context not confirmed.",
+      "linguistic_note": "Akan dictionary supports dwumadie for work/task/function; NYS mathematics glossary translates function as akontaabu abusuabɔ (dwumadi/nhyiam), including the spelling dwumadi. Do not assume mathematical function and executable function are identical.",
       "status": "legacy_review_pending",
       "reference_ids": [
         "AKAN_DWUMADIE",
-        "LEARN_GRAMMAR"
+        "LEARN_GRAMMAR",
+        "NYS_TWI_MATH"
       ],
       "reviewers": [],
       "decision": null,
@@ -319,11 +365,12 @@
       "token": "awiei",
       "kind": "keyword",
       "role": "Block end",
-      "linguistic_note": "Direct dictionary entry attests awiei as end; alternative awieeɛ is also attested.",
+      "linguistic_note": "Exact awiei spelling appears both in Akan dictionary for end and in NYS school mathematics glossary ('conclusion', 'closure'); alternative awieeɛ spelling in LearnAkan merits dialect/orthography review.",
       "status": "legacy_review_pending",
       "reference_ids": [
         "AKAN_AWIEI",
-        "LEARN_FINISH"
+        "LEARN_FINISH",
+        "NYS_TWI_MATH"
       ],
       "reviewers": [],
       "decision": null,
@@ -453,9 +500,12 @@
       "token": "tentɛn",
       "kind": "builtin",
       "role": "Length built-in",
-      "linguistic_note": "Potential mismatch with common 'tenten' (long); spelling and use as length operation not established.",
+      "linguistic_note": "References attest related spelling 'tenten' meaning long/length, not the exact implemented 'tentɛn'. These are comparison references, not direct support for this exact word; high-priority spelling and function-semantics review.",
       "status": "legacy_review_pending",
-      "reference_ids": [],
+      "reference_ids": [
+        "LEARN_WRITING",
+        "FSI_TENTEN"
+      ],
       "reviewers": [],
       "decision": null,
       "reviewed_at": null
@@ -464,10 +514,12 @@
       "token": "nɔma",
       "kind": "builtin",
       "role": "Number conversion",
-      "linguistic_note": "Community source suggests 'number' as noun. Official terminology and conversion sense still need validation.",
+      "linguistic_note": "NYS State Education Department mathematical glossary uses nɔma as 'number'; LearnAkan also attests the noun. Existing Kasa function converts text to a number, which differs from the noun meaning. Further review needed.",
       "status": "legacy_review_pending",
       "reference_ids": [
-        "GITHUB_NUM"
+        "GITHUB_NUM",
+        "NYS_TWI_MATH",
+        "LEARN_FIGURE"
       ],
       "reviewers": [],
       "decision": null,
@@ -477,9 +529,12 @@
       "token": "nsɛm",
       "kind": "builtin",
       "role": "Text conversion",
-      "linguistic_note": "May denote words or matters instead of general string/text; lacks direct source validation in this pass.",
+      "linguistic_note": "NYS maths glossary and linguistic usage include nsɛm for 'statements/matters'; this is NOT independent evidence that nsɛm means an arbitrary string or text conversion. High-priority terminology review.",
       "status": "legacy_review_pending",
-      "reference_ids": [],
+      "reference_ids": [
+        "NYS_TWI_MATH",
+        "JWAL_NSEM"
+      ],
       "reviewers": [],
       "decision": null,
       "reviewed_at": null
