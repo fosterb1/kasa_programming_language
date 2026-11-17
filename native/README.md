@@ -51,6 +51,17 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 
 The smoke test checks deterministic serialization, a simple round-trip, bad magic/version/checksum, and NaN/infinite decimal rejection. **All five focused groups passed in an independently compiled C++20 test on 2026-11-17** after fixing the discovered writer/reader mismatch. It is a narrow component test, **not full security certification**. The full local verification profile also runs the C++ smoke binary directly so zero matching CTest cases cannot yield a false pass.
 
+## Deterministic KBC1 loader mutation testing
+
+A separate native test mutates a valid bytecode file **2,000 times**, recalculates CRC32, and checks that the loader either safely rejects the file or parses its modified structure without a crash. It **never executes the mutated bytecode**.
+
+```bash
+cmake --build build/kasa-local --target kasa-kbc1-mutation-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_mutation --output-on-failure
+```
+
+Independent Linux C++20 execution with AddressSanitizer and UndefinedBehaviorSanitizer completed all 2,000 cases without reported sanitizer errors (1,349 rejected; 651 structurally accepted with recomputed CRC). This is expected: CRC32 detects accidental corruption; **it does not authenticate the author**, and byte changes can still describe valid programs. This test is **not** a security certification or full fuzzing campaign.
+
 ## Experimental KBC1 file operations
 
 From the repository root, after building `kasa-native`:
