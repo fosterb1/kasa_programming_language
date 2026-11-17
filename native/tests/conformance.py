@@ -6,6 +6,7 @@ The Python interpreter is used only by this TEST HARNESS, never by the native ex
 from __future__ import annotations
 
 import io
+import json
 import pathlib
 import subprocess
 import sys
@@ -18,6 +19,10 @@ from kasa.core import Interpreter, KasaError, parse  # noqa: E402
 
 BINARY = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "build" / "kasa-native"
 sys.argv = sys.argv[:1]
+REMAINDER_FIXTURES = json.loads(
+    (ROOT / "tests" / "conformance_remainder.json").read_text(encoding="utf-8")
+)
+
 
 CASES = {
     "hello": ('ka "Maakye, Ghana!"', ''),
@@ -101,6 +106,25 @@ class Conformance(unittest.TestCase):
                 self.assertEqual(actual.returncode,1,(title,actual.stderr))
                 self.assertIn(category,actual.stderr)
                 self.assertRegex(actual.stderr,r"test\.kasa:\d+:\d+:")
+
+    def test_shared_remainder_values(self):
+        for fixture in REMAINDER_FIXTURES["cases"]:
+            with self.subTest(name=fixture["name"]):
+                expected=fixture["expected_stdout"]
+                self.assertEqual(run_python(fixture["source"]), expected)
+                actual=run_native(fixture["source"])
+                self.assertEqual(actual.returncode, 0, actual.stderr)
+                self.assertEqual(actual.stdout, expected)
+
+    def test_shared_remainder_errors(self):
+        for fixture in REMAINDER_FIXTURES["errors"]:
+            with self.subTest(name=fixture["name"]):
+                with self.assertRaises(KasaError) as err:
+                    run_python(fixture["source"])
+                self.assertEqual(err.exception.category, fixture["category"])
+                actual=run_native(fixture["source"])
+                self.assertEqual(actual.returncode, 1, actual.stderr)
+                self.assertIn(fixture["category"], actual.stderr)
 
     def test_syntax_check_never_executes(self):
         p=run_native('ka 1/0\nka "not executed"','', 'check')
