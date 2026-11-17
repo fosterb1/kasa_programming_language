@@ -1,0 +1,477 @@
+{
+  "schema_version": 1,
+  "research_date": "2026-11-17",
+  "record_status": "existing tokens inventoried; not a certification",
+  "review_policy": "docs/LANGUAGE_RESEARCH_POLICY.md",
+  "frozen_legacy_baseline": {
+    "keywords": [
+      "ka",
+      "ma",
+      "sɛ",
+      "anyɛ_saa_a",
+      "mpɛn",
+      "bere_a",
+      "dwumadie",
+      "sanma",
+      "awiei",
+      "nokware",
+      "atoro",
+      "hwee",
+      "ne",
+      "anaa",
+      "ɛnyɛ",
+      "gyae",
+      "toa_so"
+    ],
+    "builtins": [
+      "bisa",
+      "tentɛn",
+      "nɔma",
+      "nsɛm"
+    ],
+    "contextual_particles": [
+      "a"
+    ]
+  },
+  "source_index": {
+    "HARVARD_SOUNDS": {
+      "title": "Harvard ELIAS Akan Sounds",
+      "kind": "academic",
+      "url": "https://elias.fas.harvard.edu/languages/twi/beginning/1/akan-sounds",
+      "accessed": "2026-11-17"
+    },
+    "HARVARD_GRAMMAR": {
+      "title": "Harvard ELIAS Twi grammar",
+      "kind": "academic",
+      "url": "https://elias.unix.fas.harvard.edu/languages/twi/beginning/1/akan-family-system",
+      "accessed": "2026-11-17"
+    },
+    "AKAN_ORTHOGRAPHY": {
+      "title": "Bureau of Ghana Languages (1995) bibliographic record",
+      "kind": "official_bibliographic_only",
+      "url": "https://books.google.com/books/about/Akan_Orthography.html?id=lP6BAT0s25sC",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_ASK": {
+      "title": "LearnAkan Dictionary: ask",
+      "kind": "lexicographic",
+      "url": "https://learnakandictionary.com/english-twi/ask/",
+      "accessed": "2026-11-17"
+    },
+    "AKAN_BISA": {
+      "title": "Akan Twi Dictionary: bisa",
+      "kind": "lexicographic",
+      "url": "https://www.akandictionary.com/2021/05/08/bisa/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_SAY": {
+      "title": "LearnAkan Dictionary: say",
+      "kind": "lexicographic",
+      "url": "https://learnakandictionary.com/english-twi/say/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_A": {
+      "title": "LearnAkan Dictionary: conditional particle a",
+      "kind": "grammar",
+      "url": "https://learnakandictionary.com/twi-english/a/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_CONJ": {
+      "title": "LearnAkan Asante Twi conjunctions",
+      "kind": "grammar",
+      "url": "https://learnakan.com/akan-asante-twi-conjunctions/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_WHEN": {
+      "title": "LearnAkan Dictionary: when",
+      "kind": "grammar",
+      "url": "https://learnakandictionary.com/english-twi/when/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_CONTINUE": {
+      "title": "LearnAkan Dictionary: continue",
+      "kind": "lexicographic",
+      "url": "https://learnakandictionary.com/english-twi/continue/",
+      "accessed": "2026-11-17"
+    },
+    "AKAN_GYAE": {
+      "title": "Akan Twi Dictionary: gyae",
+      "kind": "lexicographic",
+      "url": "https://www.akandictionary.com/2021/04/22/gyae/",
+      "accessed": "2026-11-17"
+    },
+    "AKAN_DWUMADIE": {
+      "title": "Akan Twi Dictionary: dwumadie",
+      "kind": "lexicographic",
+      "url": "https://www.akandictionary.com/2022/10/10/dwumadie/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_GRAMMAR": {
+      "title": "LearnAkan: Twi grammar terminology",
+      "kind": "pedagogy",
+      "url": "https://learnakan.com/twi-grammar-terms/",
+      "accessed": "2026-11-17"
+    },
+    "AKAN_AWIEI": {
+      "title": "Akan Twi Dictionary: awiei",
+      "kind": "lexicographic",
+      "url": "https://www.akandictionary.com/2021/10/09/awiei/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_FINISH": {
+      "title": "LearnAkan Dictionary: finish",
+      "kind": "lexicographic",
+      "url": "https://learnakandictionary.com/english-twi/finish/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_TRUTH": {
+      "title": "LearnAkan Dictionary: truth",
+      "kind": "lexicographic",
+      "url": "https://learnakandictionary.com/english-twi/truth/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_LIE": {
+      "title": "LearnAkan Dictionary: lie",
+      "kind": "lexicographic",
+      "url": "https://learnakandictionary.com/english-twi/lie/",
+      "accessed": "2026-11-17"
+    },
+    "AKAN_HWEE": {
+      "title": "Akan Twi Dictionary: hwee",
+      "kind": "lexicographic",
+      "url": "https://www.akandictionary.com/2021/04/14/hwee/",
+      "accessed": "2026-11-17"
+    },
+    "AKAN_ANAA": {
+      "title": "Akan Twi Dictionary: anaa",
+      "kind": "lexicographic",
+      "url": "https://www.akandictionary.com/2022/10/17/anaa/",
+      "accessed": "2026-11-17"
+    },
+    "LEARN_AND": {
+      "title": "LearnAkan Dictionary: and",
+      "kind": "lexicographic",
+      "url": "https://learnakandictionary.com/english-twi/and/",
+      "accessed": "2026-11-17"
+    },
+    "GRAMMAR_NEG": {
+      "title": "LearnAkan: negation of yɛ (context)",
+      "kind": "grammar",
+      "url": "https://learnakandictionary.com/learn-twi-with-public-inscriptions-aboter%C9%9B-y%C9%9B/",
+      "accessed": "2026-11-17"
+    },
+    "OTHERWISE": {
+      "title": "Twi grammar: otherwise",
+      "kind": "secondary_grammar",
+      "url": "https://bubblegum.la/grammar/twi/otherwise-s-ny-saa-a-9622bf9c",
+      "accessed": "2026-11-17"
+    },
+    "H_GYAE": {
+      "title": "LearnAkan: Twi conjunctions",
+      "kind": "grammar",
+      "url": "https://learnakan.com/akan-asante-twi-conjunctions/",
+      "accessed": "2026-11-17"
+    },
+    "AKAN_HG": {
+      "title": "Harvard ELIAS grammar",
+      "kind": "academic",
+      "url": "https://elias.unix.fas.harvard.edu/languages/twi/beginning/1/akan-family-system",
+      "accessed": "2026-11-17"
+    },
+    "GITHUB_NUM": {
+      "title": "Community Twi synonyms (unverified)",
+      "kind": "community",
+      "url": "https://github.com/aberba/twi-synonyms",
+      "accessed": "2026-11-17"
+    }
+  },
+  "terms": {
+    "keyword:ka": {
+      "token": "ka",
+      "kind": "keyword",
+      "role": "Print",
+      "linguistic_note": "The ordinary verb 'say' supports a spoken-output metaphor, but not necessarily written output.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "LEARN_SAY"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:ma": {
+      "token": "ma",
+      "kind": "keyword",
+      "role": "Assign",
+      "linguistic_note": "Attested as give in Harvard's phonology lesson; variable assignment is a programming analogy.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "HARVARD_SOUNDS"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:sɛ": {
+      "token": "sɛ",
+      "kind": "keyword",
+      "role": "If",
+      "linguistic_note": "'Sɛ ... a' conditional construction is attested; particle a is handled contextually.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "HARVARD_GRAMMAR",
+        "LEARN_A",
+        "LEARN_CONJ"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:anyɛ_saa_a": {
+      "token": "anyɛ_saa_a",
+      "kind": "keyword",
+      "role": "Else",
+      "linguistic_note": "Closest attested phrasing is 'otherwise' rather than an isolated else keyword.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "OTHERWISE"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:mpɛn": {
+      "token": "mpɛn",
+      "kind": "keyword",
+      "role": "Repeat count",
+      "linguistic_note": "Frequency or 'times' sense requires primary/contextual attestation, pending.",
+      "status": "legacy_review_pending",
+      "reference_ids": [],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:bere_a": {
+      "token": "bere_a",
+      "kind": "keyword",
+      "role": "While",
+      "linguistic_note": "LearnAkan describes 'berɛ a' as 'when/while'; spelling 'bere' without ɛ needs review.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "LEARN_WHEN",
+        "LEARN_CONJ"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:dwumadie": {
+      "token": "dwumadie",
+      "kind": "keyword",
+      "role": "Function definition",
+      "linguistic_note": "Attested as exercise, task, or function broadly; programming-function context not confirmed.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "AKAN_DWUMADIE",
+        "LEARN_GRAMMAR"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:sanma": {
+      "token": "sanma",
+      "kind": "keyword",
+      "role": "Return from function",
+      "linguistic_note": "Compound form and semantics lack verified lexical evidence; urgent review.",
+      "status": "legacy_review_pending",
+      "reference_ids": [],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:awiei": {
+      "token": "awiei",
+      "kind": "keyword",
+      "role": "Block end",
+      "linguistic_note": "Direct dictionary entry attests awiei as end; alternative awieeɛ is also attested.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "AKAN_AWIEI",
+        "LEARN_FINISH"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:nokware": {
+      "token": "nokware",
+      "kind": "keyword",
+      "role": "Boolean true",
+      "linguistic_note": "Truth is attested; Boolean literal mapping is technical analogy.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "LEARN_TRUTH"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:atoro": {
+      "token": "atoro",
+      "kind": "keyword",
+      "role": "Boolean false",
+      "linguistic_note": "Check differences between atoro and ntorɔ/atorɔ spellings and sense of lie vs falsehood.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "LEARN_LIE"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:hwee": {
+      "token": "hwee",
+      "kind": "keyword",
+      "role": "No value / null",
+      "linguistic_note": "Dictionary attests nothing/null-like meaning, but lexical nothing is not identical to typed null.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "AKAN_HWEE"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:ne": {
+      "token": "ne",
+      "kind": "keyword",
+      "role": "Logical AND",
+      "linguistic_note": "Attested conjunction links words/phrases; Boolean logical usage requires review.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "LEARN_AND",
+        "LEARN_CONJ"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:anaa": {
+      "token": "anaa",
+      "kind": "keyword",
+      "role": "Logical OR",
+      "linguistic_note": "Attested conjunction or.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "AKAN_ANAA",
+        "LEARN_CONJ"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:ɛnyɛ": {
+      "token": "ɛnyɛ",
+      "kind": "keyword",
+      "role": "Logical NOT",
+      "linguistic_note": "Attested negation of yɛ ('is not'), not necessarily a general Boolean negation operator.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "GRAMMAR_NEG"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:gyae": {
+      "token": "gyae",
+      "kind": "keyword",
+      "role": "Break loop",
+      "linguistic_note": "Attested stop, halt, abandon; mapping to loop break is plausible.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "AKAN_GYAE"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "keyword:toa_so": {
+      "token": "toa_so",
+      "kind": "keyword",
+      "role": "Continue loop",
+      "linguistic_note": "Attested as 'carry on'; native written form normally contains a space.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "LEARN_CONTINUE"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "builtin:bisa": {
+      "token": "bisa",
+      "kind": "builtin",
+      "role": "Read input",
+      "linguistic_note": "Attested as ask in two independent dictionaries. Programmer use for interactive input is an adaptation.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "LEARN_ASK",
+        "AKAN_BISA"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "builtin:tentɛn": {
+      "token": "tentɛn",
+      "kind": "builtin",
+      "role": "Length built-in",
+      "linguistic_note": "Potential mismatch with common 'tenten' (long); spelling and use as length operation not established.",
+      "status": "legacy_review_pending",
+      "reference_ids": [],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "builtin:nɔma": {
+      "token": "nɔma",
+      "kind": "builtin",
+      "role": "Number conversion",
+      "linguistic_note": "Community source suggests 'number' as noun. Official terminology and conversion sense still need validation.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "GITHUB_NUM"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "builtin:nsɛm": {
+      "token": "nsɛm",
+      "kind": "builtin",
+      "role": "Text conversion",
+      "linguistic_note": "May denote words or matters instead of general string/text; lacks direct source validation in this pass.",
+      "status": "legacy_review_pending",
+      "reference_ids": [],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    },
+    "contextual_particle:a": {
+      "token": "a",
+      "kind": "contextual_particle",
+      "role": "Contextual conditional marker",
+      "linguistic_note": "Used after a sɛ conditional clause; not globally reserved in Kasa.",
+      "status": "legacy_review_pending",
+      "reference_ids": [
+        "LEARN_A",
+        "HARVARD_GRAMMAR"
+      ],
+      "reviewers": [],
+      "decision": null,
+      "reviewed_at": null
+    }
+  }
+}
