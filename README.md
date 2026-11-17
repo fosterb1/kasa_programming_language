@@ -58,6 +58,12 @@ ka "Akwaaba, " + edin
 
 These programs use implemented Kasa syntax. Runnable versions are available in [`examples/`](./examples/), and the local automated test suite verifies their output.
 
+## Our focus: practical computing for Ghanaian learners
+
+Kasa's proposed specialization is **Twi-first, offline-first learning through real-world problems**, especially market trading, school fees, budgeting and inventory. This is a direction to validate with teachers and learners, not an established competitive advantage. See the [evidence-linked product focus](./docs/KASA_PRACTICAL_COMPUTING_FOCUS.md).
+
+New, self-contained programs cover [market cashbooks](./examples/market_cashbook.kasa), [stock reorder decisions](./examples/stock_reorder.kasa), and [school fees](./examples/school_fees.kasa). Amounts in money examples use **integer pesewas** rather than fractional floating-point cedis.
+
 ## Why Kasa?
 
 Programming education should not require learners to set aside the languages they already use to explain ideas, ask questions, and reason about the world. Kasa aims to offer:
@@ -211,6 +217,10 @@ Build the standalone hosting ZIP using `python playground/build_site.py`. Redepl
 Kasa's third execution engine lives in [`native/`](./native/). This is a **C++20 compiler and stack-based virtual machine**, not a Python wrapper: it translates Kasa source into *in-memory bytecode* and executes it in a standalone native binary. It currently implements the core Twi syntax, functions, recursion, lists, input and control flow. See [native build and testing instructions](./native/README.md) and the [draft native ecosystem RFC](./docs/RFC-0001-kasa-native-roadmap.md).
 
 **Status:** `0.3.0-alpha`. Python remains the behavioral reference until conformance is standardized. A binary file format, machine-code output, package manager, and self-hosting are future milestones, **not existing features**. Native integers are currently 64-bit, unlike Python's larger integer range.
+
+### KBC1 portable bytecode preview (experimental branch)
+
+This development branch adds an experimental `.kbc` file format to the native compiler. `kasa-native compile file.kasa -o file.kbc` writes a versioned bytecode file; `check-bytecode`, `run-bytecode` and `disasm-bytecode` validate before use. See [RFC-0005](./docs/RFC-0005-kbc1-portable-bytecode.md). **The full native integration test has not yet been rerun against the current main branch**, and the format is not stable or a security boundary.
 
 ## WebAssembly browser compiler integration (development)
 
