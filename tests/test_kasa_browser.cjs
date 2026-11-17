@@ -31,6 +31,7 @@ const examples = {
   'functions.kasa': '10\n',
   'loops.kasa': '1\n2\n3\nMeda wo ase\nMeda wo ase\n',
   'lists.kasa': '99\n3\n',
+  'remainder.kasa': '1\n2\n-2\n-1\n',
 };
 for (const [filename, expected] of Object.entries(examples)) {
   test(`execute example ${filename}`, () => {
