@@ -34,3 +34,9 @@ Extract `dist/Kasa_Playground_Web.zip` and drag the containing website folder on
 - **No guarantee of identical behavior yet:** native signed 64-bit integers and some decimal formatting differ from the JavaScript and Python implementations.
 
 The shipped JavaScript interpreter handles all its previously supported language features. Browser-to-WASM end-to-end tests require an actual Emscripten build and have not been verified in environments lacking Emscripten.
+
+## Offline installation (development build)
+
+The new static bundle includes a web app manifest, icons and a versioned service worker. After loading on HTTPS (such as Netlify), users can use their browser's **Install App** option where supported. On a successfully cached installation, the JavaScript execution engine and site shell can load without an active internet connection. Native WASM files are cached if fetched through the installed service worker. Not all browsers install PWAs the same way.
+
+The service worker uses a hash of deployment assets to replace stale caches after redeployment. The install experience and offline behavior **still require a live browser smoke test**; a headless browser navigation attempt in the authoring environment was blocked by administrator policy.
