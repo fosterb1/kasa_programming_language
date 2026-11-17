@@ -125,6 +125,8 @@ kasa repl                           # Starts the interactive interpreter
 python -m kasa --version            # Shows the installed version
 ```
 
+To see a source line, error pointer and beginner-friendly correction, run `kasa run my_program.kasa --explain` or `kasa check my_program.kasa --explain`. See [beginner diagnostics](./docs/BEGINNER_DIAGNOSTICS.md).
+
 The `kasa check` command parses source without running it. Runtime errors include source line and column. This is an early implementation: explore the examples and check [known limitations](./docs/IMPLEMENTATION_PLAN.md) before relying on it in classrooms.
 
 ## Current progress and roadmap
