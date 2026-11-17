@@ -49,7 +49,7 @@ cmake --build build/kasa-local --target kasa-kbc1-smoke --config Release
 ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --output-on-failure
 ```
 
-The smoke test checks deterministic serialization, a simple round-trip, and rejection of bad magic/version/checksum. It is a narrow component test, **not full security certification**. The full local verification profile also runs the C++ smoke binary directly so zero matching CTest cases cannot yield a false pass.
+The smoke test checks deterministic serialization, a simple round-trip, bad magic/version/checksum, and NaN/infinite decimal rejection. **All five focused groups passed in an independently compiled C++20 test on 2026-11-17** after fixing the discovered writer/reader mismatch. It is a narrow component test, **not full security certification**. The full local verification profile also runs the C++ smoke binary directly so zero matching CTest cases cannot yield a false pass.
 
 ## Experimental KBC1 file operations
 
