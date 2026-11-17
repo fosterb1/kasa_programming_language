@@ -32,6 +32,8 @@ CASES = {
     "variable": ('ma edin="Ama"\nka "Maakye, "+edin\nka 9', ''),
     "arithmetic": ('ka (2 + 3) * 4\nka -3 + 10\nka 8 % 3\nka 14 / 7', ''),
     "unicode": ('ma ɛdin="Kɔfi"\nma ɔman="Ghana"\nka ɛdin + " - " + ɔman', ''),
+    "supplementary_identifier": ('ma 𐐀=3\nka 𐐀', ''),
+    "twi_supplementary_identifier": ('ma ɛ𐐀=5\nka ɛ𐐀', ''),
     "boolean": ('ka nokware\nka atoro\nka hwee\nka ɛnyɛ atoro', ''),
     "boolean_short_circuit": ('ka atoro ne (1 / 0 == 0)\nka nokware anaa (1 / 0 == 0)', ''),
     "if_else": ('ma mfe=15\nsɛ mfe>=18 a\nka "Adult"\nanyɛ_saa_a\nka "Young"\nawiei', ''),
