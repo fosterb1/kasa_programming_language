@@ -85,6 +85,40 @@ def run_native(source: str, input_text: str = "", mode: str = "run") -> subproce
                               capture_output=True, timeout=5, check=False)
 
 
+
+def run_native_serialized(source: str, input_text: str = "") -> tuple[
+    subprocess.CompletedProcess[str],
+    subprocess.CompletedProcess[str] | None,
+    subprocess.CompletedProcess[str] | None,
+]:
+    """Compile Kasa source to KBC1, validate it, then execute it in the native VM.
+
+    All three processes complete before the temporary directory is removed.
+    A failing earlier stage is reported; later stages are never falsely executed.
+    """
+    with tempfile.TemporaryDirectory() as folder:
+        source_path = pathlib.Path(folder) / "test.kasa"
+        bytecode_path = pathlib.Path(folder) / "test.kbc"
+        source_path.write_text(source, encoding="utf-8")
+        compiled = subprocess.run(
+            [str(BINARY), "compile", str(source_path), "-o", str(bytecode_path)],
+            text=True, capture_output=True, timeout=5, check=False,
+        )
+        if compiled.returncode != 0:
+            return compiled, None, None
+        checked = subprocess.run(
+            [str(BINARY), "check-bytecode", str(bytecode_path)],
+            text=True, capture_output=True, timeout=5, check=False,
+        )
+        if checked.returncode != 0:
+            return compiled, checked, None
+        executed = subprocess.run(
+            [str(BINARY), "run-bytecode", str(bytecode_path)],
+            input=input_text, text=True, capture_output=True, timeout=5, check=False,
+        )
+        return compiled, checked, executed
+
+
 def run_python(source: str, input_text: str = "") -> str:
     buffer=io.StringIO()
     Interpreter(stdout=buffer,stdin=io.StringIO(input_text)).run(parse(source))
@@ -103,6 +137,52 @@ class Conformance(unittest.TestCase):
                 actual=run_native(source,provided)
                 self.assertEqual(actual.returncode,0,actual.stderr)
                 self.assertEqual(actual.stdout,expected)
+
+    def test_kbc1_success_cases_against_python_reference(self):
+        """Verify Python output survives source -> KBC1 -> native execution."""
+        for title, (source, supplied_input) in CASES.items():
+            with self.subTest(title=title):
+                expected = run_python(source, supplied_input)
+                compiled, checked, executed = run_native_serialized(source, supplied_input)
+                self.assertEqual(compiled.returncode, 0, (title, compiled.stderr))
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, (title, checked.stderr))
+                self.assertIsNotNone(executed)
+                self.assertEqual(executed.returncode, 0, (title, executed.stderr))
+                self.assertEqual(executed.stdout, expected)
+
+    def test_kbc1_shared_remainder_against_python_reference(self):
+        for fixture in REMAINDER_FIXTURES["cases"]:
+            with self.subTest(name=fixture["name"]):
+                expected = fixture["expected_stdout"]
+                self.assertEqual(run_python(fixture["source"]), expected)
+                compiled, checked, executed = run_native_serialized(fixture["source"])
+                self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+                self.assertIsNotNone(executed)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(executed.stdout, expected)
+
+    def test_kbc1_runtime_error_categories(self):
+        # Syntax errors must be rejected at compilation, rather than being
+        # serialized. Runtime errors should survive safe KBC1 round-tripping.
+        names = (
+            "name_error", "zero_division", "bool_arithmetic", "bad_condition",
+            "invalid_index", "type_mismatch", "bad_repeat_count",
+            "nonboolean_not", "bad_conversion", "bad_input_prompt_type",
+            "bad_input_prompt_arity",
+        )
+        for name in names:
+            with self.subTest(name=name):
+                source, category = ERROR_CASES[name]
+                compiled, checked, executed = run_native_serialized(source)
+                self.assertEqual(compiled.returncode, 0, (name, compiled.stderr))
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, (name, checked.stderr))
+                self.assertIsNotNone(executed)
+                self.assertEqual(executed.returncode, 1, (name, executed.stderr))
+                self.assertIn(category, executed.stderr)
 
     def test_all_error_cases(self):
         for title,(source,category) in ERROR_CASES.items():
