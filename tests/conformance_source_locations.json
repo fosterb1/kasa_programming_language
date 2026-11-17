@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "coordinate_system": "1-based lines and Unicode code-point columns; CRLF counts as one newline",
+  "cases": [
+    {
+      "name": "ascii_control",
+      "source": "ka \"A\" & 3",
+      "line": 1,
+      "column": 8,
+      "category": "SyntaxError"
+    },
+    {
+      "name": "twi_open_o",
+      "source": "ka \"ɔ\" & 3",
+      "line": 1,
+      "column": 8,
+      "category": "SyntaxError"
+    },
+    {
+      "name": "twi_open_e",
+      "source": "ka \"ɛ\" & 3",
+      "line": 1,
+      "column": 8,
+      "category": "SyntaxError"
+    },
+    {
+      "name": "two_twi_codepoints",
+      "source": "ka \"ɛɔ\" & 3",
+      "line": 1,
+      "column": 9,
+      "category": "SyntaxError"
+    },
+    {
+      "name": "twi_identifier_on_second_line",
+      "source": "ma ɛdin = 2\nka ɛdin & 0",
+      "line": 2,
+      "column": 9,
+      "category": "SyntaxError"
+    },
+    {
+      "name": "supplementary_unicode_symbol",
+      "source": "ka \"🙂\" & 3",
+      "line": 1,
+      "column": 8,
+      "category": "SyntaxError"
+    },
+    {
+      "name": "twi_with_crlf",
+      "source": "ma ɛdin = 2\r\nka \"ɔ\" & 3",
+      "line": 2,
+      "column": 8,
+      "category": "SyntaxError"
+    }
+  ]
+}
