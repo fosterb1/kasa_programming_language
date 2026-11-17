@@ -48,13 +48,19 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Standalone native Unicode lexer executable | No | Yes |
 | Standalone KBC1 serialization and corruption-rejection executable | No | Yes |
 | Deterministic KBC1 loader mutation smoke (2,000 CRC-adjusted changes) | No | Yes |
-| Native/Python conformance harness | No | Yes |
+| Native/Python conformance harness (direct source and KBC1-vs-reference fixtures) | No | Yes |
 | Native KBC1 round-trip and malformed-bytecode tests | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
 
 The script runs subprocesses without a shell, captures the final portion of stdout/stderr, records exit codes and durations, and returns **nonzero** if any required step fails. Missing executables are failures, not skipped passes. An unsuccessful native configuration/build marks every downstream dependent check explicitly as **not_run**, including the reason it was blocked; the complete planned check list is preserved in the report.
 
 **A dry run reports `not_run` for every step and never claims the tests passed.** Do not compare a dry-run exit code to a completed test run.
+
+### Native bytecode versus Python reference
+
+The native conformance harness now includes additional `.kbc` comparison groups: **26 existing valid Kasa programs** (including input), **10 signed-remainder programs**, **11 runtime-error examples**, and **11 deliberately invalid Unicode/source-location cases**. Successful programs compare the Python reference output to `kasa-native compile` → `check-bytecode` → `run-bytecode`. Invalid syntax must fail **before producing executable bytecode**.
+
+These are **new test cases, not claimed passing results**. Run the full profile on a complete local checkout and retain its JSON report to verify actual parity.
 
 ### Run the native lexer independently
 
