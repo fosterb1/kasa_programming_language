@@ -1015,7 +1015,7 @@ Every token should retain:
 - Original lexeme
 - Parsed literal value when appropriate
 - Line number
-- Column number
+- Column number (1-based, counted in Unicode code points rather than UTF-8 bytes or UTF-16 code units, as proposed in [RFC-0004](./docs/RFC-0004-unicode-source-locations.md))
 - Source filename when available
 
 The lexer must:
