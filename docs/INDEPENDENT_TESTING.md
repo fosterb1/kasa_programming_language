@@ -60,7 +60,7 @@ The script runs subprocesses without a shell, captures the final portion of stdo
   "profile": "full",
   "dry_run": false,
   "counts": {
-    "passed": 10,
+    "passed": 11,
     "failed": 0,
     "not_run": 0
   }
