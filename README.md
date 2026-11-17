@@ -6,7 +6,7 @@ Kasa is an educational programming-language project intended to become open sour
 
 Kasa's guiding idea is simple: **learners should focus on solving problems, not memorizing unfamiliar English keywords.** The language uses familiar Twi-inspired vocabulary while teaching transferable concepts such as variables, conditions, loops, functions, lists, and debugging.
 
-> **Project status — Experimental alpha.** The Python reference interpreter began at **v0.1.0**; Kasa also has a **C++20 native bytecode VM (0.3 alpha)** and a separate browser JavaScript runtime. The main branch currently includes **nine root `.kasa` examples** and an independent verification runner. **KBC1 disk-based bytecode remains in an unmerged 0.4 development PR**. Kasa is **not yet a stable, fully conformant or classroom-certified 1.0 release**. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) for independently tested progress, discoveries and blockers.
+> **Project status — Experimental alpha (native 0.4).** Kasa includes a Python reference interpreter, a browser JavaScript runtime, and a **C++20 native compiler/VM with an experimental KBC1 `.kbc` file format**. There are nine root example programs and an independent local verification runner. Full native KBC1 integration tests passed on Linux, but **full Python/native/JavaScript conformance, Windows/macOS validation, classroom review, and secure untrusted-code execution remain unfinished**. Kasa is not a stable 1.0 release. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) and [native integration report](./docs/verification/2026-11-17-kbc1-native-integration.md).
 
 ## See Kasa in action
 
@@ -220,9 +220,9 @@ Kasa's third execution engine lives in [`native/`](./native/). This is a **C++20
 
 **Status:** `0.4.0-alpha` KBC1 preview. The portable bytecode compiler and native VM have now passed independent GCC/Clang integration checks on Linux, including AddressSanitizer validation. The KBC1 format remains experimental and is not a security boundary; full Python/native parity and cross-platform release verification remain pending.
 
-### KBC1 portable bytecode preview (experimental branch)
+### KBC1 portable bytecode preview (experimental 0.4 alpha)
 
-This development branch adds an experimental `.kbc` file format to the native compiler. `kasa-native compile file.kasa -o file.kbc` writes a versioned bytecode file; `check-bytecode`, `run-bytecode` and `disasm-bytecode` validate before use. See [RFC-0005](./docs/RFC-0005-kbc1-portable-bytecode.md). **The full native compiler integration passed independent Linux verification with GCC and Clang (see documentation)**, and the format is not stable or a security boundary.
+The native 0.4 alpha includes an experimental `.kbc` file format. `kasa-native compile file.kasa -o file.kbc` writes a versioned bytecode file; `check-bytecode`, `run-bytecode` and `disasm-bytecode` validate before use. See [RFC-0005](./docs/RFC-0005-kbc1-portable-bytecode.md). **The full native compiler integration passed independent Linux verification with GCC and Clang (see documentation)**, and the format is not stable or a security boundary.
 
 ## WebAssembly browser compiler integration (development)
 
