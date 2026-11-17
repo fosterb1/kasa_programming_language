@@ -58,11 +58,13 @@ ka "Akwaaba, " + edin
 
 These programs use implemented Kasa syntax. Runnable versions are available in [`examples/`](./examples/), and the local automated test suite verifies their output.
 
-## Our focus: practical computing for Ghanaian learners
+## What Kasa aims to be best at
 
-Kasa's proposed specialization is **Twi-first, offline-first learning through real-world problems**, especially market trading, school fees, budgeting and inventory. This is a direction to validate with teachers and learners, not an established competitive advantage. See the [evidence-linked product focus](./docs/KASA_PRACTICAL_COMPUTING_FOCUS.md).
+**Offline-first practical computing education, taught through authentic Twi and Ghanaian everyday problems.** We are starting with cashbooks, shop inventory, school fees and numerical reasoning rather than pretending Kasa already competes with Python's libraries or C++ performance.
 
-New, self-contained programs cover [market cashbooks](./examples/market_cashbook.kasa), [stock reorder decisions](./examples/stock_reorder.kasa), and [school fees](./examples/school_fees.kasa). Amounts in money examples use **integer pesewas** rather than fractional floating-point cedis.
+Try [a market cashbook](./examples/market_cashbook.kasa), [inventory reorder logic](./examples/stock_reorder.kasa), or [a school-fee calculation](./examples/school_fees.kasa). All currency values in these lessons are **integer pesewas**, avoiding floating-point rounding in financial examples.
+
+This is a **product hypothesis**, not a measured competitive advantage. Read the [sources, design principles and pilot criteria](./docs/KASA_PRACTICAL_COMPUTING_FOCUS.md). No new Twi syntax was introduced.
 
 ## Why Kasa?
 
