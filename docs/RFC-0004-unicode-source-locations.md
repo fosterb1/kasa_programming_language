@@ -29,13 +29,13 @@ Examples: `ka "ɔ" & 3` and `ka "🙂" & 3` both identify `&` at **line 1, colum
 
 ## Verification
 
-The shared corpus `tests/conformance_source_locations.json` contains seven intentionally invalid source snippets. It is consumed by:
+The shared corpus `tests/conformance_source_locations.json` contains nine intentionally invalid source snippets, including trailing-operator EOF cases. It is consumed by:
 
 - Python pytest: `tests/test_source_locations.py`
 - JavaScript Node tests: `tests/test_kasa_browser.cjs`
 - Native/Python conformance harness: `native/tests/conformance.py`
 
-Initial direct JavaScript execution of all seven cases passed. Full pytest, Node test runner and native C++ builds must be run before a stable release claim.
+Initial direct JavaScript execution of all nine cases passed. Full pytest, Node test runner and native C++ builds must be run before a stable release claim.
 
 ## Open limitations
 
