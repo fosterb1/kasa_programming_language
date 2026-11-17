@@ -14,6 +14,12 @@
 
 ---
 
+## Linguistic research requirement (mandatory for future changes)
+
+This original engineering specification predates a formal language-review policy. Before introducing **any new Twi keyword, built-in, literal or syntax marker**, consult [the evidence and approval policy](./docs/LANGUAGE_RESEARCH_POLICY.md), record exact references and a decision in [the evidence register](./docs/keyword_evidence.json), and obtain fluent speaker/educator review. Existing vocabulary is grandfathered for compatibility, **not certified**. Keep the source of truth here synchronized with [the reference-linked keyword audit](./docs/TWI_KEYWORD_AUDIT.md) and with tested Python, JavaScript and native implementations. A semantic change must have tests and an RFC or issue. Never invent Twi words through machine translation and present them as established usage.
+
+---
+
 # PART I — MASTER INSTRUCTIONS TO COPILOT
 
 ## 1. Your role

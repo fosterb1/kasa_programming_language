@@ -13,6 +13,10 @@ This milestone is an **initial functioning interpreter (0.1.0)**, not the comple
 - Resource budgets (steps, function calls, container/string sizes)
 - CLI for `run`, `check`, `repl`; pip-installable package; smoke examples/tests
 
+## New language governance (2026-11-17)
+
+New Twi grammar and built-ins now require an auditable research record and independent linguistic evidence, with fluent Asante and Akuapem review before acceptance. The current token inventory remains `legacy_review_pending`; see [policy](./LANGUAGE_RESEARCH_POLICY.md), [human-readable audit](./TWI_KEYWORD_AUDIT.md) and [structured evidence](./keyword_evidence.json). An offline test enforces documentation/change control. The test does **not** certify native-speaker approval.
+
 ## Remaining before 1.0
 
 - Full coverage of every acceptance case in the engineering specification

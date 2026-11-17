@@ -70,6 +70,16 @@ Programming education should not require learners to set aside the languages the
 
 Kasa is not intended to replace Python, JavaScript, or other established languages. Its initial purpose is to make the **first steps into programming** more accessible.
 
+## Linguistic evidence and approval gate
+
+Kasa does **not** accept new Twi syntax on the basis of AI translation alone. Every new word requires research, exact references, review by fluent speakers from Asante and Akuapem, and classroom suitability checks before implementation.
+
+- [Research and approval policy](./docs/LANGUAGE_RESEARCH_POLICY.md)
+- [Reference-linked audit of all 22 existing language tokens](./docs/TWI_KEYWORD_AUDIT.md)
+- [Structured keyword evidence register](./docs/keyword_evidence.json)
+
+**Audit status:** All pre-existing tokens are preserved for backwards compatibility but remain pending human review. Published lexical evidence is not the same as linguistic approval. The Python test suite contains an offline guard against silently adding new undocumented keywords or built-ins.
+
 ## Proposed language vocabulary
 
 | Kasa | Meaning |
