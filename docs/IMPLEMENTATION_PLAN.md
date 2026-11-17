@@ -31,9 +31,9 @@ New Twi grammar and built-ins now require an auditable research record and indep
 
 - [KBC1 RFC-0005](./RFC-0005-kbc1-portable-bytecode.md) proposes experimental disk-based native bytecode; `native/src/bytecode.cpp`, CLI commands and adversarial tests have been isolated from PR #7 into a review branch.
 - [Practical computing focus](./KASA_PRACTICAL_COMPUTING_FOCUS.md): Twi-first offline educational computing, especially market cashbooks, stock control and school finance. This is a hypothesis to pilot with learners, **not yet a proven edge**.
-- Independent C++20 KBC1 serializer smoke: **5/5 focused groups passed** on 2026-11-17 using source files verified by GitHub blob hashes. A writer/reader inconsistency for non-finite values was found and fixed; **full native CLI/VM integration remains unverified**.
+- Independent KBC1 alpha: **7/7** standalone serializer checks passed; **14/14** full native bytecode integration tests passed under GCC 14.2, Clang 17 and GCC AddressSanitizer/UndefinedBehaviorSanitizer on 2026-11-17, with exact GitHub blob hashes. Discoveries fixed: NaN writer/reader mismatch, source-column and aggregate nested instruction limits, and function/closure environment reference-cycle leaks. See [complete report](./verification/2026-11-17-kbc1-native-integration.md). Full Python/native parity, complete CTest suite and cross-platform testing remain pending.
 - A separate deterministic KBC1 mutation smoke test ran 2,000 checksum-adjusted inputs with ASan/UBSan and no reported sanitizer errors (1,349 rejected, 651 structurally accepted). CRC32 is not a signature; full VM/fuzzing/security verification remains outstanding.
-- Independent full-profile runner now plans native KBC1 round-trip and malformed-input tests. A full native CMake build on this exact branch is required before declaring integration complete.
+- Independent full-profile runner includes native KBC1 round-trip and malformed-input tests. A complete CMake native binary build and targeted integration suite passed on the exact development files; full integrated Python/Node, CTest and WebAssembly validation are still separate release gates.
 
 ## Remaining before 1.0
 
