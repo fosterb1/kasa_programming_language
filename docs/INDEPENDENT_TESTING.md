@@ -74,7 +74,7 @@ The standalone executable evaluates **13 lexical checks**. The full local verifi
   "profile": "full",
   "dry_run": false,
   "counts": {
-    "passed": 12,
+    "passed": 13,
     "failed": 0,
     "not_run": 0
   }
