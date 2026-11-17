@@ -1,5 +1,7 @@
 #include "kasa/native.hpp"
 #include <fstream>
+#include <filesystem>
+#include <system_error>
 #include <iostream>
 #include <iterator>
 #include <utility>
@@ -44,7 +46,20 @@ int main(int argc, char **argv) {
             string output;
             if (argc==5)output=argv[4];
             else {output=file;auto pos=output.find_last_of('.');auto sep=output.find_last_of("/\\");if(pos!=string::npos && (sep==string::npos || pos>sep))output.resize(pos);output+=".kbc";}
-            if(output==file){cerr<<"Refusing to overwrite source file\n";return 2;}
+            // Reject textual aliases, relative aliases, symlinks and hardlinks
+            // pointing at the source. This must be checked before opening output.
+            namespace fs = std::filesystem;
+            std::error_code ec;
+            bool same = fs::equivalent(fs::path(file), fs::path(output), ec);
+            if (ec) ec.clear();  // The output may not exist yet.
+            if (!same) {
+                const auto sourcePath = fs::weakly_canonical(fs::path(file), ec);
+                if (ec) { cerr<<"Cannot verify source path: "<<ec.message()<<"\n";return 2; }
+                const auto outputPath = fs::weakly_canonical(fs::path(output), ec);
+                if (ec) { cerr<<"Cannot verify output path: "<<ec.message()<<"\n";return 2; }
+                same = sourcePath == outputPath;
+            }
+            if(same){cerr<<"Refusing to overwrite source file\n";return 2;}
             writeBytecode(code,output);
             cout<<"Compiled "<<file<<" -> "<<output<<"\n";
             return 0;
