@@ -45,7 +45,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Node interpreter and WASM protocol tests | Yes | Yes |
 | Native CMake configuration | No | Yes |
 | Native C++20 compiler and VM build | No | Yes |
-| Standalone native Unicode lexer CTest | No | Yes |
+| Standalone native Unicode lexer executable | No | Yes |
 | Native/Python conformance harness | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
 
@@ -63,7 +63,7 @@ cmake --build build/kasa-local --target kasa-lexer-smoke --config Release
 ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --output-on-failure
 ```
 
-The CTest case evaluates **13 lexical checks**. A green CTest result is not equivalent to the entire native VM passing.
+The standalone executable evaluates **13 lexical checks**. The full local verifier invokes this binary directly and checks its exit code, avoiding the possibility of a zero-test CTest run being mistaken for success. The same test is also registered with CTest for manual use. Neither result is equivalent to the entire native VM passing.
 
 ## Interpreting results
 
