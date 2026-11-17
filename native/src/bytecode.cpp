@@ -68,7 +68,7 @@ public:
 void writeValue(Writer& w, const Value& value) {
     if (std::holds_alternative<std::monostate>(value.data)) w.u8(0);
     else if (const auto* n = std::get_if<int64_t>(&value.data)) { w.u8(1); w.u64(std::bit_cast<uint64_t>(*n)); }
-    else if (const auto* n = std::get_if<double>(&value.data)) { w.u8(2); w.u64(std::bit_cast<uint64_t>(*n)); }
+    else if (const auto* n = std::get_if<double>(&value.data)) { if (!std::isfinite(*n)) invalid("non-finite constant"); w.u8(2); w.u64(std::bit_cast<uint64_t>(*n)); }
     else if (const auto* s = std::get_if<std::string>(&value.data)) { w.u8(3); w.str(*s); }
     else if (const auto* b = std::get_if<bool>(&value.data)) { w.u8(4); w.u8(*b ? 1 : 0); }
     else invalid("unsupported constant type");
