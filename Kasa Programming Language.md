@@ -349,7 +349,7 @@ The exact displayed decimal formatting may be improved for readability, but the 
 - Arithmetic operands must be numeric.
 - Booleans are not numeric operands.
 - `/` always returns a decimal value.
-- `%` requires integer operands.
+- `%` requires integer operands. For signed integers, it uses **floor-based remainder**: `a % b = a - floor(a / b) * b` for `b != 0`. A nonzero result has the divisor's sign (e.g., `-7 % 3 == 2`, `7 % -3 == -2`). **All engines must agree.** See [RFC-0003](./docs/RFC-0003-remainder-semantics.md) and [cross-runtime fixtures](./tests/conformance_remainder.json).
 - Division by zero produces a runtime error.
 - Remainder by zero produces a runtime error.
 - Invalid operand combinations produce type errors.
