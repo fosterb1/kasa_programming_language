@@ -850,6 +850,8 @@ ma edin = bisa()
 ma edin = bisa("Wo din de sɛn? ")
 ```
 
+**Linguistic sources for the existing token `bisa`:** [LearnAkan Dictionary: ask](https://learnakandictionary.com/english-twi/ask/) and [Akan (Twi) Dictionary: bisa](https://www.akandictionary.com/2021/05/08/bisa/) independently attest its ordinary-language sense of “ask.” This supports the choice of an input function name, **not** a claim that the programming behavior has received teacher/native-speaker approval. See the broader research policy in the separate governance branch.
+
 `bisa()` reads one line from standard input and returns a string.
 `bisa("...")` writes the text prompt to standard output **without an automatic newline**, flushes it where applicable, then reads one line. In the browser playground, the prompt is included in captured output and the line is read from the playground input area.
 
