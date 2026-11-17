@@ -41,9 +41,17 @@
     const tokens = [];
     let i = 0, line = 1, column = 1;
     function advance() {
-      const c = source[i++];
+      const at = i++;
+      const c = source[at];
       if (c === "\n") { line++; column = 1; }
-      else column++;
+      else {
+        // JS strings use UTF-16. Count a valid surrogate pair as one
+        // Unicode scalar value, to match Python and the C++ UTF-8 lexer.
+        const code = c.charCodeAt(0);
+        const prev = at > 0 ? source.charCodeAt(at - 1) : -1;
+        if (!(code >= 0xDC00 && code <= 0xDFFF &&
+              prev >= 0xD800 && prev <= 0xDBFF)) column++;
+      }
       return c;
     }
     const tok = (kind, text, ln, col) => ({ kind, text, line: ln, column: col });
