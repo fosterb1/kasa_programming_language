@@ -5,6 +5,7 @@ add_executable(kasa-native
     src/lexer.cpp
     src/parser.cpp
     src/compiler.cpp
+    src/bytecode.cpp
     src/vm.cpp
 )
 target_compile_features(kasa-native PRIVATE cxx_std_20)
