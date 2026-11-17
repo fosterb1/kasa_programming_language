@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <system_error>
@@ -93,7 +94,26 @@ int main() {
         writeBytes(tampered,wrongChecksum);expectInvalid(tampered,"checksum mismatch");
         cout<<"PASS checksum rejection\n";
 
-        cout<<"4/4 KBC1 standalone smoke checks passed\n";
+        // The writer must not emit a file the reader will reject.
+        const auto invalidFloatPath=folder/"invalid-float.kbc";
+        auto rejectNonFinite = [&](double value, const string& label) {
+            auto bad=make_shared<kasa::Chunk>(*code);
+            bad->code.front().value=kasa::Value(value);
+            try {
+                kasa::writeBytecode(bad, invalidFloatPath.string());
+            } catch(const exception& error) {
+                require(string(error.what()).find("Invalid KBC bytecode: non-finite constant") != string::npos,
+                        "Unexpected error when rejecting " + label + ": " + error.what());
+                require(!filesystem::exists(invalidFloatPath), "Writer created invalid bytecode for " + label);
+                return;
+            }
+            throw runtime_error("Writer incorrectly accepted " + label);
+        };
+        rejectNonFinite(numeric_limits<double>::quiet_NaN(), "NaN");
+        rejectNonFinite(numeric_limits<double>::infinity(), "infinity");
+        cout<<"PASS non-finite floating-point writer rejection\n";
+
+        cout<<"5/5 KBC1 standalone smoke checks passed\n";
         return 0;
     } catch(const exception& error) {
         cerr<<"KBC1 smoke test failed: "<<error.what()<<"\n";
