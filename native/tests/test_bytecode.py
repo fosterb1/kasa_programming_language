@@ -110,7 +110,7 @@ class BytecodeCases(unittest.TestCase):
         text='ka "Do not overwrite"\n'
         source.write_text(text, encoding='utf-8')
         # A differently spelled path resolving to the same file is not safe.
-        alias=self.folder/'.'/'important.kasa'
+        alias=str(self.folder) + '/./important.kasa'
         result=self.command('compile', source, '-o', alias)
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertIn('Refusing to overwrite source file', result.stderr)
@@ -119,7 +119,7 @@ class BytecodeCases(unittest.TestCase):
     def test_nonzero_reserved_flags_rejected(self):
         _, kbc=self.compile('ka 42')
         original=kbc.read_bytes()
-        tampered=original[:6] + b'\\x01\\x00' + original[8:]
+        tampered=original[:6] + b'\x01\x00' + original[8:]
         self.expect_invalid(kbc, tampered, 'unsupported flags')
 
     def test_large_archive_rejected_before_execution(self):
@@ -132,10 +132,8 @@ class BytecodeCases(unittest.TestCase):
         raw=bytearray(kbc.read_bytes())
         # First chunk begins at 16, first instruction opcode at 20.
         # The tagged Boolean constant is after its fixed fields and empty name.
-        # Find the marker for tag 4, Boolean 1 within that first instruction.
-        first=raw.find(b'\\x04\\x01', 20)
-        self.assertGreater(first, 20, 'Expected serialized Boolean literal')
-        raw[first + 1]=2
+        self.assertEqual(raw[37:39], b'\x04\x01')
+        raw[38]=2
         self.expect_invalid(kbc,self.checksum(raw),'invalid Boolean constant')
 
     def test_missing_file(self):
