@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-11-18  
 **Reference branch:** `main`  
-**Open high-risk work:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16)  
+**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16) (merged 2026-11-18). **Next risk:** native/Python/JavaScript conformance and cross-platform validation.  
 **Blocked external CI:** [Issue #12 — GitHub Actions jobs terminate before recorded steps](https://github.com/fosterb1/kasa_programming_language/issues/12)
 
 ## How to record future milestones
@@ -27,18 +27,28 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 |---|---|---|---|
 | Python reference interpreter | Lexer, parser, runtime, CLI, REPL | Existing automated pytest files; **full current-branch suite not independently rerun here** | Reference implementation still has unstandardized numeric edge cases |
 | Browser JavaScript engine | Runs Kasa directly without Pyodide | **89/89 direct JS regression checks rerun on PR #16 on 2026-11-18**: 26 programs, 27 expected errors, 15 remainder cases, nine examples, 11 location cases, one EOF check | Direct V8 execution is not a complete Node/browser integration suite |
-| Native compiler/VM | C++20 compiler and VM alpha with experimental serialized KBC1 in PR #16 | **Full CMake native executable built; 14/14 KBC1 tests under GCC, Clang and GCC ASan/UBSan** in reconstructed exact-source environment, after fixing a closure memory leak | Whole-repository pytest/Node and native-vs-Python conformance not yet rerun |
+| Native compiler/VM | C++20 native compiler/VM 0.4 alpha with experimental serialized KBC1 **merged into main** in PR #16 | **Full CMake native executable built; 14/14 KBC1 tests under GCC, Clang and GCC ASan/UBSan** in reconstructed exact-source environment, after fixing a closure memory leak | Whole-repository pytest/Node and native-vs-Python conformance not yet rerun |
 | Source-coordinate consistency | Unicode code-point positions and browser supplementary-letter tokenization | Browser source-coordinate fixtures and native lexer smoke | Does not establish strict malformed UTF-8 handling or every Unicode identifier category |
 | Linguistic governance | [Policy](./LANGUAGE_RESEARCH_POLICY.md), [audit](./TWI_KEYWORD_AUDIT.md), [evidence register](./keyword_evidence.json) | Automated vocabulary-change guard implemented | All legacy tokens still need human linguistic review; publication links are not speaker approval |
 | Offline education | Browser interpreter; nine tracked root `.kasa` examples including cashbook, stock and school fees | The three new examples executed correctly in the browser | Pilot with Ghanaian teachers/learners not yet performed |
 | Independent local verification | [Runner](../scripts/verify_local.py) and [guide](./INDEPENDENT_TESTING.md) | **6/6 runner unit tests** passed in focused prior verification | Full profile requires complete checkout with Python, Node, CMake, C++ |
-| Disk-based portable bytecode (KBC1) | **Implemented in PR #16, awaiting integration into main** | **7/7 serializer checks**, **14/14 full native KBC1 tests** under GCC, Clang, GCC ASan/UBSan; 2,000 mutation attempts without sanitizer reports | Alpha format is not authenticated, a sandbox, or a stable portable interchange standard |
+| Disk-based portable bytecode (KBC1) | **Merged into main as experimental alpha (PR #16)** | **7/7 serializer checks**, **14/14 full native KBC1 tests** under GCC, Clang, GCC ASan/UBSan; 2,000 mutation attempts without sanitizer reports | Alpha format is not authenticated, a sandbox, or a stable portable interchange standard |
 | Native WebAssembly | Source bridge and build scripts | Source-level and worker simulation checks from previous milestones | No verified real Emscripten-generated WASM running in the browser |
 | License | No `LICENSE` file | N/A | Public visibility does not grant an open-source license. Owner decision required |
 
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+
+### 2026-11-18 — Experimental KBC1 merged; shared Python/KBC1 conformance expanded
+
+- **Status:** [PR #16](https://github.com/fosterb1/kasa_programming_language/pull/16) **merged to `main`** as Kasa native 0.4 alpha, squash SHA `637a3cee73c50dba6d1c9f6d5c024867f5207894`. The merge does **not** establish language 1.0 or a secure bytecode format.
+- **Independent results supporting the merge:** Full native compiler/VM and targeted KBC1 suite previously passed under GCC 14.2, Clang 17 and GNU ASan/UBSan (**14/14 grouped tests**); [complete verification report](./verification/2026-11-17-kbc1-native-integration.md). An additional **89/89 direct browser-runtime regression checks passed** against the candidate branch on 2026-11-18.
+- **New discovery:** The existing cross-runtime conformance harness compares Python with **native source execution**, while the KBC1 test suite primarily compares **compiled bytecode with native source execution**. This leaves a gap in directly asserting `Python → compiled KBC1` parity across many language constructs.
+- **Change on separate development branch:** Add four KBC1 conformance groups to `native/tests/conformance.py`: 26 successful reference programs including interactive input, 10 shared signed-remainder cases, 11 representative error categories, and 11 Unicode/EOF invalid-source checks. The successful paths compile, check and execute a temporary `.kbc` file and compare its output with Python.
+- **Verification status:** These **new groups are written, not independently executed against the complete native binary yet**. The JavaScript 89/89 regression checks are unrelated evidence and must not be presented as a pass of this new native test suite.
+- **Challenges:** The independent development container cannot resolve GitHub download hosts for a full checkout; GitHub Actions remains deliberately outside the workflow due to runner/account limitations.
+- **Next gate:** Execute `python scripts/verify_local.py --profile full` in a complete local checkout, inspect source versus compiled parity failures, and update this journal with exact observed outcomes before merging the conformance test branch.
 
 ### 2026-11-18 — KBC1 full native integration verification and closure leak repair
 
