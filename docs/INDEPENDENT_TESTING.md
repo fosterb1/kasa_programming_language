@@ -53,6 +53,18 @@ The script runs subprocesses without a shell, captures the final portion of stdo
 
 **A dry run reports `not_run` for every step and never claims the tests passed.** Do not compare a dry-run exit code to a completed test run.
 
+### Run the native lexer independently
+
+You can build only the lexer test, without linking Kasa's bytecode compiler or virtual machine:
+
+```sh
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-lexer-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --output-on-failure
+```
+
+The CTest case evaluates **13 lexical checks**. A green CTest result is not equivalent to the entire native VM passing.
+
 ## Interpreting results
 
 ```json
