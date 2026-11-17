@@ -19,6 +19,8 @@ OPERATORS = {"==", "!=", "<=", ">=", "+", "-", "*", "/", "%", "<", ">", "=", "("
 BINDING_POWER = {"OR": 10, "AND": 20, "==": 30, "!=": 30, "<": 40, "<=": 40, ">": 40, ">=": 40,
                  "+": 50, "-": 50, "*": 60, "/": 60, "%": 60}
 COMPARISONS = {"<", "<=", ">", ">=", "==", "!="}
+# Auditable vocabulary: see docs/keyword_evidence.json before adding Twi built-ins.
+BUILTIN_NAMES = frozenset({"bisa", "tentɛn", "nɔma", "nsɛm"})
 MAX_CONTAINER_SIZE = 10_000
 MAX_STRING_SIZE = 1_000_000
 
@@ -549,7 +551,7 @@ class Interpreter:
             present, value = env.get(expr.value)
             if present:
                 return value
-            if expr.value in {"bisa", "tentɛn", "nɔma", "nsɛm"}:
+            if expr.value in BUILTIN_NAMES:
                 return Builtin(expr.value)
             self.error(expr.token, "NameError", f"Unknown name '{expr.value}'")
         if kind == "list":
