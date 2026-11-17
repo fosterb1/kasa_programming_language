@@ -47,6 +47,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Native C++20 compiler and VM build | No | Yes |
 | Standalone native Unicode lexer executable | No | Yes |
 | Native/Python conformance harness | No | Yes |
+| Native KBC1 round-trip and malformed-bytecode tests | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
 
 The script runs subprocesses without a shell, captures the final portion of stdout/stderr, records exit codes and durations, and returns **nonzero** if any required step fails. Missing executables are failures, not skipped passes. An unsuccessful native configuration/build marks every downstream dependent check explicitly as **not_run**, including the reason it was blocked; the complete planned check list is preserved in the report.
