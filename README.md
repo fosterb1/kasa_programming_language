@@ -216,7 +216,7 @@ Build the standalone hosting ZIP using `python playground/build_site.py`. Redepl
 
 Kasa's third execution engine lives in [`native/`](./native/). This is a **C++20 compiler and stack-based virtual machine**, not a Python wrapper: it translates Kasa source into *in-memory bytecode* and executes it in a standalone native binary. It currently implements the core Twi syntax, functions, recursion, lists, input and control flow. See [native build and testing instructions](./native/README.md) and the [draft native ecosystem RFC](./docs/RFC-0001-kasa-native-roadmap.md).
 
-**Status:** `0.3.0-alpha`. Python remains the behavioral reference until conformance is standardized. A binary file format, machine-code output, package manager, and self-hosting are future milestones, **not existing features**. Native integers are currently 64-bit, unlike Python's larger integer range.
+**Status:** `0.4.0-alpha` on this KBC1 development branch. Python remains the behavioral reference until conformance is standardized. The **experimental binary KBC1 file format is implemented but awaits full current-branch integration testing**; machine-code output, package management, and self-hosting remain future work. Native integers are currently 64-bit, unlike Python's larger integer range.
 
 ### KBC1 portable bytecode preview (experimental branch)
 
