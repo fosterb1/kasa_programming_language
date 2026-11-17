@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "reference_engine": "Python Kasa interpreter",
+  "semantics": "For integers a and b with b != 0, a % b = a - floor(a/b)*b; if nonzero the result has the sign of b.",
+  "cases": [
+    {
+      "name": "positive_operands",
+      "source": "ka 7 % 3",
+      "expected_stdout": "1\n"
+    },
+    {
+      "name": "negative_dividend",
+      "source": "ka -7 % 3",
+      "expected_stdout": "2\n"
+    },
+    {
+      "name": "negative_divisor",
+      "source": "ka 7 % -3",
+      "expected_stdout": "-2\n"
+    },
+    {
+      "name": "both_negative",
+      "source": "ka -7 % -3",
+      "expected_stdout": "-1\n"
+    },
+    {
+      "name": "negative_exact_multiple",
+      "source": "ka -9 % 3",
+      "expected_stdout": "0\n"
+    },
+    {
+      "name": "negative_divisor_exact_multiple",
+      "source": "ka 9 % -3",
+      "expected_stdout": "0\n"
+    },
+    {
+      "name": "negative_expression",
+      "source": "ka (0 - 7) % 3",
+      "expected_stdout": "2\n"
+    },
+    {
+      "name": "large_exact_integer",
+      "source": "ka 9007199254740993 % 7",
+      "expected_stdout": "5\n"
+    },
+    {
+      "name": "large_negative_exact_integer",
+      "source": "ka -9007199254740993 % 7",
+      "expected_stdout": "2\n"
+    },
+    {
+      "name": "multiple_operations",
+      "source": "ka 15 % 4\nka -15 % 4\nka 15 % -4\nka -15 % -4",
+      "expected_stdout": "3\n1\n-1\n-3\n"
+    }
+  ],
+  "errors": [
+    {
+      "name": "mod_zero",
+      "source": "ka 5 % 0",
+      "category": "ZeroDivisionError"
+    },
+    {
+      "name": "negative_mod_zero",
+      "source": "ka -5 % 0",
+      "category": "ZeroDivisionError"
+    },
+    {
+      "name": "float_left_operand",
+      "source": "ka 2.5 % 3",
+      "category": "TypeError"
+    },
+    {
+      "name": "float_right_operand",
+      "source": "ka 5 % 2.0",
+      "category": "TypeError"
+    },
+    {
+      "name": "boolean_operand",
+      "source": "ka nokware % 3",
+      "category": "TypeError"
+    }
+  ]
+}
