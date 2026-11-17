@@ -48,7 +48,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Native/Python conformance harness | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
 
-The script runs subprocesses without a shell, captures the final portion of stdout/stderr, records exit codes and durations, and returns **nonzero** if any required step fails. Missing executables are failures, not skipped passes. An unsuccessful native configuration/build stops dependent native checks; the incomplete report is still saved.
+The script runs subprocesses without a shell, captures the final portion of stdout/stderr, records exit codes and durations, and returns **nonzero** if any required step fails. Missing executables are failures, not skipped passes. An unsuccessful native configuration/build marks every downstream dependent check explicitly as **not_run**, including the reason it was blocked; the complete planned check list is preserved in the report.
 
 **A dry run reports `not_run` for every step and never claims the tests passed.** Do not compare a dry-run exit code to a completed test run.
 
