@@ -67,6 +67,16 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --outp
 
 The standalone executable evaluates **13 lexical checks**. The full local verifier invokes this binary directly and checks its exit code, avoiding the possibility of a zero-test CTest run being mistaken for success. The same test is also registered with CTest for manual use. Neither result is equivalent to the entire native VM passing.
 
+### KBC1 checks without the full VM
+
+```sh
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-kbc1-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --output-on-failure
+```
+
+The C++ serializer smoke has **four targeted checks**, and the full profile executes its binary directly. The separate Python `native/tests/test_bytecode.py` suite additionally requires the complete native VM executable to test source/bytecode execution and malformed files.
+
 ## Interpreting results
 
 ```json
