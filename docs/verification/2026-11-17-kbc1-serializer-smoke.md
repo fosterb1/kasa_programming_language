@@ -66,6 +66,20 @@ ASAN_OPTIONS=detect_leaks=1 ./kasa-kbc1-smoke-sanitized
 
 **Result:** Before the fix, the writer accepted `NaN` and the reader rejected it. After the fix, both writer and reader reject non-finite constants. The focused smoke suite passed.
 
+## Follow-on mutation stress result
+
+A deterministic test was developed at `native/tests/bytecode_mutation_smoke.cpp` on experimental PR #16, with Git blob SHA-1 `7bde78136aa35d1609f1f613786dcef36a22ccd4`. It uses a fixed random seed and takes a valid KBC1 program containing a Twi character, flips one payload bit per iteration, recalculates the CRC32 checksum and asks the loader to **parse without executing** each modified program.
+
+The test was compiled from the exact GitHub-matched serializer and header sources with GNU g++ 14.2.0, `-std=c++20 -O1 -g -Wall -Wextra -Wpedantic -Werror -fsanitize=address,undefined -fno-omit-frame-pointer`, and executed with `ASAN_OPTIONS=detect_leaks=1`.
+
+```text
+PASS 2000 checksum-adjusted KBC1 mutations handled: 1349 rejected, 651 structurally accepted
+```
+
+No AddressSanitizer or UndefinedBehaviorSanitizer errors were reported. This finite sample is **not** a comprehensive fuzzing campaign. The 651 accepted variants are **not necessarily parser errors**: changing a byte can produce another structurally valid program, especially after recomputing its CRC32. CRC32 therefore does **not** provide provenance, signatures, or protection against deliberate modification. Such bytecode must not be treated as trusted or automatically executed just because the loader accepts it.
+
+**Verification scope:** The standalone loader and its structural verifier, without executing a mutated program. The full native VM remains unverified on PR #16.
+
 ## Outstanding limitations and risks
 
 - The entire `kasa-native` binary was **not** compiled from this branch's parser, compiler, lexer and VM sources during this check.
