@@ -1,0 +1,12 @@
+# School fee balance: all amounts in integer pesewas.
+ma total_fees = 150000
+ma amount_paid = 80000
+ma scholarship = 25000
+ma outstanding = total_fees - amount_paid - scholarship
+
+sɛ outstanding > 0 a
+    ka "Outstanding fees (pesewas):"
+    ka outstanding
+anyɛ_saa_a
+    ka "Fees settled"
+awiei
