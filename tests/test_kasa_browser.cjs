@@ -70,6 +70,8 @@ const programs = [
   ['dwumadie fa_bi(a,b)\n sanma a+b\nawiei\nka fa_bi(2,7)', '9\n'],
   ['ma xs=[10,20,30]\nka xs[0]\nma xs[1]=99\nka xs[1]\nka tentɛn(xs)', '10\n99\n3\n'],
   ['ma ɛdin="Ama"\nma ɔman="Ghana"\nka ɛdin+" - "+ɔman', 'Ama - Ghana\n'],
+  ['ma 𐐀 = 3\nka 𐐀', '3\n'],
+  ['ma ɛ𐐀 = 5\nka ɛ𐐀', '5\n'],
   ['ka nɔma("12") + 3\nka nsɛm(nokware)', '15\nnokware\n'],
   ['ka bisa()', 'Ama\n', 'Ama\n'],
   ['ma edin = bisa("Wo din de sɛn? ")\nka "Akwaaba, " + edin', 'Wo din de sɛn? Akwaaba, Ama\n', 'Ama\n'],
