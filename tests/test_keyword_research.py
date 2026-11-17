@@ -123,9 +123,9 @@ def test_all_three_runtimes_agree_on_documented_keywords() -> None:
     cpp = (ROOT / "native" / "src" / "lexer.cpp").read_text(encoding="utf-8")
     vm = (ROOT / "native" / "src" / "vm.cpp").read_text(encoding="utf-8")
 
-    js_block = re.search(r"const KEYWORDS = Object\\.freeze\\(\\{(.*?)\\}\\);", js, re.S)
+    js_block = re.search(r"const KEYWORDS = Object\.freeze\(\{(.*?)\}\);", js, re.S)
     native_block = re.search(
-        r"static const unordered_map<string,string> words=\\{(.*?)\\};", cpp, re.S
+        r"static const unordered_map<string,string> words=\{(.*?)\};", cpp, re.S
     )
     assert js_block, "Cannot inspect JS keyword registry"
     assert native_block, "Cannot inspect native keyword registry"
@@ -133,18 +133,18 @@ def test_all_three_runtimes_agree_on_documented_keywords() -> None:
     js_keys = {
         quoted or identifier
         for quoted, identifier in re.findall(
-            r'(?:"([^"]+)"|([\\w]+))\\s*:\\s*"[A-Z_]+"', js_block.group(1)
+            r'(?:"([^"]+)"|([\w]+))\s*:\s*"[A-Z_]+"', js_block.group(1)
         )
     }
     native_keys = set(
-        re.findall(r'\\{\\s*"([^"]+)"\\s*,\\s*"[A-Z_]+"\\s*\\}', native_block.group(1))
+        re.findall(r'\{\s*"([^"]+)"\s*,\s*"[A-Z_]+"\s*\}', native_block.group(1))
     )
     assert js_keys == set(KEYWORDS), f"JavaScript lexer keywords differ: {js_keys ^ set(KEYWORDS)}"
     assert native_keys == set(KEYWORDS), f"Native lexer keywords differ: {native_keys ^ set(KEYWORDS)}"
 
-    js_builtin = re.search(r'\\[([^\\]]+)\\]\\.includes\\(e\\.value\\)', js)
+    js_builtin = re.search(r'\[([^\]]+)\]\.includes\(e\.value\)', js)
     native_builtin = re.search(
-        r'for\\(const char\\*s:\\{([^}]+)\\}\\)env->values\\[s\\]=Value\\(Builtin\\{s\\}\\)',
+        r'for\(const char\*s:\{([^}]+)\}\)env->values\[s\]=Value\(Builtin\{s\}\)',
         vm,
     )
     assert js_builtin, "Cannot inspect JS built-in registry"
