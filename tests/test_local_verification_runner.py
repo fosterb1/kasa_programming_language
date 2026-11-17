@@ -29,7 +29,7 @@ def test_runner_dry_run_never_claims_tests_passed(tmp_path):
     output = json.loads(report.read_text(encoding="utf-8"))
     assert output["dry_run"] is True
     assert output["counts"]["passed"] == 0
-    assert output["counts"]["not_run"] == 12
+    assert output["counts"]["not_run"] == 13
     assert "NOT a pass" in result.stdout
 
 
