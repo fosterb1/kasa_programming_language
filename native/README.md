@@ -27,6 +27,18 @@ Run from the **repository root** (executable path on multi-configuration Windows
 
 The `disasm` command prints the internal bytecode instructions. The VM **compiles the source into bytecode and then executes it**, rather than evaluating the AST directly. `check` parses and compiles but deliberately does not execute code.
 
+## Standalone native lexer verification (no Python or VM required)
+
+The C++20 lexer has a self-contained executable that checks 13 Unicode/source-location cases. Build only that target if the full compiler is not yet ready:
+
+```bash
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-lexer-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --output-on-failure
+```
+
+The executable tests tokenization and error coordinates, **not full native program execution**. It is also included in the `python scripts/verify_local.py --profile full` verification plan.
+
 ## Test native/compiler conformance
 
 ```bash
@@ -48,7 +60,7 @@ The harness compares native program output against the current **Python referenc
 ## Deliberate alpha limitations
 
 - **Native integer values are signed 64-bit**, while the Python reference permits considerably larger integers. Native integer overflow produces a `ResourceError` rather than wrapping. This discrepancy is documented and requires a deliberate common numeric specification (e.g. big integers) before v1.
-- Decimal display precision, Unicode source-column counting, exotic Unicode identifiers, and numeric text conversion may differ from Python and JavaScript.
+- Decimal display precision, malformed UTF-8 handling, certain Unicode identifier categories, and numeric text conversion may still differ from Python and JavaScript. Valid UTF-8 Unicode code-point columns and selected supplementary-letter identifiers now have dedicated lexer tests, but full parity has not been established.
 - Bytecode is **in-memory only**. No `.kbc` file format, bytecode verifier, native machine-code generation, WASM target, debugger, module system, package manager, standard-library ecosystem, or graphical tooling is implemented yet.
 - This binary is an **interpreter for compiled bytecode**, not a machine-code ahead-of-time compiler and not a self-hosted Kasa compiler.
 - The VM has safety budgets but is **not a hardened sandbox** for running hostile source code on shared infrastructure.

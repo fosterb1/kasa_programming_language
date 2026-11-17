@@ -45,12 +45,25 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Node interpreter and WASM protocol tests | Yes | Yes |
 | Native CMake configuration | No | Yes |
 | Native C++20 compiler and VM build | No | Yes |
+| Standalone native Unicode lexer executable | No | Yes |
 | Native/Python conformance harness | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
 
 The script runs subprocesses without a shell, captures the final portion of stdout/stderr, records exit codes and durations, and returns **nonzero** if any required step fails. Missing executables are failures, not skipped passes. An unsuccessful native configuration/build marks every downstream dependent check explicitly as **not_run**, including the reason it was blocked; the complete planned check list is preserved in the report.
 
 **A dry run reports `not_run` for every step and never claims the tests passed.** Do not compare a dry-run exit code to a completed test run.
+
+### Run the native lexer independently
+
+You can build only the lexer test, without linking Kasa's bytecode compiler or virtual machine:
+
+```sh
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-lexer-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --output-on-failure
+```
+
+The standalone executable evaluates **13 lexical checks**. The full local verifier invokes this binary directly and checks its exit code, avoiding the possibility of a zero-test CTest run being mistaken for success. The same test is also registered with CTest for manual use. Neither result is equivalent to the entire native VM passing.
 
 ## Interpreting results
 
@@ -59,7 +72,7 @@ The script runs subprocesses without a shell, captures the final portion of stdo
   "profile": "full",
   "dry_run": false,
   "counts": {
-    "passed": 10,
+    "passed": 11,
     "failed": 0,
     "not_run": 0
   }
