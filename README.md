@@ -170,7 +170,7 @@ The three engines retain other documented differences, notably the native 64-bit
 
 ## Unicode diagnostic coordinates (Kasa 0.4 proposal)
 
-Kasa syntax errors should report **one-based line and Unicode code-point column numbers** regardless of whether the code runs in Python, browser JavaScript, or the C++ native VM. This is especially important for Twi characters like `ɛ` and `ɔ`. The proposed rule, limitations and compatibility fixtures are documented in [RFC-0004](./docs/RFC-0004-unicode-source-locations.md). The browser runtime passed the nine direct source-location checks; full native and Python integration tests remain pending.
+Kasa syntax errors should report **one-based line and Unicode code-point column numbers** regardless of whether the code runs in Python, browser JavaScript, or the C++ native VM. This is especially important for Twi characters like `ɛ` and `ɔ`. The proposed rule, limitations and compatibility fixtures are documented in [RFC-0004](./docs/RFC-0004-unicode-source-locations.md). The browser runtime passed the eleven direct source-location checks; full native and Python integration tests remain pending.
 
 ## Technical specification
 
