@@ -1,6 +1,6 @@
 # Kasa Native — independent bytecode compiler and VM
 
-**Version:** `0.3.0-alpha` · **Status:** experimental, tested source-to-in-memory-bytecode implementation.
+**Version:** `0.4.0-alpha` (KBC1 development branch) · **Status:** experimental native compiler and virtual machine. The KBC1 file format is a draft undergoing integration verification.
 
 This is the first Kasa executable **that runs without a Python or JavaScript runtime**. It is written in **C++20**, uses the C++ standard library, and implements its own lexer, parser, abstract syntax tree, bytecode generator, and stack-based virtual machine. It does **not** generate Python source code, call Python, invoke Node.js, or delegate language evaluation to either existing Kasa interpreter.
 
@@ -39,6 +39,20 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --outp
 
 The executable tests tokenization and error coordinates, **not full native program execution**. It is also included in the `python scripts/verify_local.py --profile full` verification plan.
 
+## Experimental KBC1 file operations
+
+From the repository root, after building `kasa-native`:
+
+```bash
+./build/kasa-native compile examples/market_cashbook.kasa -o build/market.kbc
+./build/kasa-native check-bytecode build/market.kbc
+./build/kasa-native disasm-bytecode build/market.kbc
+./build/kasa-native run-bytecode build/market.kbc
+python native/tests/test_bytecode.py build/kasa-native
+```
+
+Bytecode is validated before execution. CRC32 is **not authentication**. The loader and virtual machine are not approved to execute untrusted bytecode as a privileged service. See [KBC1 RFC-0005](../docs/RFC-0005-kbc1-portable-bytecode.md). **Full integration testing on the current base remains pending.**
+
 ## Test native/compiler conformance
 
 ```bash
@@ -61,7 +75,7 @@ The harness compares native program output against the current **Python referenc
 
 - **Native integer values are signed 64-bit**, while the Python reference permits considerably larger integers. Native integer overflow produces a `ResourceError` rather than wrapping. This discrepancy is documented and requires a deliberate common numeric specification (e.g. big integers) before v1.
 - Decimal display precision, malformed UTF-8 handling, certain Unicode identifier categories, and numeric text conversion may still differ from Python and JavaScript. Valid UTF-8 Unicode code-point columns and selected supplementary-letter identifiers now have dedicated lexer tests, but full parity has not been established.
-- Bytecode is **in-memory only**. No `.kbc` file format, bytecode verifier, native machine-code generation, WASM target, debugger, module system, package manager, standard-library ecosystem, or graphical tooling is implemented yet.
+- Source compilation still produces in-memory bytecode internally; this branch also implements an **experimental KBC1 serialized file format and structural verifier**. It is not a security-audited sandbox, stable bytecode standard, machine-code generator, debugger, package manager, or full standard library.
 - This binary is an **interpreter for compiled bytecode**, not a machine-code ahead-of-time compiler and not a self-hosted Kasa compiler.
 - The VM has safety budgets but is **not a hardened sandbox** for running hostile source code on shared infrastructure.
 - No open-source license has been selected yet. The existing project specification proposes MIT pending the owner's decision.
