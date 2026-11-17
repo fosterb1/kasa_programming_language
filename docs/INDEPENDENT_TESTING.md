@@ -75,7 +75,7 @@ cmake --build build/kasa-local --target kasa-kbc1-smoke --config Release
 ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --output-on-failure
 ```
 
-The C++ serializer smoke has **four targeted checks**, and the full profile executes its binary directly. The separate Python `native/tests/test_bytecode.py` suite additionally requires the complete native VM executable to test source/bytecode execution and malformed files.
+The C++ serializer smoke has **five targeted checks**, including rejection of NaN and infinity by the writer, and the full profile executes its binary directly. The separate Python `native/tests/test_bytecode.py` suite additionally requires the complete native VM executable to test source/bytecode execution and malformed files.
 
 ## Interpreting results
 
