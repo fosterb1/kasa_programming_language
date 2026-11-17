@@ -64,6 +64,20 @@
       "line": 1,
       "column": 9,
       "category": "SyntaxError"
+    },
+    {
+      "name": "supplementary_letter_identifier",
+      "source": "ma 𐐀 = 3\nka 𐐀 & 2",
+      "line": 2,
+      "column": 6,
+      "category": "SyntaxError"
+    },
+    {
+      "name": "mixed_twi_supplementary_identifier",
+      "source": "ma ɛ𐐀 = 3\nka ɛ𐐀 & 2",
+      "line": 2,
+      "column": 7,
+      "category": "SyntaxError"
     }
   ]
 }
