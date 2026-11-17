@@ -85,7 +85,7 @@ The C++ serializer smoke has **five targeted checks**, including rejection of Na
   "profile": "full",
   "dry_run": false,
   "counts": {
-    "passed": 13,
+    "passed": 14,
     "failed": 0,
     "not_run": 0
   }
