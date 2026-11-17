@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Experimental KBC1 merged; shared Python/KBC1 conformance expanded
+
+- **Status:** [PR #16](https://github.com/fosterb1/kasa_programming_language/pull/16) **merged to `main`** as Kasa native 0.4 alpha, squash SHA `637a3cee73c50dba6d1c9f6d5c024867f5207894`. The merge does **not** establish language 1.0 or a secure bytecode format.
+- **Independent results supporting the merge:** Full native compiler/VM and targeted KBC1 suite previously passed under GCC 14.2, Clang 17 and GNU ASan/UBSan (**14/14 grouped tests**); [complete verification report](./verification/2026-11-17-kbc1-native-integration.md). An additional **89/89 direct browser-runtime regression checks passed** against the candidate branch on 2026-11-18.
+- **New discovery:** The existing cross-runtime conformance harness compares Python with **native source execution**, while the KBC1 test suite primarily compares **compiled bytecode with native source execution**. This leaves a gap in directly asserting `Python → compiled KBC1` parity across many language constructs.
+- **Change on separate development branch:** Add four KBC1 conformance groups to `native/tests/conformance.py`: 26 successful reference programs including interactive input, 10 shared signed-remainder cases, 11 representative error categories, and 11 Unicode/EOF invalid-source checks. The successful paths compile, check and execute a temporary `.kbc` file and compare its output with Python.
+- **Verification status:** These **new groups are written, not independently executed against the complete native binary yet**. The JavaScript 89/89 regression checks are unrelated evidence and must not be presented as a pass of this new native test suite.
+- **Challenges:** The independent development container cannot resolve GitHub download hosts for a full checkout; GitHub Actions remains deliberately outside the workflow due to runner/account limitations.
+- **Next gate:** Execute `python scripts/verify_local.py --profile full` in a complete local checkout, inspect source versus compiled parity failures, and update this journal with exact observed outcomes before merging the conformance test branch.
+
 ### 2026-11-18 — KBC1 full native integration verification and closure leak repair
 
 - **Status:** Independently verified experimental **KBC1 alpha implementation in [PR #16](https://github.com/fosterb1/kasa_programming_language/pull/16)**; ready for experimental integration but **not** a stable release.
