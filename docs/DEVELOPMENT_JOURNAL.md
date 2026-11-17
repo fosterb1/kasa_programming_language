@@ -2,7 +2,7 @@
 
 **Purpose:** Record *what actually changed*, *what was verified*, *what failed*, *what we discovered*, and *what is still unknown*. This is the canonical living progress record for Kasa development; do not substitute a feature plan or a green badge for evidence.
 
-**Last reviewed:** 2026-11-17  
+**Last reviewed:** 2026-11-18  
 **Reference branch:** `main`  
 **Open high-risk work:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16)  
 **Blocked external CI:** [Issue #12 — GitHub Actions jobs terminate before recorded steps](https://github.com/fosterb1/kasa_programming_language/issues/12)
@@ -26,19 +26,31 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 | Workstream | Actually present in `main` | Verified scope | Limitations |
 |---|---|---|---|
 | Python reference interpreter | Lexer, parser, runtime, CLI, REPL | Existing automated pytest files; **full current-branch suite not independently rerun here** | Reference implementation still has unstandardized numeric edge cases |
-| Browser JavaScript engine | Runs Kasa directly without Pyodide | **89/89 direct JS checks** on the educational-example branch before its merge: 26 programs, 27 expected errors, 15 remainder cases, nine examples, 11 location cases, one EOF check | These are direct runtime checks, not a complete Node/browser integration suite |
-| Native compiler/VM | C++20 source to **in-memory bytecode**, VM alpha | Native lexer **13/13** focused checks in standalone executable; CTest **1/1** on lexer-only staging build | Full CMake/VM integration suite not rerun in the current isolated test environment |
+| Browser JavaScript engine | Runs Kasa directly without Pyodide | **89/89 direct JS regression checks rerun on PR #16 on 2026-11-18**: 26 programs, 27 expected errors, 15 remainder cases, nine examples, 11 location cases, one EOF check | Direct V8 execution is not a complete Node/browser integration suite |
+| Native compiler/VM | C++20 compiler and VM alpha with experimental serialized KBC1 in PR #16 | **Full CMake native executable built; 14/14 KBC1 tests under GCC, Clang and GCC ASan/UBSan** in reconstructed exact-source environment, after fixing a closure memory leak | Whole-repository pytest/Node and native-vs-Python conformance not yet rerun |
 | Source-coordinate consistency | Unicode code-point positions and browser supplementary-letter tokenization | Browser source-coordinate fixtures and native lexer smoke | Does not establish strict malformed UTF-8 handling or every Unicode identifier category |
 | Linguistic governance | [Policy](./LANGUAGE_RESEARCH_POLICY.md), [audit](./TWI_KEYWORD_AUDIT.md), [evidence register](./keyword_evidence.json) | Automated vocabulary-change guard implemented | All legacy tokens still need human linguistic review; publication links are not speaker approval |
 | Offline education | Browser interpreter; nine tracked root `.kasa` examples including cashbook, stock and school fees | The three new examples executed correctly in the browser | Pilot with Ghanaian teachers/learners not yet performed |
 | Independent local verification | [Runner](../scripts/verify_local.py) and [guide](./INDEPENDENT_TESTING.md) | **6/6 runner unit tests** passed in focused prior verification | Full profile requires complete checkout with Python, Node, CMake, C++ |
-| Disk-based portable bytecode (KBC1) | **Not merged into main** | **5/5 standalone C++20 serializer smoke groups passed**, with exact source blobs matched; full native VM/adversarial test suite **not yet executed** | Draft format is not stable, authenticated or security-audited |
+| Disk-based portable bytecode (KBC1) | **Implemented in PR #16, awaiting integration into main** | **7/7 serializer checks**, **14/14 full native KBC1 tests** under GCC, Clang, GCC ASan/UBSan; 2,000 mutation attempts without sanitizer reports | Alpha format is not authenticated, a sandbox, or a stable portable interchange standard |
 | Native WebAssembly | Source bridge and build scripts | Source-level and worker simulation checks from previous milestones | No verified real Emscripten-generated WASM running in the browser |
 | License | No `LICENSE` file | N/A | Public visibility does not grant an open-source license. Owner decision required |
 
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+
+### 2026-11-18 — KBC1 full native integration verification and closure leak repair
+
+- **Status:** Independently verified experimental **KBC1 alpha implementation in [PR #16](https://github.com/fosterb1/kasa_programming_language/pull/16)**; ready for experimental integration but **not** a stable release.
+- **Changes:** Complete six-source native C++20 executable, `compile`/`run-bytecode`/`check-bytecode`/`disasm-bytecode` CLI, size and nested-instruction limits, source overwriting safeguards and an adversarial round-trip suite.
+- **Verification:** Full CMake native build completed; **14/14** bytecode test groups passed with **GCC 14.2**, **Clang 17**, and **GCC AddressSanitizer/UndefinedBehaviorSanitizer** after fixing a leaked closure cycle. Native example outputs matched nine documented JS outputs; **89/89 direct JavaScript regression checks** rerun on this development branch on 2026-11-18.
+- **Challenge discovered:** The initial sanitizer run **failed** for programs defining functions. The environment kept functions, and each function retained its defining environment (`Environment → Function → Environment`). Shared-reference cycles caused real memory leaks.
+- **Repair and regression:** The VM tracks environment references weakly, then clears retained values during VM destruction, after execution. A new escaping-closure round-trip verifies the returned function still reads its captured variable. The now **14/14 passing sanitizer suite** is a retest of the leak fix, not a claim of comprehensive memory safety.
+- **Additional discoveries:** Writer/loader disagreements for non-finite decimals, excessive source coordinates and aggregated nested instruction counts were corrected. Standalone serializer smoke now passes **7/7** checks.
+- **Evidence:** [Exact source identities, compiler commands, observed test results and limitations](./verification/2026-11-17-kbc1-native-integration.md).
+- **Remaining release gates:** Full Python and Node test runners, native-vs-Python conformance, all CTest targets, macOS/Windows validation, actual WASM browser execution and security/provenance treatment for untrusted `.kbc` files.
+- **Decision:** Accept only as an **experimental alpha** after documentation review. CRC32 is corruption detection, not identity verification or a sandbox.
 
 ### 2026-11-17 — KBC1 extracted for safer review
 
@@ -97,13 +109,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 | ID | Risk / blocker | Severity | Mitigation | Status |
 |---|---|---|---|---|
-| R-01 | Full native KBC1 CMake build and hostile-input test suite not run on extracted branch | **High** | Standalone serializer now **5/5 passed**; keep PR #16 open and run full VM/CLI tests with saved report | Open |
+| R-01 | KBC1 native compiler/VM build and targeted bytecode test coverage | High before verification | Full CMake build; 14/14 tests GCC, Clang, ASan/UBSan; [evidence](./verification/2026-11-17-kbc1-native-integration.md) | **Targeted gate cleared; wider release review remains** |
 | R-02 | GitHub Actions jobs terminate before steps, apparently affected by account/runner constraints | Medium | Keep CI out of critical path; [issue #12](https://github.com/fosterb1/kasa_programming_language/issues/12); local runner | Open |
 | R-03 | Three language engines differ on numeric ranges/formatting and resource limits | High | RFCs and shared conformance corpus; explicit known incompatibilities | Open |
 | R-04 | KBC1 CRC32 checks corruption but not malicious modification | **High for untrusted distribution** | A 2,000-case mutation test confirmed some CRC-adjusted files remain structurally valid; require provenance/signature policy, sandboxing and stronger review | Open |
 | R-05 | Twi keywords lack final native-speaker/dialect and educator review | High for educational adoption | Evidence policy, structured audit, Asante/Akuapem review | Open |
 | R-06 | Lack of explicit open-source license | Medium | Owner chooses license and adds `LICENSE`; do not claim legal open-source status | Open |
 | R-07 | No classroom pilot validating proposed accessibility advantage | Medium | Small documented, ethically designed learner/teacher pilot | Open |
+| R-08 | Full native-vs-Python/JavaScript semantic conformance and cross-platform release checks incomplete | **High for 1.0** | Run all shared fixtures and complete local verification profile against the same commit; track numeric limits and OS results | Open |
 
 ## Useful independent commands
 
@@ -124,7 +137,7 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 ## Release gates still outstanding
 
 - Full green Python/Node/native integration tests on exact release commit.
-- Complete KBC1 source→file→VM round-trips and corruption tests, if shipping bytecode files.
+- KBC1 targeted source→file→VM round-trips and corruption tests passed; still require full cross-platform robustness, security review and format-compatibility policy before a stable KBC1 release.
 - Real WASM artifact/browser verification, if advertising native WebAssembly.
 - Clear learner-facing tutorials, error messages, and language/cultural review.
 - License choice, versioning and release checklist; no stable release until these are met.
