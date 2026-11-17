@@ -32,7 +32,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 | Linguistic governance | [Policy](./LANGUAGE_RESEARCH_POLICY.md), [audit](./TWI_KEYWORD_AUDIT.md), [evidence register](./keyword_evidence.json) | Automated vocabulary-change guard implemented | All legacy tokens still need human linguistic review; publication links are not speaker approval |
 | Offline education | Browser interpreter; nine tracked root `.kasa` examples including cashbook, stock and school fees | The three new examples executed correctly in the browser | Pilot with Ghanaian teachers/learners not yet performed |
 | Independent local verification | [Runner](../scripts/verify_local.py) and [guide](./INDEPENDENT_TESTING.md) | **6/6 runner unit tests** passed in focused prior verification | Full profile requires complete checkout with Python, Node, CMake, C++ |
-| Disk-based portable bytecode (KBC1) | **Not merged into main** | Draft implementation, smoke test and adversarial tests on PR #16; full native execution **not verified on that branch** | Proposed binary format is not stable, signed or security-audited |
+| Disk-based portable bytecode (KBC1) | **Not merged into main** | **5/5 standalone C++20 serializer smoke groups passed**, with exact source blobs matched; full native VM/adversarial test suite **not yet executed** | Draft format is not stable, authenticated or security-audited |
 | Native WebAssembly | Source bridge and build scripts | Source-level and worker simulation checks from previous milestones | No verified real Emscripten-generated WASM running in the browser |
 | License | No `LICENSE` file | N/A | Public visibility does not grant an open-source license. Owner decision required |
 
@@ -46,9 +46,18 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 - **Changed:** Separated KBC1 serialization, file loading, validation, CLI commands, adversarial tests and `kasa-kbc1-smoke` from the much larger, diverged [PR #7](https://github.com/fosterb1/kasa_programming_language/pull/7).
 - **Discoveries:** PR #7 mixes unrelated WASM, PWA, editor, example and bytecode features. It is safer to validate a single native file-format change independently rather than merge the whole proposal.
 - **Safety checks written:** Version/magic/CRC validation, length and opcode limits, stack/control-flow verification, deterministic serialization, path-alias overwrite protection, source/compiled round-trip expectations.
-- **Verification:** The new C++ serializer smoke executable and full native malformed-bytecode suite are **written but not yet executed against the extracted branch**. Prior successful tests on the original PR #7 do not automatically transfer to the rebased extraction.
-- **Challenges:** Cannot reach GitHub by DNS from the isolated local container; GitHub Actions is unavailable for budget/runner reasons. Neither limitation is evidence of passing or failing code tests.
+- **Verification:** The C++ serializer/loader and smoke executable were compiled independently from **exact matching GitHub blob sources**; all **5/5 focused checks passed** (round-trip, header/version/checksum rejection and non-finite writer rejection). The full native VM/CLI build and Python malformed-bytecode suite remain unverified. See [the recorded command, hashes and output](./verification/2026-11-17-kbc1-serializer-smoke.md). Prior successful tests on PR #7 do not automatically transfer to this extraction.
+- **Challenges:** Cannot clone GitHub by DNS from the isolated local container; exact-source staged component tests were used instead. GitHub Actions is unavailable for budget/runner reasons. Neither limitation is evidence of passing or failing complete compiler tests.
 - **Next gate:** Build the **exact PR #16 source** with CMake in a complete checkout; execute `kasa-kbc1-smoke`, `native/tests/test_bytecode.py`, and the full native/Python conformance suite. Resolve failures before merge.
+
+### 2026-11-17 — KBC1 writer/reader mismatch discovered and repaired
+
+- **Status:** **Fixed on unmerged PR #16**, independently verified at the component level.
+- **Discovery:** The bytecode writer accepted a `NaN` floating-point constant and emitted a file that the reader refused to load. This was demonstrated with a two-instruction C++ probe and recorded as a writer/reader contract violation.
+- **Repair:** Validate `std::isfinite()` in the serializer before writing any floating-point value; reject both `NaN` and infinity and avoid creating an unreadable file.
+- **Verification:** Using GNU g++ 14.2 and strict C++20 flags, **5/5 focused standalone checks passed** after the fix. All three staged source files matched the corresponding PR #16 GitHub blob hashes.
+- **Evidence:** [Full independent verification record](./verification/2026-11-17-kbc1-serializer-smoke.md).
+- **Remaining risk:** This is not the complete native VM/compiler build; full `test_bytecode.py` and source→file→VM round-trips still need execution before PR #16 can merge.
 
 ### 2026-11-17 — Practical computing specialization implemented
 
@@ -78,7 +87,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 | ID | Risk / blocker | Severity | Mitigation | Status |
 |---|---|---|---|---|
-| R-01 | Full native KBC1 CMake build and hostile-input test suite not run on extracted branch | **High** | Keep PR #16 open; run independent build/test and retain report | Open |
+| R-01 | Full native KBC1 CMake build and hostile-input test suite not run on extracted branch | **High** | Standalone serializer now **5/5 passed**; keep PR #16 open and run full VM/CLI tests with saved report | Open |
 | R-02 | GitHub Actions jobs terminate before steps, apparently affected by account/runner constraints | Medium | Keep CI out of critical path; [issue #12](https://github.com/fosterb1/kasa_programming_language/issues/12); local runner | Open |
 | R-03 | Three language engines differ on numeric ranges/formatting and resource limits | High | RFCs and shared conformance corpus; explicit known incompatibilities | Open |
 | R-04 | KBC1 CRC32 checks corruption but not malicious modification | **High for untrusted distribution** | No trusted/signed bytecode claims; sandboxing and stronger review required | Open |
