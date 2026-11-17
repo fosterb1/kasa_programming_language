@@ -113,7 +113,64 @@ int main() {
         rejectNonFinite(numeric_limits<double>::infinity(), "infinity");
         cout<<"PASS non-finite floating-point writer rejection\n";
 
-        cout<<"5/5 KBC1 standalone smoke checks passed\n";
+        // Source coordinates must be acceptable to both writer and reader.
+        const auto invalidLocationPath=folder/"bad-coordinate.kbc";
+        auto rejectLocation = [&](int line, int column) {
+            auto bad=make_shared<kasa::Chunk>(*code);
+            bad->code.front().loc.line=line;
+            bad->code.front().loc.col=column;
+            try {
+                kasa::writeBytecode(bad, invalidLocationPath.string());
+            } catch(const exception& error) {
+                require(string(error.what()).find("invalid source location")!=string::npos,
+                        "Unexpected invalid source location rejection");
+                require(!filesystem::exists(invalidLocationPath), "Writer emitted invalid source coordinates");
+                return;
+            }
+            throw runtime_error("Writer accepted source coordinates rejected by loader");
+        };
+        rejectLocation(10'000'001,1);
+        rejectLocation(1,1'000'001);
+        cout<<"PASS source-coordinate writer/reader parity\n";
+
+        // Per-chunk caps are insufficient: all nested chunks share a total limit.
+        const auto excessPath=folder/"too-many-instructions.kbc";
+        auto parent=make_shared<kasa::Chunk>(*code);
+        auto nested=make_shared<kasa::Chunk>();
+        nested->code.reserve(100'000);
+        kasa::Instruction pop;
+        pop.op=kasa::Op::Pop;
+        pop.loc={"","",1,1};
+        for(int i=0;i<49'999;++i) {
+            nested->code.push_back(literal);
+            nested->code.push_back(pop);
+        }
+        nested->code.push_back(literal);
+        kasa::Instruction ret;
+        ret.op=kasa::Op::Return;
+        ret.loc={"","",1,1};
+        nested->code.push_back(ret);
+        require(nested->code.size()==100'000, "Incorrect fixture instruction count");
+        auto definition=make_shared<kasa::FunctionDefinition>();
+        definition->name="f";
+        definition->code=nested;
+        kasa::Instruction make;
+        make.op=kasa::Op::MakeFunction;
+        make.loc={"","",1,1};
+        make.name="f";
+        make.fn=definition;
+        parent->code.push_back(make);
+        try {
+            kasa::writeBytecode(parent,excessPath.string());
+            throw runtime_error("Writer accepted aggregate instruction count above limit");
+        } catch(const exception& error) {
+            require(string(error.what()).find("instruction limit exceeded")!=string::npos,
+                    "Unexpected global instruction-cap rejection: "+string(error.what()));
+            require(!filesystem::exists(excessPath), "Writer emitted excess instructions");
+        }
+        cout<<"PASS nested instruction budget writer/reader parity\n";
+
+        cout<<"7/7 KBC1 standalone smoke checks passed\n";
         return 0;
     } catch(const exception& error) {
         cerr<<"KBC1 smoke test failed: "<<error.what()<<"\n";
