@@ -53,3 +53,39 @@ def test_wasm_requires_full_profile(tmp_path):
     )
     assert result.returncode != 0
     assert "requires --profile full" in result.stderr
+
+
+def test_missing_executable_is_a_failure():
+    runner = load_tool()
+    result = runner.run_check(
+        "missing", ["_kasa_very_unlikely_nonexistent_executable_"], env={"PATH": ""}
+    )
+    assert result["status"] == "failed"
+    assert "Executable not found" in result["stderr_tail"]
+
+
+def test_native_configure_failure_marks_dependent_steps_not_run(tmp_path, monkeypatch):
+    runner = load_tool()
+    steps = [
+        ("Native CMake configure", ["dummy", "configure"], 1),
+        ("Native C++ build", ["dummy", "build"], 1),
+        ("Native Python conformance", ["dummy", "test"], 1),
+    ]
+    attempted = []
+
+    def fake_run(name, command, *, env, timeout=180, dry_run=False):
+        attempted.append(name)
+        return {
+            "name": name, "command": command, "status": "failed", "exit_code": 2,
+            "duration_seconds": 0.1, "stdout_tail": "", "stderr_tail": "CMake failed",
+        }
+
+    monkeypatch.setattr(runner, "plan", lambda profile, wasm: steps)
+    monkeypatch.setattr(runner, "run_check", fake_run)
+    report = tmp_path / "failure.json"
+    assert runner.main(["--profile", "full", "--report", str(report)]) == 1
+    result = json.loads(report.read_text(encoding="utf-8"))
+    assert attempted == ["Native CMake configure"]
+    assert result["counts"] == {"passed": 0, "failed": 1, "not_run": 2}
+    assert [check["status"] for check in result["checks"]] == ["failed", "not_run", "not_run"]
+    assert "Blocked after failed step" in result["checks"][-1]["stderr_tail"]
