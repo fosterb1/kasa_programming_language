@@ -69,7 +69,7 @@ validates the file without executing it.
 
 ## Independent verification requirements
 
-A standalone C++20 test target `kasa-kbc1-smoke` exercises the KBC1 writer/reader without the entire native VM. The full VM suite `native/tests/test_bytecode.py` includes deterministic encoding, corrupted payloads, invalid instructions, source overwrite aliases, and bundled-program round-trips. The isolated development branch has **not yet passed a full native CMake build and all new tests**.
+A standalone C++20 test target `kasa-kbc1-smoke` exercises the KBC1 writer/reader without the entire native VM. **Five focused smoke groups passed independently on 2026-11-17** against exact GitHub-blob-matched `bytecode.cpp` and `bytecode_smoke.cpp` sources using GNU g++ 14.2 with `-std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror`. These cover deterministic round-trip, magic/version/checksum rejection and non-finite floating-point rejection by the **writer**. The last test exposed a defect: the previous writer accepted NaN/infinity while the loader rejected them; both now reject non-finite constants. The full VM suite `native/tests/test_bytecode.py` includes deterministic encoding, corrupted payloads, invalid instructions, source overwrite aliases, and bundled-program round-trips. The isolated development branch has **not yet passed a full native CMake build and all new tests**.
 
 The CLI performs filesystem-aware checks against the source path before writing, including relative aliases, symlinks and hardlinks. This helps prevent accidental source loss; it does **not** provide atomic output writes or prevent filesystem time-of-check/time-of-use races.
 
