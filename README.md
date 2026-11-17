@@ -6,7 +6,7 @@ Kasa is an educational programming-language project intended to become open sour
 
 Kasa's guiding idea is simple: **learners should focus on solving problems, not memorizing unfamiliar English keywords.** The language uses familiar Twi-inspired vocabulary while teaching transferable concepts such as variables, conditions, loops, functions, lists, and debugging.
 
-> **Project status — Early implementation (v0.1.0).** Kasa now includes an initial working Python interpreter, CLI, interactive REPL, five executable examples, and automated tests. The project is **not yet a complete or classroom-ready 1.0 release**; the full engineering specification remains the longer-term target.
+> **Project status — Experimental alpha.** The Python reference interpreter began at **v0.1.0**; Kasa also has a **C++20 native bytecode VM (0.3 alpha)** and a separate browser JavaScript runtime. The main branch currently includes **nine root `.kasa` examples** and an independent verification runner. **KBC1 disk-based bytecode remains in an unmerged 0.4 development PR**. Kasa is **not yet a stable, fully conformant or classroom-certified 1.0 release**. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) for independently tested progress, discoveries and blockers.
 
 ## See Kasa in action
 
@@ -162,11 +162,11 @@ The `kasa check` command parses source without running it. Runtime errors includ
 | Lexer, parser, and AST | Implemented (0.1.0) |
 | Interpreter and runtime | Implemented (0.1.0; further hardening planned) |
 | CLI, REPL, and packaging | Implemented (0.1.0) |
-| Tests and runnable examples | 58 local tests passed; five examples verified |
-| Tutorials and teacher resources | Planned |
+| Tests and runnable examples | Nine root programs; independent browser checks on the merged educational branch passed 89/89; full current-branch native/Python suites still require end-to-end verification |
+| Tutorials and teacher resources | Practical example starter set available; complete classroom guides and educator review still planned |
 | Twi community language review | Needed before release |
 
-The initial implementation milestone is complete. The next stages are deeper edge-case testing, classroom documentation, an expanded example collection, linguistic review, and release hardening. See [the implementation plan](./docs/IMPLEMENTATION_PLAN.md).
+The initial interpreter and native bytecode-VM alpha milestones have working implementations. Current engineering priorities are cross-runtime conformance, independently executed C++ integration tests, KBC1 verification, classroom documentation, linguistic review and release hardening. Follow the [implementation plan](./docs/IMPLEMENTATION_PLAN.md) and the [engineering development journal](./docs/DEVELOPMENT_JOURNAL.md), which distinguishes merged features, verified checks and outstanding risks.
 
 A version 1.0 release will require a working, tested interpreter—not merely completed documentation. The specification calls for at least 15 runnable example programs and tests for successful behavior, invalid input, Unicode, and resource limits.
 
