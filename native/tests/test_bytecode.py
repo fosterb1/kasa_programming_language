@@ -59,6 +59,25 @@ class BytecodeCases(unittest.TestCase):
                 disasm=self.command('disasm-bytecode', kbc)
                 self.assertIn('CONST', disasm.stdout)
 
+    def test_escaping_lexical_closure_roundtrip(self):
+        # The callee must retain its captured scope until the VM finishes.
+        source = ('dwumadie adwuma(n)\n'
+                  '    ma base = n\n'
+                  '    dwumadie f()\n'
+                  '        sanma base + 1\n'
+                  '    awiei\n'
+                  '    sanma f\n'
+                  'awiei\n'
+                  'ma result = adwuma(17)\n'
+                  'ka result()\n')
+        source_file, kbc = self.compile(source)
+        direct = self.command('run', source_file)
+        compiled = self.command('run-bytecode', kbc)
+        self.assertEqual(direct.returncode, 0, direct.stderr)
+        self.assertEqual(compiled.returncode, 0, compiled.stderr)
+        self.assertEqual(direct.stdout, '18\n')
+        self.assertEqual(compiled.stdout, direct.stdout)
+
     def test_bytecode_can_accept_input(self):
         _, kbc=self.compile('ka "Hello " + bisa()')
         self.assertEqual(self.command('run-bytecode', kbc, input='Esi\n').stdout, 'Hello Esi\n')
