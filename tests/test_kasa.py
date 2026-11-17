@@ -162,6 +162,9 @@ def test_all_examples() -> None:
         "loops.kasa": "1\n2\n3\nMeda wo ase\nMeda wo ase\n",
         "lists.kasa": "99\n3\n",
         "remainder.kasa": "1\n2\n-2\n-1\n",
+        "market_cashbook.kasa": "Closing cash in pesewas:\n268250\nCash position is non-negative\n",
+        "stock_reorder.kasa": "Remaining stock units:\n13\nReorder needed\n",
+        "school_fees.kasa": "Outstanding fees (pesewas):\n45000\n",
     }
     for name, output in expected.items():
         assert run((ROOT / "examples" / name).read_text(encoding="utf-8")) == output
