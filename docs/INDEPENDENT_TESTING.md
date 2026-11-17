@@ -40,6 +40,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Check | Quick | Full |
 |---|:---:|:---:|
 | Python pytest (all available tests) | Yes | Yes |
+| Python CLI run/check smoke tests | Yes | Yes |
 | JavaScript syntax check | Yes | Yes |
 | Node interpreter and WASM protocol tests | Yes | Yes |
 | Native CMake configuration | No | Yes |
@@ -58,7 +59,7 @@ The script runs subprocesses without a shell, captures the final portion of stdo
   "profile": "full",
   "dry_run": false,
   "counts": {
-    "passed": 6,
+    "passed": 8,
     "failed": 0,
     "not_run": 0
   }
