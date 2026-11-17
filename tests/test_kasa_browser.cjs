@@ -7,12 +7,31 @@ const vm = require('node:vm');
 const { executeKasa, parse, tokenize } = require('../playground/kasa-runtime.js');
 
 const ROOT = path.join(__dirname, '..');
+const remainderConformance = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_remainder.json'), 'utf8')
+);
+for (const fixture of remainderConformance.cases) {
+  test(`remainder conformance: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source);
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.output, fixture.expected_stdout);
+  });
+}
+for (const fixture of remainderConformance.errors) {
+  test(`remainder error: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source);
+    assert.equal(result.ok, false);
+    assert.match(result.error, new RegExp('playground\\.kasa:\\d+:\\d+: ' + fixture.category));
+  });
+}
+
 const examples = {
   'hello.kasa': 'Maakye, Ghana!\n',
   'conditions.kasa': 'Maakye, Ama\n',
   'functions.kasa': '10\n',
   'loops.kasa': '1\n2\n3\nMeda wo ase\nMeda wo ase\n',
   'lists.kasa': '99\n3\n',
+  'remainder.kasa': '1\n2\n-2\n-1\n',
 };
 for (const [filename, expected] of Object.entries(examples)) {
   test(`execute example ${filename}`, () => {

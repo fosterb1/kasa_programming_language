@@ -398,7 +398,13 @@
             if (op === "+") result = a + b;
             else if (op === "-") result = a - b;
             else if (op === "*") result = a * b;
-            else if (op === "%") result = a % b;
+            else if (op === "%") {
+              // Kasa remainder follows the Python reference: nonzero remainder
+              // has the sign of the divisor (JavaScript % truncates toward zero).
+              let remainder = a % b;
+              if (remainder !== 0n && (remainder < 0n) !== (b < 0n)) remainder += b;
+              result = remainder;
+            }
           } else {
             const x = toNumber(a), y = toNumber(b);
             if (op === "+") result = makeFloat(x + y);

@@ -1,0 +1,6 @@
+# Signed integer remainder uses floor division.
+# A nonzero remainder has the same sign as the divisor.
+ka 7 % 3
+ka -7 % 3
+ka 7 % -3
+ka -7 % -3

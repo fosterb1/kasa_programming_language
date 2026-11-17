@@ -162,6 +162,12 @@ The initial implementation milestone is complete. The next stages are deeper edg
 
 A version 1.0 release will require a working, tested interpreter—not merely completed documentation. The specification calls for at least 15 runnable example programs and tests for successful behavior, invalid input, Unicode, and resource limits.
 
+## Cross-runtime arithmetic contract
+
+Kasa's `%` operator uses **floor-based integer remainder** consistently in Python, browser JavaScript and the native C++ VM. For example, `-7 % 3` must return `2` and `7 % -3` must return `-2`. The implementation is accompanied by [a language-semantics RFC](./docs/RFC-0003-remainder-semantics.md) and [shared conformance fixtures](./tests/conformance_remainder.json). **The test corpus covers ordinary and negative operands, large exact integers, zero divisors and type errors.**
+
+The three engines retain other documented differences, notably the native 64-bit integer range; this is **not** a declaration of full language parity.
+
 ## Technical specification
 
 The detailed architecture, grammar, language semantics, implementation milestones, test requirements, and contributor guidance are in:

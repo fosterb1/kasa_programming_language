@@ -17,6 +17,12 @@ This milestone is an **initial functioning interpreter (0.1.0)**, not the comple
 
 New Twi grammar and built-ins now require an auditable research record and independent linguistic evidence, with fluent Asante and Akuapem review before acceptance. The current token inventory remains `legacy_review_pending`; see [policy](./LANGUAGE_RESEARCH_POLICY.md), [human-readable audit](./TWI_KEYWORD_AUDIT.md) and [structured evidence](./keyword_evidence.json). An offline test enforces documentation/change control. The test does **not** certify native-speaker approval.
 
+## Cross-runtime conformance milestone
+
+- Signed integer `%` semantics are now defined in [RFC-0003](./RFC-0003-remainder-semantics.md). The JavaScript and native VM implementations are updated to agree with Python for negative operands.
+- Shared fixtures `tests/conformance_remainder.json` are consumed by Python, browser JavaScript, and native conformance harnesses. Full cross-runtime acceptance and GitHub Actions remain to be verified in a working environment.
+- Further work: document numeric overflow/large-integer behavior, error category consistency, Unicode handling, execution quotas and stable runtime diagnostics.
+
 ## Remaining before 1.0
 
 - Full coverage of every acceptance case in the engineering specification
