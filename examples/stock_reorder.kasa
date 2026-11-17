@@ -1,0 +1,15 @@
+# Inventory exercise for a small retail shop.
+ma opening_units = 70
+ma received_units = 25
+ma sold_units = 82
+ma reorder_level = 20
+
+ma closing_units = opening_units + received_units - sold_units
+ka "Remaining stock units:"
+ka closing_units
+
+sɛ closing_units < reorder_level a
+    ka "Reorder needed"
+anyɛ_saa_a
+    ka "Stock sufficient"
+awiei
