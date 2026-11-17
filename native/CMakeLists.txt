@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(kasa_native VERSION 0.3.0 LANGUAGES CXX)
+project(kasa_native VERSION 0.4.0 LANGUAGES CXX)
 add_executable(kasa-native
     src/main.cpp
     src/lexer.cpp
