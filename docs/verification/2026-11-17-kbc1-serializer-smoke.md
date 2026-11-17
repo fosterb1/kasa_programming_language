@@ -42,6 +42,20 @@ PASS non-finite floating-point writer rejection
 
 The binary exited with code **0**. Only the serializer/reader and selected structural checks were exercised.
 
+### Sanitizer cross-check
+
+The same exact source was compiled independently a second time with GNU g++ 14.2:
+
+```bash
+g++ -std=c++20 -O1 -g -Wall -Wextra -Wpedantic -Werror \
+    -fsanitize=address,undefined -fno-omit-frame-pointer \
+    -I native/include native/src/bytecode.cpp native/tests/bytecode_smoke.cpp \
+    -o kasa-kbc1-smoke-sanitized
+ASAN_OPTIONS=detect_leaks=1 ./kasa-kbc1-smoke-sanitized
+```
+
+**Result:** The same **5/5 smoke checks passed** without any reported AddressSanitizer or UndefinedBehaviorSanitizer errors. This is focused memory/undefined-behavior instrumentation, **not** security certification or proof of exhaustive hostile-input safety.
+
 ## Discovery and repair
 
 **Problem:** The writer previously serialized a non-finite floating-point constant (notably `NaN`), while `readBytecode()` rejected the same file with `Invalid KBC bytecode: non-finite constant`. This was reproduced independently with a small C++ program that directly constructed a two-instruction bytecode chunk.
