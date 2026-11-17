@@ -184,6 +184,21 @@ class Conformance(unittest.TestCase):
                 self.assertEqual(executed.returncode, 1, (name, executed.stderr))
                 self.assertIn(category, executed.stderr)
 
+    def test_kbc1_invalid_source_never_serialized(self):
+        # Parsing/lexing errors must fail at compilation, before any .kbc
+        # artifact can reach the loader or VM.
+        for fixture in SOURCE_LOCATION_FIXTURES["cases"]:
+            with self.subTest(name=fixture["name"]):
+                compiled, checked, executed = run_native_serialized(fixture["source"])
+                self.assertEqual(compiled.returncode, 1, compiled.stderr)
+                self.assertIn(fixture["category"], compiled.stderr)
+                self.assertIn(
+                    f"test.kasa:{fixture['line']}:{fixture['column']}:",
+                    compiled.stderr,
+                )
+                self.assertIsNone(checked)
+                self.assertIsNone(executed)
+
     def test_all_error_cases(self):
         for title,(source,category) in ERROR_CASES.items():
             with self.subTest(title=title):
