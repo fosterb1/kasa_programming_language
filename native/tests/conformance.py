@@ -22,6 +22,9 @@ sys.argv = sys.argv[:1]
 REMAINDER_FIXTURES = json.loads(
     (ROOT / "tests" / "conformance_remainder.json").read_text(encoding="utf-8")
 )
+SOURCE_LOCATION_FIXTURES = json.loads(
+    (ROOT / "tests" / "conformance_source_locations.json").read_text(encoding="utf-8")
+)
 
 
 CASES = {
@@ -125,6 +128,22 @@ class Conformance(unittest.TestCase):
                 actual=run_native(fixture["source"])
                 self.assertEqual(actual.returncode, 1, actual.stderr)
                 self.assertIn(fixture["category"], actual.stderr)
+
+    def test_unicode_source_coordinates(self):
+        for case in SOURCE_LOCATION_FIXTURES["cases"]:
+            with self.subTest(name=case["name"]):
+                try:
+                    parse(case["source"], filename="test.kasa")
+                except KasaError as error:
+                    self.assertEqual(error.category, case["category"])
+                    self.assertEqual((error.token.line, error.token.column),
+                                     (case["line"], case["column"]))
+                else:
+                    self.fail(f"Python accepted invalid source: {case['name']}")
+                actual = run_native(case["source"], mode="check")
+                self.assertEqual(actual.returncode, 1, actual.stderr)
+                location = f"test.kasa:{case['line']}:{case['column']}: {case['category']}:"
+                self.assertIn(location, actual.stderr)
 
     def test_syntax_check_never_executes(self):
         p=run_native('ka 1/0\nka "not executed"','', 'check')
