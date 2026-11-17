@@ -67,6 +67,12 @@ kasa-native run-bytecode functions.kbc
 The compiler rejects overwriting the input `.kasa` file. `check-bytecode`
 validates the file without executing it.
 
+## Independent verification requirements
+
+A standalone C++20 test target `kasa-kbc1-smoke` exercises the KBC1 writer/reader without the entire native VM. The full VM suite `native/tests/test_bytecode.py` includes deterministic encoding, corrupted payloads, invalid instructions, source overwrite aliases, and bundled-program round-trips. The isolated development branch has **not yet passed a full native CMake build and all new tests**.
+
+The CLI performs filesystem-aware checks against the source path before writing, including relative aliases, symlinks and hardlinks. This helps prevent accidental source loss; it does **not** provide atomic output writes or prevent filesystem time-of-check/time-of-use races.
+
 ## Compatibility and future versions
 
 KBC1 is an **alpha-only** format. Future releases must maintain compatibility
