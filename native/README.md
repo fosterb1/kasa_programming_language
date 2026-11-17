@@ -49,7 +49,7 @@ cmake --build build/kasa-local --target kasa-kbc1-smoke --config Release
 ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --output-on-failure
 ```
 
-The smoke test checks deterministic serialization, a simple round-trip, bad magic/version/checksum, and NaN/infinite decimal rejection. **All five focused groups passed in an independently compiled C++20 test on 2026-11-17** after fixing the discovered writer/reader mismatch. It is a narrow component test, **not full security certification**. The full local verification profile also runs the C++ smoke binary directly so zero matching CTest cases cannot yield a false pass.
+The smoke test checks deterministic serialization, a simple round-trip, bad magic/version/checksum, NaN/infinite decimal rejection, source-coordinate limits, and global nested instruction limits. **All seven focused groups passed** under strict C++20 and sanitizer builds on 2026-11-17. This followed fixes for writer/reader disagreements. It is a narrow component test, **not full security certification**. The full local verification profile also runs the C++ smoke binary directly so zero matching CTest cases cannot yield a false pass.
 
 ## Deterministic KBC1 loader mutation testing
 
@@ -74,7 +74,7 @@ From the repository root, after building `kasa-native`:
 python native/tests/test_bytecode.py build/kasa-native
 ```
 
-Bytecode is validated before execution. CRC32 is **not authentication**. The loader and virtual machine are not approved to execute untrusted bytecode as a privileged service. See [KBC1 RFC-0005](../docs/RFC-0005-kbc1-portable-bytecode.md). **Full integration testing on the current base remains pending.**
+Bytecode is validated before execution. CRC32 is **not authentication**. The loader and virtual machine are not approved to execute untrusted bytecode as a privileged service. See [KBC1 RFC-0005](../docs/RFC-0005-kbc1-portable-bytecode.md). **The exact-branch full native executable passed independent GCC/Clang C++20 builds, 14/14 KBC1 integration tests for each compiler, and 14/14 sanitizer-enabled tests** (see [verification report](../docs/verification/2026-11-17-kbc1-native-integration.md)). This is an experimental alpha, not a secure bytecode runtime or a complete cross-runtime parity certification.
 
 ## Test native/compiler conformance
 
