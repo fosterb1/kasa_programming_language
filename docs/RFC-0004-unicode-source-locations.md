@@ -25,17 +25,17 @@ Examples: `ka "ɔ" & 3` and `ka "🙂" & 3` both identify `&` at **line 1, colum
 
 - Python: existing `tokenize` advances by Python Unicode code points; no runtime behavior change required.
 - C++20: `native/src/lexer.cpp` increments column for the leading UTF-8 byte of a valid encoded code point, skipping continuation bytes. The logic deliberately does **not** add an unreviewed UTF-8 validation policy.
-- Browser JavaScript: `playground/kasa-runtime.js` increments column for UTF-16 code units except the low surrogate of a **valid surrogate pair**.
+- Browser JavaScript: `playground/kasa-runtime.js` increments column for UTF-16 code units except the low surrogate of a **valid surrogate pair**. It now tokenizes supplementary-plane letter identifiers as complete code points instead of rejecting their individual surrogate units.
 
 ## Verification
 
-The shared corpus `tests/conformance_source_locations.json` contains nine intentionally invalid source snippets, including trailing-operator EOF cases. It is consumed by:
+The shared corpus `tests/conformance_source_locations.json` contains eleven intentionally invalid source snippets, including trailing-operator EOF cases. It is consumed by:
 
 - Python pytest: `tests/test_source_locations.py`
 - JavaScript Node tests: `tests/test_kasa_browser.cjs`
 - Native/Python conformance harness: `native/tests/conformance.py`
 
-Initial direct JavaScript execution of all nine cases passed. Full pytest, Node test runner and native C++ builds must be run before a stable release claim.
+Initial direct JavaScript execution of all eleven cases passed. Full pytest, Node test runner and native C++ builds must be run before a stable release claim.
 
 ## Open limitations
 
