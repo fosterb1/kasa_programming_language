@@ -55,6 +55,8 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
     exe = build / ("Release/kasa-native.exe" if os.name == "nt" else "kasa-native")
     tests = [
         ("Python pytest", [python, "-m", "pytest", "-q"], 180),
+        ("Python CLI run", [python, "-m", "kasa", "run", "examples/hello.kasa"], 30),
+        ("Python CLI check", [python, "-m", "kasa", "check", "examples/hello.kasa"], 30),
         ("JavaScript syntax", [node, "--check", "playground/kasa-runtime.js"], 30),
         ("JavaScript browser/WASM protocol tests", [node, "--test", "tests/test_kasa_browser.cjs", "tests/test_kasa_wasm.cjs"], 120),
     ]
