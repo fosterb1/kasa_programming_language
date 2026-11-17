@@ -27,6 +27,12 @@ New Twi grammar and built-ins now require an auditable research record and indep
 
 [RFC-0004](./RFC-0004-unicode-source-locations.md) proposes one-based Unicode code-point columns across the Python, JavaScript and C++ engines. The updated browser lexer and native lexer have shared regression fixtures in `tests/conformance_source_locations.json`; Python already uses code-point indexing. Direct browser verification passed all eleven cases, while full native and Python test-suite runs remain outstanding. This milestone does not add Twi keywords or implement strict UTF-8 validation.
 
+## Kasa 0.4 — Native bytecode portability and practical computing
+
+- [KBC1 RFC-0005](./RFC-0005-kbc1-portable-bytecode.md) proposes experimental disk-based native bytecode; `native/src/bytecode.cpp`, CLI commands and adversarial tests have been isolated from PR #7 into a review branch.
+- [Practical computing focus](./KASA_PRACTICAL_COMPUTING_FOCUS.md): Twi-first offline educational computing, especially market cashbooks, stock control and school finance. This is a hypothesis to pilot with learners, **not yet a proven edge**.
+- Independent full-profile runner now plans native KBC1 round-trip and malformed-input tests. A full native CMake build on this exact branch is required before declaring integration complete.
+
 ## Remaining before 1.0
 
 - Full coverage of every acceptance case in the engineering specification
