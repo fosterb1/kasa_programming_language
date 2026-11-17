@@ -85,9 +85,16 @@
         if (digits.length > 1000) syntax("Numeric literal is too long", tok(kind, "", ln, col));
         tokens.push(tok(kind, digits, ln, col)); continue;
       }
-      if (/[\p{L}_]/u.test(ch)) {
+      // Match complete Unicode code points, not individual UTF-16 code units.
+      // This accepts supplementary-plane letters just as the Python lexer does.
+      const cp = String.fromCodePoint(source.codePointAt(i));
+      if (/[\p{L}_]/u.test(cp)) {
         let word = "";
-        while (i < source.length && /[\p{L}\p{N}_]/u.test(source[i])) word += advance();
+        while (i < source.length) {
+          const character = String.fromCodePoint(source.codePointAt(i));
+          if (!/[\p{L}\p{N}_]/u.test(character)) break;
+          for (let j = 0; j < character.length; j++) word += advance();
+        }
         tokens.push(tok(KEYWORDS[word] || "NAME", word, ln, col)); continue;
       }
       const pair = source.slice(i, i + 2);
