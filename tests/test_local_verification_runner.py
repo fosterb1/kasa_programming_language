@@ -89,3 +89,12 @@ def test_native_configure_failure_marks_dependent_steps_not_run(tmp_path, monkey
     assert result["counts"] == {"passed": 0, "failed": 1, "not_run": 2}
     assert [check["status"] for check in result["checks"]] == ["failed", "not_run", "not_run"]
     assert "Blocked after failed step" in result["checks"][-1]["stderr_tail"]
+
+
+def test_full_plan_executes_the_native_lexer_binary_not_an_empty_ctest_suite():
+    runner = load_tool()
+    lexer_checks = [command for name, command, _ in runner.plan("full", False)
+                    if name == "Native lexer smoke"]
+    assert len(lexer_checks) == 1
+    assert Path(lexer_checks[0][0]).is_absolute()
+    assert Path(lexer_checks[0][0]).name.startswith("kasa-lexer-smoke")
