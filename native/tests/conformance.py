@@ -39,6 +39,8 @@ CASES = {
     "lists": ('ma a=[1,2,3]\nma a[1]=88\nka a[1]\nka tentɛn(a)', ''),
     "converted": ('ka nsɛm(nokware)\nka nsɛm(hwee)\nka nɔma("12")+3\nka tentɛn("Ghana")', ''),
     "input": ('ka "Wo din de sɛn?"\nma edin=bisa()\nka "Akwaaba, "+edin','Akosua\n'),
+    "prompt_input": ('ma edin=bisa("Wo din de sɛn? ")\nka "Akwaaba, "+edin', 'Akosua\n'),
+    "empty_prompt": ('ka bisa("")', 'Akosua\n'),
     "large_exact_integer_comparison": ('ka 9007199254740992 == 9007199254740993\nka 9007199254740992 < 9007199254740993', ''),
     "comments_crlf": ('# example\r\nka "Hello" # comment\r\n', ''),
     "nested_function": ('dwumadie outer(n)\ndwumadie inner(m)\nsanma m*2\nawiei\nsanma inner(n)\nawiei\nka outer(5)', ''),
@@ -60,6 +62,8 @@ ERROR_CASES = {
     "bad_repeat_count": ('mpɛn -1\nka 1\nawiei', "TypeError"),
     "nonboolean_not": ('ka ɛnyɛ 1', "TypeError"),
     "bad_conversion": ('ka nɔma("hello")', "TypeError"),
+    "bad_input_prompt_type": ('ka bisa(42)', "TypeError"),
+    "bad_input_prompt_arity": ('ka bisa("one", "two")', "TypeError"),
 }
 
 

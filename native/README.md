@@ -42,7 +42,7 @@ The harness compares native program output against the current **Python referenc
 - Precedence-aware operators, parentheses, short-circuit Boolean evaluation.
 - Functions, positional parameters, return values, recursion, and lexical scope.
 - Lists, zero-based indexing, nested lists, list-element assignment.
-- `bisa()`, `tentɛn()`, `nɔma()`, `nsɛm()`.
+- `bisa()` / `bisa("prompt")`, `tentɛn()`, `nɔma()`, `nsɛm()`.
 - Source-location diagnostics, execution-step and output budgets, recursion-depth limits.
 
 ## Deliberate alpha limitations

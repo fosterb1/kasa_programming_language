@@ -626,14 +626,21 @@ class Interpreter:
         self.error(expr.token, "RuntimeError", "Unsupported expression")
 
     def call_builtin(self, name: str, args: list[object], token: Token) -> object:
-        expected = 0 if name == "bisa" else 1
-        if len(args) != expected:
-            self.error(token, "TypeError", f"'{name}' expects {expected} arguments, got {len(args)}")
         if name == "bisa":
+            if len(args) > 1:
+                self.error(token, "TypeError", f"'bisa' expects 0 or 1 arguments, got {len(args)}")
+            if args:
+                if not isinstance(args[0], str):
+                    self.error(token, "TypeError", "'bisa' prompt must be text")
+                self.check_allocation(args[0], token)
+                self.stdout.write(args[0])
+                self.stdout.flush()
             line = self.stdin.readline()
             if line == "":
                 self.error(token, "InputError", "No more input is available")
             return self.check_allocation(line.rstrip("\r\n"), token)
+        if len(args) != 1:
+            self.error(token, "TypeError", f"'{name}' expects 1 argument, got {len(args)}")
         value = args[0]
         if name == "tentɛn":
             if not isinstance(value, (str, list)):
