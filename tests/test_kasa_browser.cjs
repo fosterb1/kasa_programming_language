@@ -131,6 +131,13 @@ test('syntax check does not run Kasa program', () => {
   const result = executeKasa('ka 1/0', '', 'check');
   assert.deepEqual(result, {ok: true,output: '',error: '',steps: 0,mode: 'check'});
 });
+test('single-character operator at EOF is tokenized once', () => {
+  const source = 'ka tentɛn("ɛ")';
+  const tokens = tokenize(source);
+  assert.equal(tokens.at(-2).kind, ')');
+  assert.equal(tokens.at(-1).kind, 'EOF');
+  assert.equal(tokens.at(-1).column, [...source].length + 1);
+});
 test('Unicode Twi identifiers and CRLF locations', () => {
   const tok = tokenize('ma ɛdin = "Kɔfi"\r\nka ɛdin\r\n');
   assert.deepEqual(tok.slice(0,5).map(t => t.kind), ['ASSIGN','NAME','=','STRING','NEWLINE']);
