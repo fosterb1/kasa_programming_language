@@ -78,6 +78,16 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 
 The C++ serializer smoke has **five targeted checks**, including rejection of NaN and infinity by the writer, and the full profile executes its binary directly. The separate Python `native/tests/test_bytecode.py` suite additionally requires the complete native VM executable to test source/bytecode execution and malformed files.
 
+### Mutation stress test for the KBC1 loader
+
+```sh
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-kbc1-mutation-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_mutation --output-on-failure
+```
+
+This test runs 2,000 seeded bit mutations, **recomputes CRC32**, and loads each modified bytecode file *without executing it*. Some modified files may remain structurally valid. A clean run means the parser completed this finite sample; **it does not certify security or bytecode authenticity**.
+
 ## Interpreting results
 
 ```json
