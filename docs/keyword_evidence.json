@@ -38,151 +38,176 @@
       "title": "Harvard ELIAS Akan Sounds",
       "kind": "academic",
       "url": "https://elias.fas.harvard.edu/languages/twi/beginning/1/akan-sounds",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Harvard ELIAS"
     },
     "HARVARD_GRAMMAR": {
       "title": "Harvard ELIAS Twi grammar",
       "kind": "academic",
       "url": "https://elias.unix.fas.harvard.edu/languages/twi/beginning/1/akan-family-system",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Harvard ELIAS"
     },
     "AKAN_ORTHOGRAPHY": {
       "title": "Bureau of Ghana Languages (1995) bibliographic record",
       "kind": "official_bibliographic_only",
       "url": "https://books.google.com/books/about/Akan_Orthography.html?id=lP6BAT0s25sC",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Bureau of Ghana Languages"
     },
     "LEARN_ASK": {
       "title": "LearnAkan Dictionary: ask",
       "kind": "lexicographic",
       "url": "https://learnakandictionary.com/english-twi/ask/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "AKAN_BISA": {
       "title": "Akan Twi Dictionary: bisa",
       "kind": "lexicographic",
       "url": "https://www.akandictionary.com/2021/05/08/bisa/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Akan Twi Dictionary"
     },
     "LEARN_SAY": {
       "title": "LearnAkan Dictionary: say",
       "kind": "lexicographic",
       "url": "https://learnakandictionary.com/english-twi/say/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "LEARN_A": {
       "title": "LearnAkan Dictionary: conditional particle a",
       "kind": "grammar",
       "url": "https://learnakandictionary.com/twi-english/a/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "LEARN_CONJ": {
       "title": "LearnAkan Asante Twi conjunctions",
       "kind": "grammar",
       "url": "https://learnakan.com/akan-asante-twi-conjunctions/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "LEARN_WHEN": {
       "title": "LearnAkan Dictionary: when",
       "kind": "grammar",
       "url": "https://learnakandictionary.com/english-twi/when/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "LEARN_CONTINUE": {
       "title": "LearnAkan Dictionary: continue",
       "kind": "lexicographic",
       "url": "https://learnakandictionary.com/english-twi/continue/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "AKAN_GYAE": {
       "title": "Akan Twi Dictionary: gyae",
       "kind": "lexicographic",
       "url": "https://www.akandictionary.com/2021/04/22/gyae/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Akan Twi Dictionary"
     },
     "AKAN_DWUMADIE": {
       "title": "Akan Twi Dictionary: dwumadie",
       "kind": "lexicographic",
       "url": "https://www.akandictionary.com/2022/10/10/dwumadie/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Akan Twi Dictionary"
     },
     "LEARN_GRAMMAR": {
       "title": "LearnAkan: Twi grammar terminology",
       "kind": "pedagogy",
       "url": "https://learnakan.com/twi-grammar-terms/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "AKAN_AWIEI": {
       "title": "Akan Twi Dictionary: awiei",
       "kind": "lexicographic",
       "url": "https://www.akandictionary.com/2021/10/09/awiei/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Akan Twi Dictionary"
     },
     "LEARN_FINISH": {
       "title": "LearnAkan Dictionary: finish",
       "kind": "lexicographic",
       "url": "https://learnakandictionary.com/english-twi/finish/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "LEARN_TRUTH": {
       "title": "LearnAkan Dictionary: truth",
       "kind": "lexicographic",
       "url": "https://learnakandictionary.com/english-twi/truth/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "LEARN_LIE": {
       "title": "LearnAkan Dictionary: lie",
       "kind": "lexicographic",
       "url": "https://learnakandictionary.com/english-twi/lie/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "AKAN_HWEE": {
       "title": "Akan Twi Dictionary: hwee",
       "kind": "lexicographic",
       "url": "https://www.akandictionary.com/2021/04/14/hwee/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Akan Twi Dictionary"
     },
     "AKAN_ANAA": {
       "title": "Akan Twi Dictionary: anaa",
       "kind": "lexicographic",
       "url": "https://www.akandictionary.com/2022/10/17/anaa/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Akan Twi Dictionary"
     },
     "LEARN_AND": {
       "title": "LearnAkan Dictionary: and",
       "kind": "lexicographic",
       "url": "https://learnakandictionary.com/english-twi/and/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "GRAMMAR_NEG": {
       "title": "LearnAkan: negation of yɛ (context)",
       "kind": "grammar",
       "url": "https://learnakandictionary.com/learn-twi-with-public-inscriptions-aboter%C9%9B-y%C9%9B/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "OTHERWISE": {
       "title": "Twi grammar: otherwise",
       "kind": "secondary_grammar",
       "url": "https://bubblegum.la/grammar/twi/otherwise-s-ny-saa-a-9622bf9c",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Bubblegum Twi Grammar"
     },
     "H_GYAE": {
       "title": "LearnAkan: Twi conjunctions",
       "kind": "grammar",
       "url": "https://learnakan.com/akan-asante-twi-conjunctions/",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "LearnAkan"
     },
     "AKAN_HG": {
       "title": "Harvard ELIAS grammar",
       "kind": "academic",
       "url": "https://elias.unix.fas.harvard.edu/languages/twi/beginning/1/akan-family-system",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "Akan Twi Dictionary"
     },
     "GITHUB_NUM": {
       "title": "Community Twi synonyms (unverified)",
       "kind": "community",
       "url": "https://github.com/aberba/twi-synonyms",
-      "accessed": "2026-11-17"
+      "accessed": "2026-11-17",
+      "publisher": "aberba GitHub contributor"
     }
   },
   "terms": {
