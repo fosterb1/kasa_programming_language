@@ -6,6 +6,7 @@ Existing vocabulary predates this policy and remains review-pending.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 from kasa.core import BUILTIN_NAMES, KEYWORDS
@@ -114,3 +115,41 @@ def test_new_tokens_require_evidence_and_human_approval() -> None:
             f"{name}: requires review from Asante and Akuapem speakers"
         )
         assert any(reviewer.get("role") == "computing_educator" for reviewer in reviewers)
+
+
+def test_all_three_runtimes_agree_on_documented_keywords() -> None:
+    """Catch JS/C++-only keyword additions that bypass Python's audit list."""
+    js = (ROOT / "playground" / "kasa-runtime.js").read_text(encoding="utf-8")
+    cpp = (ROOT / "native" / "src" / "lexer.cpp").read_text(encoding="utf-8")
+    vm = (ROOT / "native" / "src" / "vm.cpp").read_text(encoding="utf-8")
+
+    js_block = re.search(r"const KEYWORDS = Object\\.freeze\\(\\{(.*?)\\}\\);", js, re.S)
+    native_block = re.search(
+        r"static const unordered_map<string,string> words=\\{(.*?)\\};", cpp, re.S
+    )
+    assert js_block, "Cannot inspect JS keyword registry"
+    assert native_block, "Cannot inspect native keyword registry"
+
+    js_keys = {
+        quoted or identifier
+        for quoted, identifier in re.findall(
+            r'(?:"([^"]+)"|([\\w]+))\\s*:\\s*"[A-Z_]+"', js_block.group(1)
+        )
+    }
+    native_keys = set(
+        re.findall(r'\\{\\s*"([^"]+)"\\s*,\\s*"[A-Z_]+"\\s*\\}', native_block.group(1))
+    )
+    assert js_keys == set(KEYWORDS), f"JavaScript lexer keywords differ: {js_keys ^ set(KEYWORDS)}"
+    assert native_keys == set(KEYWORDS), f"Native lexer keywords differ: {native_keys ^ set(KEYWORDS)}"
+
+    js_builtin = re.search(r'\\[([^\\]]+)\\]\\.includes\\(e\\.value\\)', js)
+    native_builtin = re.search(
+        r'for\\(const char\\*s:\\{([^}]+)\\}\\)env->values\\[s\\]=Value\\(Builtin\\{s\\}\\)',
+        vm,
+    )
+    assert js_builtin, "Cannot inspect JS built-in registry"
+    assert native_builtin, "Cannot inspect native built-in registry"
+    js_names = set(re.findall(r'"([^"]+)"', js_builtin.group(1)))
+    native_names = set(re.findall(r'"([^"]+)"', native_builtin.group(1)))
+    assert js_names == set(BUILTIN_NAMES)
+    assert native_names == set(BUILTIN_NAMES)
