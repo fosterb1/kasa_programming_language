@@ -1,6 +1,6 @@
 # Kasa Native — independent bytecode compiler and VM
 
-**Version:** `0.4.0-alpha` (KBC1 development branch) · **Status:** experimental native compiler and virtual machine. The KBC1 file format is a draft undergoing integration verification.
+**Version:** `0.4.0-alpha` · **Status:** experimental native compiler/VM with KBC1 on-disk bytecode. The complete native compiler and 14 KBC1 test groups passed independently with GCC, Clang and GCC sanitizers on Linux; no 1.0, security or cross-platform certification is implied.
 
 This is the first Kasa executable **that runs without a Python or JavaScript runtime**. It is written in **C++20**, uses the C++ standard library, and implements its own lexer, parser, abstract syntax tree, bytecode generator, and stack-based virtual machine. It does **not** generate Python source code, call Python, invoke Node.js, or delegate language evaluation to either existing Kasa interpreter.
 
