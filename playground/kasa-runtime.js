@@ -91,7 +91,7 @@
         tokens.push(tok(KEYWORDS[word] || "NAME", word, ln, col)); continue;
       }
       const pair = source.slice(i, i + 2);
-      if (OPS.has(pair)) { advance(); advance(); tokens.push(tok(pair, pair, ln, col)); continue; }
+      if (pair.length === 2 && OPS.has(pair)) { advance(); advance(); tokens.push(tok(pair, pair, ln, col)); continue; }
       if (OPS.has(ch)) { advance(); tokens.push(tok(ch, ch, ln, col)); continue; }
       syntax(`Unexpected character '${ch}'`, tok("INVALID", ch, ln, col));
     }
