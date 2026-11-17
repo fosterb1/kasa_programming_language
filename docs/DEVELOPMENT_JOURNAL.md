@@ -59,6 +59,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 - **Evidence:** [Full independent verification record](./verification/2026-11-17-kbc1-serializer-smoke.md).
 - **Remaining risk:** This is not the complete native VM/compiler build; full `test_bytecode.py` and source→file→VM round-trips still need execution before PR #16 can merge.
 
+### 2026-11-17 — KBC1 mutation robustness and CRC32 limits
+
+- **Status:** New deterministic loader mutation regression implemented on experimental [PR #16](https://github.com/fosterb1/kasa_programming_language/pull/16); **not merged**.
+- **Changed:** A C++20 `bytecode_mutation_smoke.cpp` target runs 2,000 seeded one-bit payload mutations of a valid KBC1 file, recalculates CRC32, then attempts **parsing without executing** the modified code. Registered in CMake and the independent full verification plan.
+- **Verification:** Compiled under GNU g++ 14.2 with AddressSanitizer and UndefinedBehaviorSanitizer. **2,000/2,000 attempts completed without reported sanitizer errors**; 1,349 were rejected and 651 were structurally accepted.
+- **Discovery:** CRC32 is not authentication. When the checksum is recomputed, some tampered files remain structurally valid. Such accepted variants are *not automatically verifier bugs* and must not be treated as authorized software.
+- **Challenges:** This is narrow, deterministic robustness evidence, **not comprehensive fuzzing, security certification, or whole-VM execution**.
+- **Evidence:** [Exact-source verification record and mutation result](./verification/2026-11-17-kbc1-serializer-smoke.md).
+- **Next gate:** Full native compiler/VM build, source→KBC1→VM round-trip tests and the Python adversarial loader suite on the exact review commit.
+
 ### 2026-11-17 — Practical computing specialization implemented
 
 - **Status:** [PR #17](https://github.com/fosterb1/kasa_programming_language/pull/17) **merged**.
@@ -90,7 +100,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 | R-01 | Full native KBC1 CMake build and hostile-input test suite not run on extracted branch | **High** | Standalone serializer now **5/5 passed**; keep PR #16 open and run full VM/CLI tests with saved report | Open |
 | R-02 | GitHub Actions jobs terminate before steps, apparently affected by account/runner constraints | Medium | Keep CI out of critical path; [issue #12](https://github.com/fosterb1/kasa_programming_language/issues/12); local runner | Open |
 | R-03 | Three language engines differ on numeric ranges/formatting and resource limits | High | RFCs and shared conformance corpus; explicit known incompatibilities | Open |
-| R-04 | KBC1 CRC32 checks corruption but not malicious modification | **High for untrusted distribution** | No trusted/signed bytecode claims; sandboxing and stronger review required | Open |
+| R-04 | KBC1 CRC32 checks corruption but not malicious modification | **High for untrusted distribution** | A 2,000-case mutation test confirmed some CRC-adjusted files remain structurally valid; require provenance/signature policy, sandboxing and stronger review | Open |
 | R-05 | Twi keywords lack final native-speaker/dialect and educator review | High for educational adoption | Evidence policy, structured audit, Asante/Akuapem review | Open |
 | R-06 | Lack of explicit open-source license | Medium | Owner chooses license and adds `LICENSE`; do not claim legal open-source status | Open |
 | R-07 | No classroom pilot validating proposed accessibility advantage | Medium | Small documented, ethically designed learner/teacher pilot | Open |
