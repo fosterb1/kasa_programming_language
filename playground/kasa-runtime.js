@@ -429,12 +429,18 @@
       }
     }
     builtin(name, args, tok) {
-      const expected = name === "bisa" ? 0 : 1;
-      if (args.length !== expected) this.error(tok, "TypeError", `'${name}' expects ${expected} arguments, got ${args.length}`);
       if (name === "bisa") {
+        if (args.length > 1) this.error(tok, "TypeError", `'bisa' expects 0 or 1 arguments, got ${args.length}`);
+        if (args.length) {
+          if (typeof args[0] !== "string") this.error(tok, "TypeError", "'bisa' prompt must be text");
+          this.check(args[0], tok);
+          if (this.output.length + args[0].length > OUTPUT_LIMIT) throw new OutputLimitError();
+          this.output += args[0];
+        }
         if (this.inputCursor >= this.inputs.length) this.error(tok, "InputError", "No more input is available");
         return this.check(this.inputs[this.inputCursor++].replace(/[\r\n]+$/g, ""), tok);
       }
+      if (args.length !== 1) this.error(tok, "TypeError", `'${name}' expects 1 argument, got ${args.length}`);
       const value = args[0];
       if (name === "tentɛn") {
         if (!Array.isArray(value) && typeof value !== "string") this.error(tok, "TypeError", "'tentɛn' requires text or a list");

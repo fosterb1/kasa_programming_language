@@ -47,6 +47,15 @@ ka fa_bi(4, 6)
 
 Expected output: `10`.
 
+Interactive input with a Twi prompt:
+
+```kasa
+ma edin = bisa("Wo din de sɛn? ")
+ka "Akwaaba, " + edin
+```
+
+`bisa()` still reads input without a prompt. `bisa("...")` displays the supplied text (without adding a newline), then reads a line; the prompt must be text.
+
 These programs use implemented Kasa syntax. Runnable versions are available in [`examples/`](./examples/), and the local automated test suite verifies their output.
 
 ## Why Kasa?
@@ -87,7 +96,7 @@ Kasa does **not** accept new Twi syntax on the basis of AI translation alone. Ev
 | `nokware` / `atoro` | True / false |
 | `ne` / `anaa` / `ɛnyɛ` | Logical AND / OR / NOT |
 | `gyae` / `toa_so` | Break / continue |
-| `bisa()` | Read user input |
+| `bisa()` / `bisa("prompt")` | Read user input, optionally showing a prompt |
 | `tentɛn()` | Get length |
 | `nɔma()` / `nsɛm()` | Convert to number / text |
 

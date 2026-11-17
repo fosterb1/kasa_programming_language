@@ -124,7 +124,14 @@ class VM{
     }
     Value builtin(const Builtin&b,const vector<Value>&args,const Token&t){
         if(b.name=="bisa"){
-            if(!args.empty())error(t,"TypeError","bisa expects zero arguments");
+            if(args.size()>1)error(t,"TypeError","bisa expects zero or one argument");
+            if(!args.empty()){
+                if(!holds_alternative<string>(args[0].data))error(t,"TypeError","bisa prompt must be text");
+                const string&prompt=get<string>(args[0].data);
+                if(prompt.size()>maxOutput-printed)error(t,"ResourceError","Output limit exceeded");
+                printed+=prompt.size();
+                out<<prompt<<flush;
+            }
             string line;if(!getline(in,line))error(t,"InputError","No more input is available");
             if(line.size()>maxText)error(t,"ResourceError","Input is too long");
             return Value(line);
