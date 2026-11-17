@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Write and run Twi-first Kasa programs online, directly in your web browser." />
   <meta name="theme-color" content="#101c24" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/kasa-192.png" />
   <title>Kasa Playground — Kasa Programming Language</title>
   <link rel="stylesheet" href="./style.css" />
   <script src="./app.js?v=0.4.0" defer></script>
@@ -48,7 +50,7 @@
           <div class="panel-header"><div class="panel-title"><span class="terminal-icon" aria-hidden="true">›_</span> Output</div><div><button class="button text-button" id="retry" type="button" title="Restart the Kasa JavaScript interpreter and retry loading the native WebAssembly engine">Retry engine</button><button class="button text-button" id="clear" type="button">Clear</button></div></div>
           <div class="output-body"><div class="run-status" id="status" role="status" aria-live="polite"><span class="pulse"></span> Preparing Kasa interpreter…</div><pre id="output" tabindex="0" aria-label="Kasa program output">Interpreter loading…</pre></div>
           <div class="stdin-section"><label for="input">PROGRAM INPUT <small>for bisa() · one response per line</small></label><textarea id="input" rows="3" placeholder="Type any input your program needs, one response per line."></textarea></div>
-          <div class="output-footer">Your Kasa code stays in your browser. Native WebAssembly is preferred when included; JavaScript always remains available.</div>
+          <div class="output-footer">Your Kasa code stays in your browser. The playground can work offline after its first successful installation. Native WebAssembly is preferred when included; JavaScript remains available.</div>
         </div>
       </section>
       <section class="below"><div><h2>Learn the building blocks.</h2><p>Kasa teaches real programming concepts using Twi-first keywords.</p></div><div class="vocab" aria-label="Kasa keyword translations"><span><code>ka</code> Print</span><span><code>ma</code> Assign</span><span><code>sɛ</code> If</span><span><code>mpɛn</code> Repeat</span><span><code>dwumadie</code> Function</span><span><code>awiei</code> End</span></div></section>

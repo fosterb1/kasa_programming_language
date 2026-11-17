@@ -41,3 +41,8 @@ jobs:
         run: python native/tests/conformance.py ${{ matrix.executable }}
       - name: Demonstrate compiled bytecode
         run: ${{ matrix.executable }} disasm examples/functions.kasa
+
+      - name: Test portable KBC bytecode verification
+        run: python native/tests/test_bytecode.py ${{ matrix.executable }}
+      - name: Test shared conformance fixtures
+        run: python native/tests/test_shared_conformance.py ${{ matrix.executable }}

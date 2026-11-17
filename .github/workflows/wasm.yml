@@ -42,6 +42,8 @@ jobs:
           version: latest
       - name: Compile native C++ compiler to WebAssembly
         run: bash native/wasm/build.sh
+      - name: Verify generated WebAssembly is a compilable module
+        run: node native/wasm/validate_artifacts.mjs
       - name: Package real WASM, refusing JS-only bundle
         run: python playground/build_site.py --require-wasm
       - name: Upload deployable Playground site

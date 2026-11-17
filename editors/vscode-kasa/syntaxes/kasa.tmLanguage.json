@@ -1,0 +1,52 @@
+{
+  "name": "Kasa",
+  "scopeName": "source.kasa",
+  "fileTypes": [
+    "kasa"
+  ],
+  "patterns": [
+    {
+      "name": "comment.line.number-sign.kasa",
+      "match": "#.*$"
+    },
+    {
+      "name": "string.quoted.double.kasa",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.kasa",
+          "match": "\\\\[nrt\\\\\"]"
+        }
+      ]
+    },
+    {
+      "name": "keyword.control.flow.kasa",
+      "match": "(?<![\\p{L}\\p{N}_])(?:sɛ|anyɛ_saa_a|mpɛn|bere_a|awiei|gyae|toa_so|sanma)(?![\\p{L}\\p{N}_])"
+    },
+    {
+      "name": "keyword.other.kasa",
+      "match": "(?<![\\p{L}\\p{N}_])(?:ka|ma|dwumadie)(?![\\p{L}\\p{N}_])"
+    },
+    {
+      "name": "constant.language.kasa",
+      "match": "(?<![\\p{L}\\p{N}_])(?:nokware|atoro|hwee)(?![\\p{L}\\p{N}_])"
+    },
+    {
+      "name": "keyword.operator.logical.kasa",
+      "match": "(?<![\\p{L}\\p{N}_])(?:ne|anaa|ɛnyɛ)(?![\\p{L}\\p{N}_])"
+    },
+    {
+      "name": "support.function.builtin.kasa",
+      "match": "(?<![\\p{L}\\p{N}_])(?:bisa|tentɛn|nɔma|nsɛm)(?=\\s*\\()"
+    },
+    {
+      "name": "constant.numeric.kasa",
+      "match": "(?<![\\p{L}\\p{N}_])[0-9]+(?:\\.[0-9]+)?(?![\\p{L}\\p{N}_])"
+    },
+    {
+      "name": "keyword.operator.kasa",
+      "match": "(?:==|!=|<=|>=|[+*/%<>=-])"
+    }
+  ]
+}

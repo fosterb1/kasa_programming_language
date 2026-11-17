@@ -30,3 +30,6 @@ jobs:
           node --check playground/worker.js
           node --check playground/app.js
           node --test tests/test_kasa_browser.cjs
+          node --test tests/conformance/test_browser.cjs
+          node --test editors/vscode-kasa/tests/metadata.test.cjs
+          node --check playground/sw.js

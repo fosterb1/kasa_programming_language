@@ -1,0 +1,7 @@
+# Simple quiz with a preset answer (no keyboard input required)
+ma mmuae = 4
+sɛ mmuae == 2 + 2 a
+    ka "Ayekoo! Correct."
+anyɛ_saa_a
+    ka "Try again."
+awiei

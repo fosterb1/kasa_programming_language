@@ -1,0 +1,14 @@
+# Grade book: count passing students
+ma scores = [95, 40, 72, 83, 61]
+ma passed = 0
+ma total = 0
+ma i = 0
+bere_a i < tentɛn(scores)
+    ma total = total + scores[i]
+    sɛ scores[i] >= 50 a
+        ma passed = passed + 1
+    awiei
+    ma i = i + 1
+awiei
+ka "Passed: " + nsɛm(passed)
+ka "Class total: " + nsɛm(total)

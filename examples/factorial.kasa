@@ -1,0 +1,8 @@
+# Factorial: 6! = 720
+dwumadie fact(n)
+    sɛ n <= 1 a
+        sanma 1
+    awiei
+    sanma n * fact(n - 1)
+awiei
+ka fact(6)

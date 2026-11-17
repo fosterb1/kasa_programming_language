@@ -1,0 +1,16 @@
+# Sort numbers without any built-in sorting function
+ma values = [9, 1, 4, 2, 7]
+ma i = 0
+bere_a i < tentɛn(values)
+    ma j = 0
+    bere_a j < tentɛn(values) - i - 1
+        sɛ values[j] > values[j + 1] a
+            ma temp = values[j]
+            ma values[j] = values[j + 1]
+            ma values[j + 1] = temp
+        awiei
+        ma j = j + 1
+    awiei
+    ma i = i + 1
+awiei
+ka values

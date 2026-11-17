@@ -171,3 +171,12 @@ source.addEventListener("keydown", (event) => {
 });
 
 prepareWorker();
+
+// Installation never blocks execution, and registration stays within the site scope.
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(error => {
+      console.warn('Kasa offline mode unavailable:', error);
+    });
+  });
+}

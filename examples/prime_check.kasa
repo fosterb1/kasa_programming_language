@@ -1,0 +1,12 @@
+# Is 97 a prime number?
+ma n = 97
+ma prime = nokware
+ma d = 2
+bere_a d * d <= n
+    sɛ n % d == 0 a
+        ma prime = atoro
+        gyae
+    awiei
+    ma d = d + 1
+awiei
+ka prime

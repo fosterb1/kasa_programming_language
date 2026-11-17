@@ -43,4 +43,6 @@ vector<S> parseSource(vector<Token> tokens,const string &filename);
 shared_ptr<Chunk> compileProgram(const vector<S>&stmts,const string&filename);
 void runProgram(shared_ptr<Chunk>code,const string&filename,ostream&out,istream&in);
 void disasm(const shared_ptr<Chunk>&code,ostream&out,int indent=0);
+void writeBytecode(const shared_ptr<Chunk>&code,const string&path);
+shared_ptr<Chunk> readBytecode(const string&path);
 } // namespace kasa

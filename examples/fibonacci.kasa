@@ -1,0 +1,9 @@
+# First ten Fibonacci numbers
+ma a = 0
+ma b = 1
+mpɛn 10
+    ka a
+    ma next = a + b
+    ma a = b
+    ma b = next
+awiei

@@ -6,9 +6,9 @@ Kasa is an educational programming-language project intended to become open sour
 
 Kasa's guiding idea is simple: **learners should focus on solving problems, not memorizing unfamiliar English keywords.** The language uses familiar Twi-inspired vocabulary while teaching transferable concepts such as variables, conditions, loops, functions, lists, and debugging.
 
-> **Project status — Early implementation (v0.1.0).** Kasa now includes an initial working Python interpreter, CLI, interactive REPL, five executable examples, and automated tests. The project is **not yet a complete or classroom-ready 1.0 release**; the full engineering specification remains the longer-term target.
+> **Project status — Specification / pre-implementation.** The language design is documented, but this repository does **not yet contain a working interpreter, installable Python package, command-line tool, or automated test suite**. The examples and commands below describe the intended language and developer experience, not currently verified functionality.
 
-## See Kasa in action
+## See Kasa in action — proposed syntax
 
 A first program, saved as `hello.kasa`:
 
@@ -16,7 +16,7 @@ A first program, saved as `hello.kasa`:
 ka "Maakye, Ghana!"
 ```
 
-Expected output:
+Expected output **once the interpreter is implemented**:
 
 ```text
 Maakye, Ghana!
@@ -47,7 +47,7 @@ ka fa_bi(4, 6)
 
 Expected output: `10`.
 
-These programs use implemented Kasa syntax. Runnable versions are available in [`examples/`](./examples/), and the local automated test suite verifies their output.
+These examples follow the proposed specification; they have not yet been executed by a Kasa interpreter.
 
 ## Why Kasa?
 
@@ -97,49 +97,48 @@ Kasa is not intended to replace Python, JavaScript, or other established languag
 
 ### Implementation approach
 
-The interpreter follows this execution pipeline:
+The intended execution pipeline is:
 
 ```text
 .kasa source → Lexer → Tokens → Parser → AST → Interpreter → Output
 ```
 
-The initial interpreter is written in **Python 3.11+**, using only the Python standard library for its core runtime. It does not execute Kasa programs through Python `eval()` or `exec()`, translate source into Python for execution, or expose arbitrary operating-system, filesystem, or network access through language built-ins.
+The first interpreter will be written in **Python 3.11+**, using the Python standard library for its core runtime. It will not execute Kasa programs through Python `eval()` or `exec()`, translate source into Python for execution, or expose arbitrary operating-system, filesystem, or network access through language built-ins.
 
-## Installation and usage (v0.1.0)
+## Installation and usage — planned, not yet available
 
-Install Python 3.11 or newer, clone this repository, and run the following from its root:
+When the implementation is ready, the intended developer setup will be:
 
 ```bash
 python -m venv .venv
-# Activate the virtual environment first (Windows: .venv\\Scripts\\Activate.ps1)
 python -m pip install -e ".[dev]"
-pytest -q
 ```
 
-Run and check Kasa programs:
+The planned CLI is:
 
 ```bash
-kasa run examples/hello.kasa        # Prints Maakye, Ghana!
-kasa check examples/hello.kasa      # Checks syntax without executing
-kasa repl                           # Starts the interactive interpreter
-python -m kasa --version            # Shows the installed version
+kasa run hello.kasa     # Run a program
+kasa check hello.kasa   # Check syntax without running it
+kasa repl               # Start the interactive interpreter
+python -m kasa --help   # View command-line help
+pytest                  # Run automated tests
 ```
 
-The `kasa check` command parses source without running it. Runtime errors include source line and column. This is an early implementation: explore the examples and check [known limitations](./docs/IMPLEMENTATION_PLAN.md) before relying on it in classrooms.
+**These commands do not work against the present specification-only repository.** Installation steps and supported commands will be verified and updated alongside the implementation.
 
 ## Current progress and roadmap
 
 | Area | Status |
 | --- | --- |
 | Language vision and engineering specification | Documented |
-| Lexer, parser, and AST | Implemented (0.1.0) |
-| Interpreter and runtime | Implemented (0.1.0; further hardening planned) |
-| CLI, REPL, and packaging | Implemented (0.1.0) |
-| Tests and runnable examples | 58 local tests passed; five examples verified |
+| Lexer, parser, and AST | Not yet implemented |
+| Interpreter and runtime | Not yet implemented |
+| CLI, REPL, and packaging | Not yet implemented |
+| Tests and runnable examples | Not yet implemented |
 | Tutorials and teacher resources | Planned |
 | Twi community language review | Needed before release |
 
-The initial implementation milestone is complete. The next stages are deeper edge-case testing, classroom documentation, an expanded example collection, linguistic review, and release hardening. See [the implementation plan](./docs/IMPLEMENTATION_PLAN.md).
+The initial development sequence is: **packaging → lexer → parser/AST → runtime → control flow → functions/lists → CLI/REPL → examples/docs → testing and release checks**.
 
 A version 1.0 release will require a working, tested interpreter—not merely completed documentation. The specification calls for at least 15 runnable example programs and tests for successful behavior, invalid input, Unicode, and resource limits.
 
@@ -171,17 +170,12 @@ Before proposing a major language change, consult the [engineering specification
 
 **Kasa's mission:** make learning to program feel closer to the language learners already know—while building a rigorous, reliable foundation for real computational thinking.
 
-## Browser-based Kasa Playground (offline-first prototype)
+## Online playground (offline-first prototype)
 
-The [Kasa Playground](./playground/) now runs a **separate JavaScript implementation of Kasa** directly inside a Web Worker, with no Pyodide download, CDN, or server-side interpreter. The browser editor provides Run, Check syntax, input, six Twi examples and downloadable `.kasa` files. The original Python interpreter (`src/kasa/core.py`) remains the language reference; the browser implementation is tested against its core behaviors but is not guaranteed identical for all edge cases.
+The browser editor at [`playground/`](./playground/) runs a **separate JavaScript implementation of Kasa** in a Web Worker, without downloading Pyodide, Python or external CDN assets. It supports Run, Check syntax, input, six examples and `.kasa` downloads. The original Python CLI in `src/kasa/core.py` remains the authoritative language runtime; the browser port is tested against its core behaviors but is not guaranteed identical for all edge cases.
 
-Build the standalone hosting ZIP using `python playground/build_site.py`. Redeploy the ZIP on an existing Netlify site to replace any Pyodide-dependent version. See the [playground deployment guide](./playground/README.md).
+Generate a self-contained Netlify site with `python playground/build_site.py`. See [setup and hosting instructions](./playground/README.md).
 
-## Kasa Native — C++20 bytecode compiler (alpha)
-
-Kasa's third execution engine lives in [`native/`](./native/). This is a **C++20 compiler and stack-based virtual machine**, not a Python wrapper: it translates Kasa source into *in-memory bytecode* and executes it in a standalone native binary. It currently implements the core Twi syntax, functions, recursion, lists, input and control flow. See [native build and testing instructions](./native/README.md) and the [draft native ecosystem RFC](./docs/RFC-0001-kasa-native-roadmap.md).
-
-**Status:** `0.3.0-alpha`. Python remains the behavioral reference until conformance is standardized. A binary file format, machine-code output, package manager, and self-hosting are future milestones, **not existing features**. Native integers are currently 64-bit, unlike Python's larger integer range.
 
 ## WebAssembly browser compiler integration (development)
 
@@ -195,3 +189,17 @@ python playground/build_site.py --require-wasm
 ```
 
 The generated ZIP includes both `native/kasa-native.js` and `native/kasa-native.wasm`. See [WebAssembly build and Colab instructions](./native/wasm/README.md). **Important:** This code has passed local C++ C-ABI tests, JavaScript worker simulation tests, and existing interpreter regressions, but this environment did not have Emscripten and therefore an actual browser WebAssembly build has **not** been verified here. The existing JS-only playground remains functional until a real WASM deployment is compiled.
+
+## Experimental Kasa platform expansion (development branch)
+
+The next platform milestone adds a serialized `.kbc` bytecode format with
+a native loader/verifier, [shared language conformance fixtures](./tests/conformance/cases.json),
+[VS Code language support prototype](./editors/vscode-kasa/),
+[offline-capable web packaging](./playground/), and
+[15 runnable examples](./examples/). See the [implementation milestones](./docs/MILESTONES.md),
+[language semantics](./docs/SEMANTICS.md), [bytecode RFC](./docs/RFC-0003-kasa-bytecode-format.md),
+and [beginner tutorial](./docs/TUTORIAL.md).
+
+**Not yet production-ready:** Emscripten `.wasm` builds, full browser
+end-to-end verification, cross-platform binary releases, VS Code Marketplace
+publishing and an owner-approved open-source license remain pending.
