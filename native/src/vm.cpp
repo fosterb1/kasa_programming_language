@@ -73,6 +73,17 @@ static bool equal(const Value&a,const Value&b,int depth=0){
 class VM{
     ostream &out;istream &in;string filename;size_t steps=0,printed=0;int depth=0;
     const size_t maxSteps=100000,maxOutput=64000,maxList=10000,maxText=1000000;
+    // Functions capture environments using shared ownership. Recursive and nested
+    // definitions can therefore produce cycles (environment -> function -> environment).
+    // Track environments weakly and break cycles only when the entire VM finishes,
+    // preserving escaping lexical closures during program execution.
+    vector<weak_ptr<Environment>> trackedEnvironments;
+    shared_ptr<Environment> makeEnvironment(shared_ptr<Environment> parent=nullptr) {
+        auto environment=make_shared<Environment>(std::move(parent));
+        trackedEnvironments.emplace_back(environment);
+        return environment;
+    }
+
     static Value pop(vector<Value>&v){if(v.empty())throw runtime_error("VM operand stack underflow");Value x=std::move(v.back());v.pop_back();return x;}
     [[noreturn]]void error(const Token&t,const string&category,const string&msg)const{throw Failure(t,category,msg,filename);}
     bool truth(const Value&v,const Token&t){if(!holds_alternative<bool>(v.data))error(t,"TypeError","Condition requires a Boolean");return get<bool>(v.data);}
@@ -218,7 +229,7 @@ class VM{
                     auto fn=get<shared_ptr<Function>>(callee.data);
                     if(args.size()!=fn->definition->params.size())error(i.loc,"TypeError","Wrong number of function arguments");
                     if(depth>=64)error(i.loc,"ResourceError","Function call depth exceeded");
-                    auto local=make_shared<Environment>(fn->closure);
+                    auto local=makeEnvironment(fn->closure);
                     for(size_t x=0;x<args.size();++x)local->values[fn->definition->params[x]]=args[x];
                     ++depth;try{stack.push_back(runChunk(fn->definition->code,local));}catch(...){--depth;throw;}--depth;break;
                 }
@@ -229,8 +240,13 @@ class VM{
     }
 public:
     VM(string filename,ostream&out,istream&in):out(out),in(in),filename(std::move(filename)){}
+    ~VM() {
+        // VM lifetime ends after output and all ephemeral functions are consumed.
+        // Clearing captured scopes breaks shared_ptr cycles even on runtime errors.
+        for(auto& weak:trackedEnvironments)if(auto env=weak.lock())env->values.clear();
+    }
     void run(shared_ptr<Chunk>code){
-        auto env=make_shared<Environment>();
+        auto env=makeEnvironment();
         for(const char*s:{"bisa","tentɛn","nɔma","nsɛm"})env->values[s]=Value(Builtin{s});
         runChunk(code,env);
     }

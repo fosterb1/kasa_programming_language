@@ -46,7 +46,10 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Native CMake configuration | No | Yes |
 | Native C++20 compiler and VM build | No | Yes |
 | Standalone native Unicode lexer executable | No | Yes |
+| Standalone KBC1 serialization and corruption-rejection executable | No | Yes |
+| Deterministic KBC1 loader mutation smoke (2,000 CRC-adjusted changes) | No | Yes |
 | Native/Python conformance harness | No | Yes |
+| Native KBC1 round-trip and malformed-bytecode tests | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
 
 The script runs subprocesses without a shell, captures the final portion of stdout/stderr, records exit codes and durations, and returns **nonzero** if any required step fails. Missing executables are failures, not skipped passes. An unsuccessful native configuration/build marks every downstream dependent check explicitly as **not_run**, including the reason it was blocked; the complete planned check list is preserved in the report.
@@ -65,6 +68,30 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --outp
 
 The standalone executable evaluates **13 lexical checks**. The full local verifier invokes this binary directly and checks its exit code, avoiding the possibility of a zero-test CTest run being mistaken for success. The same test is also registered with CTest for manual use. Neither result is equivalent to the entire native VM passing.
 
+### KBC1 checks without the full VM
+
+```sh
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-kbc1-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --output-on-failure
+```
+
+The C++ serializer smoke has **seven targeted checks**, including non-finite values, source coordinates and aggregate nested instruction limits, and the full profile executes its binary directly. The separate Python `native/tests/test_bytecode.py` suite additionally requires the complete native VM executable to test source/bytecode execution and malformed files.
+
+### Mutation stress test for the KBC1 loader
+
+```sh
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-kbc1-mutation-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_mutation --output-on-failure
+```
+
+This test runs 2,000 seeded bit mutations, **recomputes CRC32**, and loads each modified bytecode file *without executing it*. Some modified files may remain structurally valid. A clean run means the parser completed this finite sample; **it does not certify security or bytecode authenticity**.
+
+### Latest independent full native integration evidence
+
+The exact PR #16 native executable compiled on Linux with **GCC 14.2** and **Clang 17**; the source→KBC1→VM adversarial suite passed **14/14 test groups** under each and **14/14 under GCC AddressSanitizer/UndefinedBehaviorSanitizer**, after a confirmed lexical-closure memory leak was fixed. See [the recorded commands, source blob hashes, failures and retests](./verification/2026-11-17-kbc1-native-integration.md). This does not replace full Python/Node/browser/Windows/macOS checks, and a CMake staged build with `BUILD_TESTING=OFF` does **not** verify all CTest targets.
+
 ## Interpreting results
 
 ```json
@@ -72,7 +99,7 @@ The standalone executable evaluates **13 lexical checks**. The full local verifi
   "profile": "full",
   "dry_run": false,
   "counts": {
-    "passed": 11,
+    "passed": 14,
     "failed": 0,
     "not_run": 0
   }

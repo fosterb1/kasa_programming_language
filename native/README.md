@@ -1,6 +1,6 @@
 # Kasa Native — independent bytecode compiler and VM
 
-**Version:** `0.3.0-alpha` · **Status:** experimental, tested source-to-in-memory-bytecode implementation.
+**Version:** `0.4.0-alpha` · **Status:** experimental native compiler/VM with KBC1 on-disk bytecode. The complete native compiler and 14 KBC1 test groups passed independently with GCC, Clang and GCC sanitizers on Linux; no 1.0, security or cross-platform certification is implied.
 
 This is the first Kasa executable **that runs without a Python or JavaScript runtime**. It is written in **C++20**, uses the C++ standard library, and implements its own lexer, parser, abstract syntax tree, bytecode generator, and stack-based virtual machine. It does **not** generate Python source code, call Python, invoke Node.js, or delegate language evaluation to either existing Kasa interpreter.
 
@@ -39,6 +39,43 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --outp
 
 The executable tests tokenization and error coordinates, **not full native program execution**. It is also included in the `python scripts/verify_local.py --profile full` verification plan.
 
+## Standalone KBC1 serializer verification
+
+The native KBC1 writer/loader can be tested **without linking the parser or virtual machine**:
+
+```bash
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-kbc1-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --output-on-failure
+```
+
+The smoke test checks deterministic serialization, a simple round-trip, bad magic/version/checksum, NaN/infinite decimal rejection, source-coordinate limits, and global nested instruction limits. **All seven focused groups passed** under strict C++20 and sanitizer builds on 2026-11-17. This followed fixes for writer/reader disagreements. It is a narrow component test, **not full security certification**. The full local verification profile also runs the C++ smoke binary directly so zero matching CTest cases cannot yield a false pass.
+
+## Deterministic KBC1 loader mutation testing
+
+A separate native test mutates a valid bytecode file **2,000 times**, recalculates CRC32, and checks that the loader either safely rejects the file or parses its modified structure without a crash. It **never executes the mutated bytecode**.
+
+```bash
+cmake --build build/kasa-local --target kasa-kbc1-mutation-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_mutation --output-on-failure
+```
+
+Independent Linux C++20 execution with AddressSanitizer and UndefinedBehaviorSanitizer completed all 2,000 cases without reported sanitizer errors (1,349 rejected; 651 structurally accepted with recomputed CRC). This is expected: CRC32 detects accidental corruption; **it does not authenticate the author**, and byte changes can still describe valid programs. This test is **not** a security certification or full fuzzing campaign.
+
+## Experimental KBC1 file operations
+
+From the repository root, after building `kasa-native`:
+
+```bash
+./build/kasa-native compile examples/market_cashbook.kasa -o build/market.kbc
+./build/kasa-native check-bytecode build/market.kbc
+./build/kasa-native disasm-bytecode build/market.kbc
+./build/kasa-native run-bytecode build/market.kbc
+python native/tests/test_bytecode.py build/kasa-native
+```
+
+Bytecode is validated before execution. CRC32 is **not authentication**. The loader and virtual machine are not approved to execute untrusted bytecode as a privileged service. See [KBC1 RFC-0005](../docs/RFC-0005-kbc1-portable-bytecode.md). **The exact-branch full native executable passed independent GCC/Clang C++20 builds, 14/14 KBC1 integration tests for each compiler, and 14/14 sanitizer-enabled tests** (see [verification report](../docs/verification/2026-11-17-kbc1-native-integration.md)). This is an experimental alpha, not a secure bytecode runtime or a complete cross-runtime parity certification.
+
 ## Test native/compiler conformance
 
 ```bash
@@ -61,7 +98,7 @@ The harness compares native program output against the current **Python referenc
 
 - **Native integer values are signed 64-bit**, while the Python reference permits considerably larger integers. Native integer overflow produces a `ResourceError` rather than wrapping. This discrepancy is documented and requires a deliberate common numeric specification (e.g. big integers) before v1.
 - Decimal display precision, malformed UTF-8 handling, certain Unicode identifier categories, and numeric text conversion may still differ from Python and JavaScript. Valid UTF-8 Unicode code-point columns and selected supplementary-letter identifiers now have dedicated lexer tests, but full parity has not been established.
-- Bytecode is **in-memory only**. No `.kbc` file format, bytecode verifier, native machine-code generation, WASM target, debugger, module system, package manager, standard-library ecosystem, or graphical tooling is implemented yet.
+- Source compilation still produces in-memory bytecode internally; this branch also implements an **experimental KBC1 serialized file format and structural verifier**. It is not a security-audited sandbox, stable bytecode standard, machine-code generator, debugger, package manager, or full standard library.
 - This binary is an **interpreter for compiled bytecode**, not a machine-code ahead-of-time compiler and not a self-hosted Kasa compiler.
 - The VM has safety budgets but is **not a hardened sandbox** for running hostile source code on shared infrastructure.
 - No open-source license has been selected yet. The existing project specification proposes MIT pending the owner's decision.
