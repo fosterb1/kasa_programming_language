@@ -39,6 +39,18 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_lexer_unicode --outp
 
 The executable tests tokenization and error coordinates, **not full native program execution**. It is also included in the `python scripts/verify_local.py --profile full` verification plan.
 
+## Standalone KBC1 serializer verification
+
+The native KBC1 writer/loader can be tested **without linking the parser or virtual machine**:
+
+```bash
+cmake -S native -B build/kasa-local -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-local --target kasa-kbc1-smoke --config Release
+ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --output-on-failure
+```
+
+The smoke test checks deterministic serialization, a simple round-trip, and rejection of bad magic/version/checksum. It is a narrow component test, **not full security certification**. The full local verification profile also runs the C++ smoke binary directly so zero matching CTest cases cannot yield a false pass.
+
 ## Experimental KBC1 file operations
 
 From the repository root, after building `kasa-native`:
