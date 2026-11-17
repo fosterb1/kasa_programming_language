@@ -7,6 +7,22 @@ const vm = require('node:vm');
 const { executeKasa, parse, tokenize } = require('../playground/kasa-runtime.js');
 
 const ROOT = path.join(__dirname, '..');
+const sourceLocationConformance = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_source_locations.json'), 'utf8')
+);
+for (const fixture of sourceLocationConformance.cases) {
+  test(`source position conformance: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source, '', 'check');
+    assert.equal(result.ok, false);
+    assert.ok(
+      result.error.includes(
+        `playground.kasa:${fixture.line}:${fixture.column}: ${fixture.category}:`
+      ),
+      result.error
+    );
+  });
+}
+
 const remainderConformance = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'tests/conformance_remainder.json'), 'utf8')
 );
