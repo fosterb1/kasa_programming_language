@@ -45,6 +45,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Node interpreter and WASM protocol tests | Yes | Yes |
 | Native CMake configuration | No | Yes |
 | Native C++20 compiler and VM build | No | Yes |
+| Standalone native Unicode lexer CTest | No | Yes |
 | Native/Python conformance harness | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
 
