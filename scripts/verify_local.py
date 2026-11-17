@@ -94,7 +94,8 @@ def main(argv: list[str] | None = None) -> int:
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(filter(None, [str(ROOT / "src"), env.get("PYTHONPATH", "")]))
     checks = []
-    for name, command, timeout in plan(args.profile, args.wasm):
+    planned_checks = plan(args.profile, args.wasm)
+    for index, (name, command, timeout) in enumerate(planned_checks):
         check = run_check(name, command, env=env, timeout=timeout, dry_run=args.dry_run)
         checks.append(check)
         print(f"{check['status'].upper():8} {name}", flush=True)
@@ -102,6 +103,15 @@ def main(argv: list[str] | None = None) -> int:
             print(check["stderr_tail"] or check["stdout_tail"], file=sys.stderr, flush=True)
             # A failure in configuration/build invalidates later dependent native jobs.
             if name in {"Native CMake configure", "Native C++ build", "WASM Emscripten build"}:
+                # Do not imply dependent steps passed or simply omit them.
+                for blocked_name, blocked_command, _ in planned_checks[index + 1:]:
+                    checks.append({
+                        "name": blocked_name, "command": blocked_command,
+                        "status": "not_run", "exit_code": None,
+                        "duration_seconds": 0.0, "stdout_tail": "",
+                        "stderr_tail": f"Blocked after failed step: {name}",
+                    })
+                    print(f"NOT_RUN  {blocked_name}", flush=True)
                 break
 
     counts = {status: sum(x["status"] == status for x in checks)
@@ -120,7 +130,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.dry_run:
         print("DRY RUN ONLY: no tests were executed; this is NOT a pass result.")
         return 0
-    return 0 if counts["failed"] == 0 and len(checks) == len(plan(args.profile, args.wasm)) else 1
+    return 0 if counts["failed"] == 0 and counts["not_run"] == 0 and len(checks) == len(planned_checks) else 1
 
 
 if __name__ == "__main__":
