@@ -76,7 +76,7 @@ cmake --build build/kasa-local --target kasa-kbc1-smoke --config Release
 ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --output-on-failure
 ```
 
-The C++ serializer smoke has **five targeted checks**, including rejection of NaN and infinity by the writer, and the full profile executes its binary directly. The separate Python `native/tests/test_bytecode.py` suite additionally requires the complete native VM executable to test source/bytecode execution and malformed files.
+The C++ serializer smoke has **seven targeted checks**, including non-finite values, source coordinates and aggregate nested instruction limits, and the full profile executes its binary directly. The separate Python `native/tests/test_bytecode.py` suite additionally requires the complete native VM executable to test source/bytecode execution and malformed files.
 
 ### Mutation stress test for the KBC1 loader
 
@@ -87,6 +87,10 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_mutation --outp
 ```
 
 This test runs 2,000 seeded bit mutations, **recomputes CRC32**, and loads each modified bytecode file *without executing it*. Some modified files may remain structurally valid. A clean run means the parser completed this finite sample; **it does not certify security or bytecode authenticity**.
+
+### Latest independent full native integration evidence
+
+The exact PR #16 native executable compiled on Linux with **GCC 14.2** and **Clang 17**; the source→KBC1→VM adversarial suite passed **14/14 test groups** under each and **14/14 under GCC AddressSanitizer/UndefinedBehaviorSanitizer**, after a confirmed lexical-closure memory leak was fixed. See [the recorded commands, source blob hashes, failures and retests](./verification/2026-11-17-kbc1-native-integration.md). This does not replace full Python/Node/browser/Windows/macOS checks, and a CMake staged build with `BUILD_TESTING=OFF` does **not** verify all CTest targets.
 
 ## Interpreting results
 
