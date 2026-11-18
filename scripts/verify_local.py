@@ -150,6 +150,9 @@ def main(argv: list[str] | None = None) -> int:
 
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(filter(None, [str(ROOT / "src"), env.get("PYTHONPATH", "")]))
+    # Capture identity before and after running checks; a repository that
+    # changes while verification runs must not produce release evidence.
+    initial_revision = source_revision()
     checks = []
     planned_checks = plan(args.profile, args.wasm)
     for index, (name, command, timeout) in enumerate(planned_checks):
@@ -173,9 +176,11 @@ def main(argv: list[str] | None = None) -> int:
 
     counts = {status: sum(x["status"] == status for x in checks)
               for status in ("passed", "failed", "not_run")}
+    final_revision = source_revision()
     payload = {
         "schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
-        "source_revision": source_revision(),
+        "source_revision": initial_revision,
+        "source_revision_after": final_revision,
         "platform": platform.platform(), "python": sys.version.split()[0],
         "profile": args.profile, "wasm_requested": args.wasm,
         "dry_run": args.dry_run, "counts": counts, "checks": checks,
