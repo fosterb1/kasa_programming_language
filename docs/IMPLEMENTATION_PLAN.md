@@ -27,6 +27,12 @@ A cross-runtime bug was discovered on 2026-11-18: both the JavaScript and C++ en
 - **Not yet verified:** full VM compilation/integration, new Python pytest cases and compiled KBC1 fixtures on the merged revision. See [precise evidence report](./verification/2026-11-18-mixed-numeric-comparison.md).
 - **Tradeoff:** Native still has 64-bit integer limits; exact comparison does not make mixed integer/decimal *arithmetic* exact. Monetary teaching examples continue to use integer pesewas.
 
+## Focused local reference-parity profile
+
+- Added `python scripts/verify_local.py --profile parity` to run a seven-stage Python, JavaScript, native VM and KBC1 compatibility check locally. Its output is machine-readable, includes the source commit and dirty-worktree status, and never treats a missing build as success.
+- **Verification:** The extracted command-planning logic passed four focused plan-shape checks and the Git-revision helper passed five local scenarios (Python 3.13.5). The complete native parity execution against the current revision remains **unverified**, as do the 58 Python/KBC1 fixtures and 18 recent numeric fixtures together.
+- Evidence: [parity profile verification record](./verification/2026-11-18-parity-profile.md). Keep GitHub Actions manual-only; do not infer a green hosted CI check.
+
 ## Cross-runtime conformance milestone
 
 - Signed integer `%` semantics are now defined in [RFC-0003](./RFC-0003-remainder-semantics.md). The JavaScript and native VM implementations are updated to agree with Python for negative operands.

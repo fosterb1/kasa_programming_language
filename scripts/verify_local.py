@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Run Kasa language checks without GitHub Actions.
 
-Quick: Python and browser-JavaScript tests. Full: quick plus native C++ VM.
+Quick: Python and browser-JavaScript tests. Parity: focused cross-runtime comparisons.
+Full: quick plus all native C++ VM checks.
 An optional WASM build is source/build verification, not a real browser check.
 """
 from __future__ import annotations
@@ -62,13 +63,30 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
         ("JavaScript playground UI syntax", [node, "--check", "playground/app.js"], 30),
         ("JavaScript browser/WASM protocol tests", [node, "--test", "tests/test_kasa_browser.cjs", "tests/test_kasa_wasm.cjs"], 120),
     ]
-    if profile == "full":
+    if profile == "parity":
+        # Target the shared-language contract: the Python reference,
+        # browser interpreter, native source VM and serialized KBC1 VM.
+        # This profile is intentionally smaller than the comprehensive full
+        # suite, and must never be reported as full release verification.
+        tests = [
+            ("Python semantic conformance", [python, "-m", "pytest", "-q",
+                "tests/test_kasa.py", "tests/test_remainder_conformance.py",
+                "tests/test_source_locations.py"], 180),
+            ("JavaScript semantic conformance", [node, "--test",
+                "tests/test_kasa_browser.cjs"], 120),
+        ]
+    if profile in ("full", "parity"):
         tests.extend([
             ("Native CMake configure", ["cmake", "-S", "native", "-B", str(build), "-DCMAKE_BUILD_TYPE=Release"], 120),
             ("Native C++ build", ["cmake", "--build", str(build), "--config", "Release", "--parallel", "2"], 180),
-            ("Native lexer smoke", [str(ROOT / build / ("Release/kasa-lexer-smoke.exe" if os.name == "nt" else "kasa-lexer-smoke"))], 60),
-            ("Native KBC1 serializer smoke", [str(ROOT / build / ("Release/kasa-kbc1-smoke.exe" if os.name == "nt" else "kasa-kbc1-smoke"))], 60),
-            ("Native KBC1 mutation smoke", [str(ROOT / build / ("Release/kasa-kbc1-mutation-smoke.exe" if os.name == "nt" else "kasa-kbc1-mutation-smoke"))], 90),
+        ])
+        if profile == "full":
+            tests.extend([
+                ("Native lexer smoke", [str(ROOT / build / ("Release/kasa-lexer-smoke.exe" if os.name == "nt" else "kasa-lexer-smoke"))], 60),
+                ("Native KBC1 serializer smoke", [str(ROOT / build / ("Release/kasa-kbc1-smoke.exe" if os.name == "nt" else "kasa-kbc1-smoke"))], 60),
+                ("Native KBC1 mutation smoke", [str(ROOT / build / ("Release/kasa-kbc1-mutation-smoke.exe" if os.name == "nt" else "kasa-kbc1-mutation-smoke"))], 90),
+            ])
+        tests.extend([
             ("Native mixed-number precision smoke", [str(ROOT / build / ("Release/kasa-numeric-comparison-smoke.exe" if os.name == "nt" else "kasa-numeric-comparison-smoke"))], 60),
             ("Native Python conformance", [python, "native/tests/conformance.py", str(exe)], 180),
             ("Native KBC1 round-trip and rejection tests", [python, "native/tests/test_bytecode.py", str(exe)], 180),
@@ -81,10 +99,36 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
     return tests
 
 
+def source_revision() -> dict[str, object]:
+    """Record the exact checkout, or explicitly say when Git metadata is absent."""
+    if shutil.which("git") is None:
+        return {"commit": None, "working_tree_clean": None}
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--verify", "HEAD"], cwd=ROOT,
+            capture_output=True, text=True, timeout=5, check=False,
+        )
+        if result.returncode != 0:
+            return {"commit": None, "working_tree_clean": None}
+        commit = result.stdout.strip()
+        if len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit.lower()):
+            return {"commit": None, "working_tree_clean": None}
+        status = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=normal"], cwd=ROOT,
+            capture_output=True, text=True, timeout=5, check=False,
+        )
+        return {
+            "commit": commit,
+            "working_tree_clean": (status.stdout == "") if status.returncode == 0 else None,
+        }
+    except (OSError, subprocess.TimeoutExpired):
+        return {"commit": None, "working_tree_clean": None}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--profile", choices=("quick", "full"), default="quick",
-                        help="quick=Python+Node; full=also compile/test C++")
+    parser.add_argument("--profile", choices=("quick", "parity", "full"), default="quick",
+                        help="quick=Python+Node; parity=focused Python/JS/C++/KBC1 checks; full=all independent checks")
     parser.add_argument("--wasm", action="store_true", help="attempt Emscripten build (full profile only)")
     parser.add_argument("--dry-run", action="store_true", help="show commands without executing any tests")
     parser.add_argument("--report", default="build/kasa-local-verification.json",
@@ -123,6 +167,7 @@ def main(argv: list[str] | None = None) -> int:
               for status in ("passed", "failed", "not_run")}
     payload = {
         "schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
+        "source_revision": source_revision(),
         "platform": platform.platform(), "python": sys.version.split()[0],
         "profile": args.profile, "wasm_requested": args.wasm,
         "dry_run": args.dry_run, "counts": counts, "checks": checks,
