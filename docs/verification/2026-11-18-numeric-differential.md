@@ -1,5 +1,6 @@
 # Independent Python/C++ numeric differential — 2026-11-18
 
+**Status:** Merged in [PR #25](https://github.com/fosterb1/kasa_programming_language/pull/25), commit `f2071538ab360deb133327b315b2c8af14c54710`.  
 **Scope:** Targeted exact signed 64-bit integer versus finite binary64 decimal comparison only. **Not** a full Kasa parser, native VM or KBC1 conformance pass.
 
 ## Change and reproducibility
