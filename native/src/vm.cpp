@@ -166,6 +166,10 @@ class VM{
                 emit(prompt,t,true);
             }
             string line;if(!getline(in,line))error(t,"InputError","No more input is available");
+            // getline consumes LF but retains CR in CRLF input. Kasa's Python
+            // reference and browser runtime discard terminal CR/LF characters,
+            // including when the last input line has no final LF.
+            while(!line.empty()&&line.back()=='\r')line.pop_back();
             if(line.size()>maxText)error(t,"ResourceError","Input is too long");
             return Value(line);
         }
