@@ -52,8 +52,7 @@ the scalar cases; this is not equivalent to executing the Kasa Python interprete
 - Full checkout is blocked because `git ls-remote` cannot resolve
   `github.com` in the independent container. GitHub connector file retrieval
   still worked. No hosted Actions job was started.
-- C++ native text formatting has not been checked against this specific shared
-  fixture. Python/Node/native/KBC1 suites still need a real complete checkout.
+- A **separate native formatter precision discrepancy** was reproduced with a standalone GCC 14.2 C++20 probe using the formatting statements in `native/src/vm.cpp`: `1.0 / 7.0` displays `0.142857142857143`, while Python 3.13.5 prints `0.14285714285714285`. This does **not** establish full VM execution. Track it as [issue #29](https://github.com/fosterb1/kasa_programming_language/issues/29), and do not merge native code without full tests. Python/Node/native/KBC1 suites still need a real complete checkout.
 - Python and ECMAScript shortest binary64 conversion behavior can diverge for
   some unusual values (e.g. complex shortest-round-trip ties). Twelve fixtures
   do not constitute a general proof of exact string equivalence.
