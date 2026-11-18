@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "Kasa 0.4 core-language behavior, reference contract candidate; not full native certification",
+  "cases": [
+    {
+      "name": "arithmetic_precedence",
+      "source": "ka 2 + 3 * 4\nka (2 + 3) * 4",
+      "expected_stdout": "14\n20\n"
+    },
+    {
+      "name": "left_associative_arithmetic",
+      "source": "ka 10 - 3 - 2\nka 20 / 2 / 2",
+      "expected_stdout": "5\n5.0\n"
+    },
+    {
+      "name": "short_circuit_boolean",
+      "source": "ka atoro ne (1 / 0 > 1)\nka nokware anaa (1 / 0 > 1)",
+      "expected_stdout": "atoro\nnokware\n"
+    },
+    {
+      "name": "lexical_function_scope",
+      "source": "ma x = 7\ndwumadie add(y)\n sanma x + y\nawiei\nka add(5)",
+      "expected_stdout": "12\n"
+    },
+    {
+      "name": "empty_return_null",
+      "source": "dwumadie nothing()\n sanma\nawiei\nka nothing()",
+      "expected_stdout": "hwee\n"
+    },
+    {
+      "name": "mutable_list_zero_based",
+      "source": "ma a = [1, 2]\nma a[1] = 9\nka a\nka tentɛn(a)",
+      "expected_stdout": "[1, 9]\n2\n"
+    },
+    {
+      "name": "typed_numeric_equality",
+      "source": "ka 2 == 2.0\nka nokware == 1\nka [2] == [2.0]",
+      "expected_stdout": "nokware\natoro\nnokware\n"
+    },
+    {
+      "name": "boolean_condition_required",
+      "source": "sɛ 1 a\nka 4\nawiei",
+      "error_category": "TypeError"
+    },
+    {
+      "name": "negative_index_rejected",
+      "source": "ma a = [1]\nka a[-1]",
+      "error_category": "IndexError"
+    },
+    {
+      "name": "comparison_chaining_rejected",
+      "source": "ka 1 < 2 < 3",
+      "error_category": "SyntaxError"
+    },
+    {
+      "name": "boolean_operator_type_required",
+      "source": "ka nokware ne 5",
+      "error_category": "TypeError"
+    },
+    {
+      "name": "local_not_global",
+      "source": "dwumadie go()\n ma x = 3\nawiei\ngo()\nka x",
+      "error_category": "NameError"
+    }
+  ]
+}
