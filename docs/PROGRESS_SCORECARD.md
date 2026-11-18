@@ -1,7 +1,7 @@
 # Kasa programming language — Progress scorecard
 
 **As of:** 2026-11-18  
-**Reference:** `main` plus experimental verification additions in the current pull request.  
+**Reference:** `main`, including merged [PR #25](https://github.com/fosterb1/kasa_programming_language/pull/25) (`f2071538ab360deb133327b315b2c8af14c54710`).  
 **How to interpret:** These percentages are *planning indicators*, not measured engineering-hours completed, automated test coverage, product-market fit, or a guaranteed release date.
 
 ## Kasa 0.4 alpha engineering progress: 80% (8 of 10 defined implementation checkpoints)
@@ -52,7 +52,7 @@ This estimate uses a separate ten-area *readiness* rubric: 1 point for broadly i
 | 10,080/10,080 deterministic numeric pairs, **each GCC and Clang** | Python mathematical ordering matches compiled C++ comparator | Full Kasa source/parser/KBC1 conformance |
 | 58 KBC1 reference fixture cases | Added to native conformance harness | **Not yet run end-to-end on the current main revision** |
 
-The numeric regression result above is in the review branch's [independent evidence report](./verification/2026-11-18-numeric-differential.md), not a claim that Kasa as a language has 10,080 passing conformance programs.
+The numeric regression result above is in the merged [independent evidence report](./verification/2026-11-18-numeric-differential.md), not a claim that Kasa as a language has 10,080 passing conformance programs.
 
 ## Immediate technical priorities
 
