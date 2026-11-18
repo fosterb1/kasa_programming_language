@@ -9,6 +9,9 @@
 #include <variant>
 #include <utility>
 #include <vector>
+#ifdef KASA_ENABLE_BIGINT_VM
+#include "kasa/big_integer.hpp"
+#endif
 namespace kasa {
 using namespace std;
 struct Token { string kind, text; int line=1, col=1; };
@@ -20,10 +23,17 @@ struct Failure : runtime_error {
 
 struct List;struct Function;struct Builtin {string name;};
 struct Value {
+#ifdef KASA_ENABLE_BIGINT_VM
+    using Data=variant<monostate,int64_t,double,string,bool,shared_ptr<List>,shared_ptr<Function>,Builtin,bigint::Integer>;
+#else
     using Data=variant<monostate,int64_t,double,string,bool,shared_ptr<List>,shared_ptr<Function>,Builtin>;
+#endif
     Data data;
     Value()=default;
     Value(int64_t x):data(x){} Value(double x):data(x){} Value(string x):data(std::move(x)){} Value(bool x):data(x){}
+#ifdef KASA_ENABLE_BIGINT_VM
+    Value(bigint::Integer x):data(std::move(x)){}
+#endif
     Value(shared_ptr<List> x):data(std::move(x)){} Value(shared_ptr<Function> x):data(std::move(x)){} Value(Builtin x):data(std::move(x)){}
 };
 struct List{vector<Value> items;};

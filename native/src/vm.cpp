@@ -33,12 +33,60 @@ struct Environment{unordered_map<string,Value> values;shared_ptr<Environment> pa
 };
 struct Function{shared_ptr<FunctionDefinition> definition;shared_ptr<Environment> closure;};
 
-static bool numeric(const Value &v){return holds_alternative<int64_t>(v.data)||holds_alternative<double>(v.data);}
-static bool integer(const Value &v){return holds_alternative<int64_t>(v.data);}
-static double asDouble(const Value &v){return integer(v)?static_cast<double>(get<int64_t>(v.data)):get<double>(v.data);}
+static bool numeric(const Value &v){
+#ifdef KASA_ENABLE_BIGINT_VM
+    if(holds_alternative<bigint::Integer>(v.data))return true;
+#endif
+    return holds_alternative<int64_t>(v.data)||holds_alternative<double>(v.data);
+}
+static bool integer(const Value &v){
+#ifdef KASA_ENABLE_BIGINT_VM
+    if(holds_alternative<bigint::Integer>(v.data))return true;
+#endif
+    return holds_alternative<int64_t>(v.data);
+}
+#ifdef KASA_ENABLE_BIGINT_VM
+static bigint::Integer exactInt(const Value&v){
+    return holds_alternative<int64_t>(v.data)?bigint::Integer(get<int64_t>(v.data)):get<bigint::Integer>(v.data);
+}
+static Value compactInt(const bigint::Integer&v){
+    bigint::check(v);
+    if(v>=numeric_limits<int64_t>::min()&&v<=numeric_limits<int64_t>::max())
+        return Value(v.convert_to<int64_t>());
+    return Value(v);
+}
+static int integerCompareFloat(const Value&v, double decimal){
+    if(holds_alternative<int64_t>(v.data))
+        return numbers::compareIntDouble(get<int64_t>(v.data),decimal);
+    // Represent binary64 exactly as an integer numerator / power-of-two.
+    // This avoids ever rounding large integers through double.
+    if(!isfinite(decimal))throw domain_error("Non-finite decimal comparison");
+    const auto n=exactInt(v);
+    if(decimal==0)return n<0?-1:n>0?1:0;
+    const bool negative=signbit(decimal);
+    int exponent=0;
+    const double fraction=frexp(abs(decimal),&exponent);
+    const auto significand=static_cast<uint64_t>(ldexp(fraction,53));
+    bigint::Integer numerator(significand);
+    if(negative)numerator=-numerator;
+    const int shift=exponent-53;
+    const bigint::Integer lhs=shift>=0?n:(n<<-shift);
+    const bigint::Integer rhs=shift>=0?(numerator<<shift):numerator;
+    return lhs<rhs?-1:lhs>rhs?1:0;
+}
+#endif
+static double asDouble(const Value &v){
+#ifdef KASA_ENABLE_BIGINT_VM
+    if(holds_alternative<bigint::Integer>(v.data))return get<bigint::Integer>(v.data).convert_to<double>();
+#endif
+    return holds_alternative<int64_t>(v.data)?static_cast<double>(get<int64_t>(v.data)):get<double>(v.data);
+}
 static string display(const Value &v,int depth=0){
     if(holds_alternative<monostate>(v.data))return "hwee";
     if(holds_alternative<int64_t>(v.data))return to_string(get<int64_t>(v.data));
+#ifdef KASA_ENABLE_BIGINT_VM
+    if(holds_alternative<bigint::Integer>(v.data))return get<bigint::Integer>(v.data).convert_to<string>();
+#endif
     if(holds_alternative<double>(v.data)){
         return numbers::displayFloat(get<double>(v.data));
     }
@@ -57,11 +105,25 @@ static string display(const Value &v,int depth=0){
     }return s+"]";
 }
 static bool equal(const Value&a,const Value&b,int depth=0){
-    if(integer(a)&&integer(b))return get<int64_t>(a.data)==get<int64_t>(b.data);
+    if(integer(a)&&integer(b)){
+#ifdef KASA_ENABLE_BIGINT_VM
+        return exactInt(a)==exactInt(b);
+#else
+        return get<int64_t>(a.data)==get<int64_t>(b.data);
+#endif
+    }
     if(integer(a)&&holds_alternative<double>(b.data))
+#ifdef KASA_ENABLE_BIGINT_VM
+        return integerCompareFloat(a,get<double>(b.data))==0;
+#else
         return numbers::compareIntDouble(get<int64_t>(a.data),get<double>(b.data))==0;
+#endif
     if(holds_alternative<double>(a.data)&&integer(b))
+#ifdef KASA_ENABLE_BIGINT_VM
+        return integerCompareFloat(b,get<double>(a.data))==0;
+#else
         return numbers::compareIntDouble(get<int64_t>(b.data),get<double>(a.data))==0;
+#endif
     if(numeric(a)&&numeric(b))return get<double>(a.data)==get<double>(b.data);
     if(a.data.index()!=b.data.index())return false;
     if(holds_alternative<monostate>(a.data))return true;
@@ -108,8 +170,41 @@ class VM{
     [[noreturn]]void error(const Token&t,const string&category,const string&msg)const{throw Failure(t,category,msg,filename);}
     bool truth(const Value&v,const Token&t){if(!holds_alternative<bool>(v.data))error(t,"TypeError","Condition requires a Boolean");return get<bool>(v.data);}
     double number(const Value&v,const Token&t){if(!numeric(v))error(t,"TypeError","Arithmetic requires numbers, not Boolean or text");return asDouble(v);}
-    int64_t count(const Value&v,const Token&t){if(!integer(v)||get<int64_t>(v.data)<0)error(t,"TypeError","mpɛn requires a nonnegative integer");return get<int64_t>(v.data);}
-    int64_t index(const Value&v,const Token&t){if(!integer(v))error(t,"TypeError","List index must be an integer");return get<int64_t>(v.data);}
+    int64_t count(const Value&v,const Token&t){
+#ifdef KASA_ENABLE_BIGINT_VM
+        if(!integer(v)||exactInt(v)<0)error(t,"TypeError","mpɛn requires a nonnegative integer");
+        if(exactInt(v)>numeric_limits<int64_t>::max())error(t,"ResourceError","Repeat count is too large");
+        return exactInt(v).convert_to<int64_t>();
+#else
+        if(!integer(v)||get<int64_t>(v.data)<0)error(t,"TypeError","mpɛn requires a nonnegative integer");
+        return get<int64_t>(v.data);
+#endif
+    }
+    int64_t index(const Value&v,const Token&t){
+        if(!integer(v))error(t,"TypeError","List index must be an integer");
+#ifdef KASA_ENABLE_BIGINT_VM
+        const auto n=exactInt(v);
+        if(n<numeric_limits<int64_t>::min()||n>numeric_limits<int64_t>::max())
+            error(t,"IndexError","List index out of range");
+        return n.convert_to<int64_t>();
+#else
+        return get<int64_t>(v.data);
+#endif
+    }
+#ifdef KASA_ENABLE_BIGINT_VM
+    Value safeAdd(int64_t a,int64_t b,const Token&t){
+        try {return compactInt(bigint::add(bigint::Integer(a),bigint::Integer(b)));}
+        catch(const bigint::SizeLimit&){error(t,"ResourceError","Integer exceeds size limit");}
+    }
+    Value safeSub(int64_t a,int64_t b,const Token&t){
+        try {return compactInt(bigint::subtract(bigint::Integer(a),bigint::Integer(b)));}
+        catch(const bigint::SizeLimit&){error(t,"ResourceError","Integer exceeds size limit");}
+    }
+    Value safeMul(int64_t a,int64_t b,const Token&t){
+        try {return compactInt(bigint::multiply(bigint::Integer(a),bigint::Integer(b)));}
+        catch(const bigint::SizeLimit&){error(t,"ResourceError","Integer exceeds size limit");}
+    }
+#else
     Value safeAdd(int64_t a,int64_t b,const Token&t){
         if((b>0&&a>INT64_MAX-b)||(b<0&&a<INT64_MIN-b))error(t,"ResourceError","Integer exceeds native 64-bit range");
         return Value(a+b);
@@ -129,13 +224,35 @@ class VM{
         if(bad)error(t,"ResourceError","Integer exceeds native 64-bit range");
         return Value(a*b);
     }
+#endif
     Value checkedDouble(double x,const Token&t){if(!isfinite(x))error(t,"ResourceError","Number exceeds supported range");return Value(x);}
     Value arithmetic(Op op,const Value&a,const Value&b,const Token&t){
         if(op==Op::Add&&holds_alternative<string>(a.data)&&holds_alternative<string>(b.data)){
             auto s=get<string>(a.data)+get<string>(b.data);if(s.size()>maxText)error(t,"ResourceError","Text is too large");return Value(s);
         }
-        double x=number(a,t),y=number(b,t);
-        if(op==Op::Div){if(y==0)error(t,"ZeroDivisionError","Cannot divide by zero");return checkedDouble(x/y,t);}
+#ifdef KASA_ENABLE_BIGINT_VM
+        if(integer(a)&&integer(b)){
+            try {
+                const auto p=exactInt(a),q=exactInt(b);
+                if(op==Op::Add)return compactInt(bigint::add(p,q));
+                if(op==Op::Sub)return compactInt(bigint::subtract(p,q));
+                if(op==Op::Mul)return compactInt(bigint::multiply(p,q));
+                if(op==Op::Mod){
+                    if(q==0)error(t,"ZeroDivisionError","Cannot divide by zero");
+                    return compactInt(bigint::floorRemainder(p,q));
+                }
+            } catch(const bigint::SizeLimit&){
+                error(t,"ResourceError","Integer exceeds size limit");
+            }
+        }
+#endif
+        // Only floating-point operations require conversion to binary64.
+        // Keep arbitrary integer arithmetic entirely exact and bounded.
+        if(op==Op::Div){
+            double x=number(a,t),y=number(b,t);
+            if(y==0)error(t,"ZeroDivisionError","Cannot divide by zero");
+            return checkedDouble(x/y,t);
+        }
         if(op==Op::Mod){if(!integer(a)||!integer(b))error(t,"TypeError","Remainder requires integers");
             int64_t z=get<int64_t>(b.data);if(z==0)error(t,"ZeroDivisionError","Cannot divide by zero");
             int64_t n=get<int64_t>(a.data);
@@ -146,12 +263,13 @@ class VM{
             if(remainder!=0&&((remainder<0)!=(z<0)))remainder+=z;
             return Value(remainder);
         }
-        if(integer(a)&&integer(b)){
+        if(holds_alternative<int64_t>(a.data)&&holds_alternative<int64_t>(b.data)){
             int64_t p=get<int64_t>(a.data),q=get<int64_t>(b.data);
             if(op==Op::Add)return safeAdd(p,q,t);
             if(op==Op::Sub)return safeSub(p,q,t);
             if(op==Op::Mul)return safeMul(p,q,t);
         }
+        double x=number(a,t),y=number(b,t);
         if(op==Op::Add)return checkedDouble(x+y,t);
         if(op==Op::Sub)return checkedDouble(x-y,t);
         if(op==Op::Mul)return checkedDouble(x*y,t);
@@ -195,7 +313,9 @@ class VM{
             static const regex decimalGrammar(R"([+-]?([0-9]+(\.[0-9]+)?|\.[0-9]+))");
             if(!regex_match(s,decimalGrammar))error(t,"TypeError","Invalid numeric text");
             try{
+#ifndef KASA_ENABLE_BIGINT_VM
                 size_t used=0;
+#endif
                 if(s.find('.')!=string::npos){
                     // std::stod throws out_of_range even when a finite decimal
                     // correctly rounds to zero or a subnormal binary64 value.
@@ -207,9 +327,13 @@ class VM{
                         error(t,"TypeError","Invalid numeric text");
                     return checkedDouble(d,t);
                 }
+#ifdef KASA_ENABLE_BIGINT_VM
+                return compactInt(bigint::decimal(s));
+#else
                 int64_t n=stoll(s,&used);
                 if(used!=s.size())error(t,"TypeError","Invalid numeric text");
                 return Value(n);
+#endif
             }catch(const out_of_range&){error(t,"ResourceError","Numeric value is too large");
             }catch(const invalid_argument&){error(t,"TypeError","Invalid numeric text");}
         }
@@ -227,8 +351,14 @@ class VM{
                 case Op::Print:{string text=display(pop(stack))+"\n";
                     emit(text,i.loc);break;}
                 case Op::Pop:pop(stack);break;
-                case Op::Neg:{Value x=pop(stack);if(integer(x))stack.push_back(safeSub(0,get<int64_t>(x.data),i.loc));
-                    else stack.push_back(checkedDouble(-number(x,i.loc),i.loc));
+                case Op::Neg:{Value x=pop(stack);if(integer(x)){
+#ifdef KASA_ENABLE_BIGINT_VM
+                        try {stack.push_back(compactInt(-exactInt(x)));}
+                        catch(const bigint::SizeLimit&){error(i.loc,"ResourceError","Integer exceeds size limit");}
+#else
+                        stack.push_back(safeSub(0,get<int64_t>(x.data),i.loc));
+#endif
+                    } else stack.push_back(checkedDouble(-number(x,i.loc),i.loc));
                     break;}
                 case Op::Not:{Value x=pop(stack);stack.push_back(Value(!truth(x,i.loc)));break;}
                 case Op::Add:case Op::Sub:case Op::Mul:case Op::Div:case Op::Mod:{Value b=pop(stack),a=pop(stack);stack.push_back(arithmetic(i.op,a,b,i.loc));break;}
@@ -236,13 +366,25 @@ class VM{
                 case Op::Lt:case Op::Le:case Op::Gt:case Op::Ge:{Value b=pop(stack),a=pop(stack);
                     bool result;
                     if(integer(a)&&integer(b)){
+#ifdef KASA_ENABLE_BIGINT_VM
+                        auto x=exactInt(a),y=exactInt(b);
+#else
                         int64_t x=get<int64_t>(a.data),y=get<int64_t>(b.data);
+#endif
                         result=i.op==Op::Lt?x<y:i.op==Op::Le?x<=y:i.op==Op::Gt?x>y:x>=y;
                     }else if(integer(a)&&holds_alternative<double>(b.data)){
+                        #ifdef KASA_ENABLE_BIGINT_VM
+                        int cmp=integerCompareFloat(a,get<double>(b.data));
+#else
                         int cmp=numbers::compareIntDouble(get<int64_t>(a.data),get<double>(b.data));
+#endif
                         result=i.op==Op::Lt?cmp<0:i.op==Op::Le?cmp<=0:i.op==Op::Gt?cmp>0:cmp>=0;
                     }else if(holds_alternative<double>(a.data)&&integer(b)){
+                        #ifdef KASA_ENABLE_BIGINT_VM
+                        int cmp=-integerCompareFloat(b,get<double>(a.data));
+#else
                         int cmp=-numbers::compareIntDouble(get<int64_t>(b.data),get<double>(a.data));
+#endif
                         result=i.op==Op::Lt?cmp<0:i.op==Op::Le?cmp<=0:i.op==Op::Gt?cmp>0:cmp>=0;
                     }else{
                         double x=number(a,i.loc),y=number(b,i.loc);

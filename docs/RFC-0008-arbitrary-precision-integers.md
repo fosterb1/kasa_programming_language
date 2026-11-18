@@ -57,3 +57,15 @@ ctest --test-dir build/kasa-bigint -R kasa_bigint_rfc0008_experiment --output-on
 ```
 
 **Actually verified on Linux:** 1/1 experimental Release-mode CTest passed; the existing VM/KBC1 alpha still passed 10/10 parity and 18/18 full-profile stages. This does **not** mean native `.kasa` code can already use large integers. Integration of the `Value` variant, VM operators, exact mixed-float comparisons, parser, numeric builtins, runtime caps, and **version-gated KBC2** remains required. Boost header packaging/licensing and MSVC support are still to be reviewed and tested.
+
+## Experimental native VM source execution (2026-11-18)
+
+The RFC-0008 backend is now connected to the **native C++ VM behind an opt-in build flag**, not yet enabled for normal users. Configure with `-DKASA_ENABLE_BIGINT_VM=ON` and make Boost.Multiprecision headers available. The experimental `Value` variant can store a `cpp_int` beyond `int64_t`, and the parser accepts large decimal literals. Native arithmetic promotes results instead of overflowing, with exact add/subtract/multiply/floor remainder, integer-to-string output, `nɔma` integer text conversion, nested-list equality and exact mixed integer/binary64 comparisons. Explicit output, execution and integer-bit bounds remain in effect. Default builds compile the existing `int64_t` runtime unchanged.
+
+```sh
+cmake -S native -B build/kasa-bigvm -DCMAKE_BUILD_TYPE=Release -DKASA_ENABLE_BIGINT_VM=ON
+cmake --build build/kasa-bigvm --target kasa-native
+ctest --test-dir build/kasa-bigvm -R kasa_bigint_vm_rfc0008_source_and_kbc1 --output-on-failure
+```
+
+**Verified on candidate Linux source:** All **10/10** shared big-integer source cases passed in the experimental native VM. The new CTest integration suite **1/1** passed and also checks backward KBC1 loading and *runtime promotion* of expressions with int64 constants, rejection of unencodable large literal constants, and integer size-limit errors. The **default** implementation still passed **10/10 parity** and **18/18 full** test stages. A legacy KBC1 file remains readable and its 64-bit constants retain their encoding. Compiling source with a big-integer **constant** to KBC1 still fails explicitly; a versioned KBC2 extension is required. **Windows MSVC/Boost, full experimental runtime differential suite, security/limit benchmarking and KBC2 compatibility remain unverified.** This candidate does not make arbitrary precision part of the default Kasa distribution.

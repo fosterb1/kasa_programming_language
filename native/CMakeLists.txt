@@ -96,6 +96,23 @@ if(BUILD_TESTING)
     endif()
 endif()
 
+# Experimental cpp_int VM: never alter the default alpha or KBC1 wire format.
+option(KASA_ENABLE_BIGINT_VM "Enable experimental exact integers in native VM" OFF)
+if(KASA_ENABLE_BIGINT_VM)
+    find_path(KASA_BOOST_VM_INCLUDE boost/multiprecision/cpp_int.hpp)
+    if(NOT KASA_BOOST_VM_INCLUDE)
+        message(FATAL_ERROR "Kasa experimental bigint VM requires Boost.Multiprecision headers")
+    endif()
+    target_include_directories(kasa-native PRIVATE "${KASA_BOOST_VM_INCLUDE}")
+    target_compile_definitions(kasa-native PRIVATE KASA_ENABLE_BIGINT_VM=1)
+    if(BUILD_TESTING)
+        find_package(Python3 COMPONENTS Interpreter REQUIRED)
+        add_test(NAME kasa_bigint_vm_rfc0008_source_and_kbc1
+                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/bigint_vm_conformance.py"
+                         "$<TARGET_FILE:kasa-native>")
+    endif()
+endif()
+
 # Explicitly opt-in until the bigint representation is integrated with Value,
 # VM instructions and a versioned KBC2. Never require Boost for the existing
 # KBC1 or native alpha build.

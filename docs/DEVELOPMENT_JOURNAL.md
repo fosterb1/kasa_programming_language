@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Opt-in native VM execution of arbitrary-precision integers
+
+- **Implemented on branch:** Added an optional `KASA_ENABLE_BIGINT_VM=ON` switch requiring Boost.Multiprecision, leaving normal native builds and the KBC1 wire format unchanged. The experimental native `Value` holds a `cpp_int`; lexer/parser accepts large integer literal magnitude; VM supports exact integer promotion, arithmetic, signed remainder, `nɔma`, output, nested list equality and integer/binary64 mixed comparisons. Big repeat counts and indexes are explicitly constrained.
+- **Acceptance evidence:** Independently built experimental C++20 native VM under GCC 15 on a complete Linux checkout; **all 10/10** shared RFC-0008 source cases passed. Standalone opt-in CTest integration **1/1** passed (the 10 cases, KBC1 existing-format constant roundtrip with arithmetic promotion, explicit refusal to serialize a big literal into KBC1, and a ResourceError limit case). The normal default runtime passed **10/10** parity stages and **18/18** full-profile stages.
+- **Important restriction:** This opt-in feature does not update KBC1 to encode large literal constants. Existing KBC1 files still work, but compiling a source program with a large literal constant is refused until versioned KBC2 is implemented. Default behavior remains the 64-bit native alpha.
+- **Unverified:** Full opt-in differential numeric suite, MSVC and Windows Boost dependency, sanitizers and explicit resource-limit abuse testing. Keep scorecard estimates unchanged until a release-grade portable bigint backend and KBC2 exist.
+
+
+
 ### 2026-11-18 — Verified Windows alpha runtime and experimental RFC-0008 integer backend
 
 - **Windows milestone (user-operated):** After merged PR #50, user supplied MSVC native conformance output showing **24/24 test methods passed**, and Windows parity screenshot showing **10/10 stages passed**. The user subsequently reported a clean SHA audit and **18/18** full-profile passes; the final JSON files and exact Windows SHA were not supplied for independent validation. Previously, Python tests passed **239 with 4 skipped**, and Node browser/WASM-protocol tests passed **234**. See [provenance-scoped Windows verification record](./verification/2026-11-18-windows-user-validation.md).
