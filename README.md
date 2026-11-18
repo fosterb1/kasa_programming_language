@@ -283,3 +283,7 @@ Ten additional teaching programs (sorting, recursion, arithmetic practice, sales
 ### Kasa output safety contract (candidate)
 
 Kasa's Python reference, browser JavaScript and native C++ runtimes now implement a common limit of **64,000 Unicode characters (code points) of output per execution**. Text printed by `ka`, trailing newlines and `bisa` prompts count toward one budget. Exceeding it raises `ResourceError` before emitting the overflowing operation. See [shared eight-case output-budget fixtures](./tests/conformance_output_budget.json). **Current evidence:** all 8 cases passed in direct JavaScript execution, and 7 isolated native helper assertions passed under GCC/Clang sanitizers. Complete cross-runtime and KBC1 integration tests remain pending; this is not a stability or security certification.
+
+### Intended large-integer model (RFC-0008)
+
+Kasa's intended integer model is **exact arbitrary precision**, bounded by explicit resource limits rather than signed 64-bit overflow. The Python reference interpreter and JavaScript browser runtime already support large integers, and [10 new shared cases](./tests/conformance_arbitrary_integers.json) specify the target behavior. **The C++ native compiler and KBC1 bytecode currently use signed 64-bit integers and do not yet meet this target.** See [RFC-0008](./docs/RFC-0008-arbitrary-precision-integers.md) for the staged migration and verification requirements. This decision is not a claim that a native big-integer backend or big-integer bytecode has shipped.
