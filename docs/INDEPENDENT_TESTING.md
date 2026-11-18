@@ -70,6 +70,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Standalone KBC1 serialization and corruption-rejection executable | No | Yes |
 | Deterministic KBC1 loader mutation smoke (2,000 CRC-adjusted changes) | No | Yes |
 | Exact mixed integer/decimal comparison smoke | No | Yes |
+| Python-versus-C++ numeric differential (10,080 deterministic comparisons) | No | Yes |
 | Native/Python conformance harness (direct source and KBC1-vs-reference fixtures) | No | Yes |
 | Native KBC1 round-trip and malformed-bytecode tests | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
