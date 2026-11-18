@@ -269,3 +269,7 @@ Six new programs demonstrate [daily sales totals](./examples/daily_sales.kasa), 
 ### Kasa core language contract (candidate)
 
 [RFC-0007 — Core Language Contract](./docs/RFC-0007-core-language-contract.md) documents the existing expression precedence, typing, lexical functions, mutable lists, blocks, built-ins and diagnostics to help human contributors and future AI coding tools reason about Kasa consistently. A [12-case executable contract corpus](./tests/conformance_language_contract.json) passed **12/12 direct JavaScript interpreter checks** on 2026-11-18 and is registered in the Node test suite. **This is not a stable 0.5 specification or four-runtime certification.** The PR #31 native reliability gate, Python/native/KBC1 contract conformance and linguistic review remain open; no new Twi vocabulary or license was added.
+
+### Native decimal parity integration (2026-11-18)
+
+The native VM source now uses the targeted round-trip-safe binary64 formatting helper. The native component was independently tested under GCC/Clang and compared with Python on 9,999 finite values; 15 decimal and 12 core language contract cases pass by direct JavaScript execution. **The complete linked native VM, Python, Node and serialized KBC1 suites are not yet independently verified on this merged candidate.** Merging integration work does not close Kasa Step 1 or certify Kasa 0.4 parity. See [native verification evidence](./docs/verification/2026-11-18-native-float-output.md).
