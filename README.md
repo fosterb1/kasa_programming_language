@@ -6,7 +6,7 @@ Kasa is an educational programming-language project intended to become open sour
 
 Kasa's guiding idea is simple: **learners should focus on solving problems, not memorizing unfamiliar English keywords.** The language uses familiar Twi-inspired vocabulary while teaching transferable concepts such as variables, conditions, loops, functions, lists, and debugging.
 
-> **Project status — Experimental alpha (native 0.4).** Kasa includes a Python reference interpreter, a browser JavaScript runtime, and a **C++20 native compiler/VM with an experimental KBC1 `.kbc` file format**. There are sixteen root example programs and an independent local verification runner. Full native KBC1 integration tests passed on Linux, but **full Python/native/JavaScript conformance, Windows/macOS validation, classroom review, and secure untrusted-code execution remain unfinished**. Kasa is not a stable 1.0 release. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) and [native integration report](./docs/verification/2026-11-17-kbc1-native-integration.md).
+> **Project status — Experimental alpha (native 0.4).** Kasa includes a Python reference interpreter, a browser JavaScript runtime, and a **C++20 native compiler/VM with an experimental KBC1 `.kbc` file format**. There are twenty-six root example programs and an independent local verification runner. Full native KBC1 integration tests passed on Linux, but **full Python/native/JavaScript conformance, Windows/macOS validation, classroom review, and secure untrusted-code execution remain unfinished**. Kasa is not a stable 1.0 release. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) and [native integration report](./docs/verification/2026-11-17-kbc1-native-integration.md).
 
 ## See Kasa in action
 
@@ -273,3 +273,7 @@ Six new programs demonstrate [daily sales totals](./examples/daily_sales.kasa), 
 ### Native decimal parity integration (2026-11-18)
 
 The native VM source now uses the targeted round-trip-safe binary64 formatting helper. The native component was independently tested under GCC/Clang and compared with Python on 9,999 finite values; 15 decimal and 12 core language contract cases pass by direct JavaScript execution. **The complete linked native VM, Python, Node and serialized KBC1 suites are not yet independently verified on this merged candidate.** Merging integration work does not close Kasa Step 1 or certify Kasa 0.4 parity. See [native verification evidence](./docs/verification/2026-11-18-native-float-output.md).
+
+### Reconciled Kasa platform experiments
+
+Ten additional teaching programs (sorting, recursion, arithmetic practice, sales and savings) bring the root corpus to **26 examples**, each matched by the shared Python/JavaScript output fixture. A provisional [VS Code extension](./editors/vscode-kasa/) provides highlighting, snippets and local run/check commands; it is not published or end-to-end VS Code certified. The [offline playground package](./playground/build_site.py) bundles versioned service-worker assets and a web manifest, but real-browser offline/WASM operation still needs independent testing. The Python CLI can optionally show beginner-friendly source hints via `kasa run FILE --explain`. No new Twi grammar or open-source license was introduced. [Development journal](./docs/DEVELOPMENT_JOURNAL.md) records verification limits.
