@@ -113,3 +113,7 @@ The native C++ runtime is currently limited to signed 64-bit integers (from `-92
 ### Arbitrary-precision integer direction (RFC-0008)
 
 [Kasa RFC-0008](./RFC-0008-arbitrary-precision-integers.md) records the intended **exact arbitrary-precision integer semantics**, subject to resource limits. This is an *accepted design direction, not implemented native parity*: Python `int` and JavaScript `BigInt` support the first 10 target cases, while native C++ and KBC1 remain restricted to signed `int64_t`. A versioned bytecode and native numeric representation upgrade are prerequisites to a portable claim. The 10 shared target programs are tested in Python and Node suites; the native success gate is intentionally not enabled yet. This new contract does **not** change existing numeric literal or Twi syntax.
+
+### Direct decimal source literal underflow (2026-11-18 candidate)
+
+A decimal literal token such as `0.000…001` (up to the lexer limit) is a finite binary64 numeric literal even when its nearest binary64 value is **zero or a subnormal**. The native parser now uses `std::strtod` on lexer-validated decimal tokens to avoid `std::stod` misclassifying ordinary underflow as an error, and checks complete text consumption and finiteness. This parallels existing `nɔma` tiny-decimal conversion. Three shared source fixtures in [decimal-display conformance](../tests/conformance_decimal_display.json) specify the target. The linked native compiler, bytecode and locale-sensitive builds still require independent integration verification.
