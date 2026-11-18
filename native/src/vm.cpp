@@ -11,6 +11,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -182,11 +183,23 @@ class VM{
             string s=get<string>(v.data);size_t a=s.find_first_not_of(" \t\n\r");if(a==string::npos)error(t,"TypeError","Invalid numeric text");
             size_t e=s.find_last_not_of(" \t\n\r");s=s.substr(a,e-a+1);
             if(s.size()>1000)error(t,"ResourceError","Numeric text is too long");
+            // Use the same ASCII-decimal grammar as the Python/JS runtimes.
+            // std::stod alone accepts exponent notation and other spellings
+            // which are not legal Kasa numeric input.
+            static const regex decimalGrammar(R"([+-]?([0-9]+(\\.[0-9]+)?|\\.[0-9]+))");
+            if(!regex_match(s,decimalGrammar))error(t,"TypeError","Invalid numeric text");
             try{
                 size_t used=0;
-                if(s.find('.')!=string::npos){double d=stod(s,&used);if(used!=s.size())throw invalid_argument("bad");return checkedDouble(d,t);}
-                int64_t n=stoll(s,&used);if(used!=s.size())throw invalid_argument("bad");return Value(n);
-            }catch(...){error(t,"TypeError","Invalid numeric text");}
+                if(s.find('.')!=string::npos){
+                    double d=stod(s,&used);
+                    if(used!=s.size())error(t,"TypeError","Invalid numeric text");
+                    return checkedDouble(d,t);
+                }
+                int64_t n=stoll(s,&used);
+                if(used!=s.size())error(t,"TypeError","Invalid numeric text");
+                return Value(n);
+            }catch(const out_of_range&){error(t,"ResourceError","Numeric value is too large");
+            }catch(const invalid_argument&){error(t,"TypeError","Invalid numeric text");}
         }
         error(t,"NameError","Unknown built-in");
     }
