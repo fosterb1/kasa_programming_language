@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Real Chromium JavaScript playground execution and local editor workflow
+
+- **Changed:** The browser editor now opens local `.kasa` files (UTF-8, 50 KB cap), saves only source drafts in localStorage with a Reset control, and never saves program input. Engine labels now make it clearer that JavaScript works immediately while native WebAssembly is conditional on an actual compiled/deployed module.
+- **Independently tested:** `scripts/verify_browser_playground.py` launched a real headless Chromium browser and local HTTP server on Linux. A true Web Worker ran the Hello Ghana program, checked syntax without execution, executed imported Unicode code, displayed runtime errors, verified source persistence and input non-persistence, downloaded a source file, and reset the draft. **PASS**. Existing Node browser/placeholder WASM-protocol checks: **234/234 passed**.
+- **Clarification:** Real browser JavaScript success is **not** real native WebAssembly success. The latter still requires Emscripten compilation, bundle validation and in-browser native execution. See [browser evidence](./verification/2026-11-18-real-browser-playground.md).
+- **Remaining:** Actual browser WASM, Firefox/WebKit/Edge, real offline PWA, accessibility and mobile UX tests, release packaging. Estimates unchanged.
+
+
+
 ### 2026-11-18 — Windows hardening confirmed by user; macOS release runner introduced
 
 - **Windows user report:** Following PR #55, user confirmed the three-target experimental CTest command **PASSED** (RFC-0008, KBC2 SHA golden, 320 malformed-loader checks). Exact Windows logs/SHA not independently available; record it as user-reported.
