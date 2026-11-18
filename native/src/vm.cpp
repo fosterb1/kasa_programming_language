@@ -1,4 +1,5 @@
 #include "kasa/native.hpp"
+#include "kasa/numeric_compare.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -55,7 +56,11 @@ static string display(const Value &v,int depth=0){
 }
 static bool equal(const Value&a,const Value&b,int depth=0){
     if(integer(a)&&integer(b))return get<int64_t>(a.data)==get<int64_t>(b.data);
-    if(numeric(a)&&numeric(b))return asDouble(a)==asDouble(b);
+    if(integer(a)&&holds_alternative<double>(b.data))
+        return numbers::compareIntDouble(get<int64_t>(a.data),get<double>(b.data))==0;
+    if(holds_alternative<double>(a.data)&&integer(b))
+        return numbers::compareIntDouble(get<int64_t>(b.data),get<double>(a.data))==0;
+    if(numeric(a)&&numeric(b))return get<double>(a.data)==get<double>(b.data);
     if(a.data.index()!=b.data.index())return false;
     if(holds_alternative<monostate>(a.data))return true;
     if(holds_alternative<bool>(a.data))return get<bool>(a.data)==get<bool>(b.data);
@@ -199,6 +204,12 @@ class VM{
                     if(integer(a)&&integer(b)){
                         int64_t x=get<int64_t>(a.data),y=get<int64_t>(b.data);
                         result=i.op==Op::Lt?x<y:i.op==Op::Le?x<=y:i.op==Op::Gt?x>y:x>=y;
+                    }else if(integer(a)&&holds_alternative<double>(b.data)){
+                        int cmp=numbers::compareIntDouble(get<int64_t>(a.data),get<double>(b.data));
+                        result=i.op==Op::Lt?cmp<0:i.op==Op::Le?cmp<=0:i.op==Op::Gt?cmp>0:cmp>=0;
+                    }else if(holds_alternative<double>(a.data)&&integer(b)){
+                        int cmp=-numbers::compareIntDouble(get<int64_t>(b.data),get<double>(a.data));
+                        result=i.op==Op::Lt?cmp<0:i.op==Op::Le?cmp<=0:i.op==Op::Gt?cmp>0:cmp>=0;
                     }else{
                         double x=number(a,i.loc),y=number(b,i.loc);
                         result=i.op==Op::Lt?x<y:i.op==Op::Le?x<=y:i.op==Op::Gt?x>y:x>=y;
