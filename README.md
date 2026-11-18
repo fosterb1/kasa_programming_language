@@ -6,7 +6,7 @@ Kasa is an educational programming-language project intended to become open sour
 
 Kasa's guiding idea is simple: **learners should focus on solving problems, not memorizing unfamiliar English keywords.** The language uses familiar Twi-inspired vocabulary while teaching transferable concepts such as variables, conditions, loops, functions, lists, and debugging.
 
-> **Project status — Experimental alpha (native 0.4).** Kasa includes a Python reference interpreter, a browser JavaScript runtime, and a **C++20 native compiler/VM with an experimental KBC1 `.kbc` file format**. There are nine root example programs and an independent local verification runner. Full native KBC1 integration tests passed on Linux, but **full Python/native/JavaScript conformance, Windows/macOS validation, classroom review, and secure untrusted-code execution remain unfinished**. Kasa is not a stable 1.0 release. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) and [native integration report](./docs/verification/2026-11-17-kbc1-native-integration.md).
+> **Project status — Experimental alpha (native 0.4).** Kasa includes a Python reference interpreter, a browser JavaScript runtime, and a **C++20 native compiler/VM with an experimental KBC1 `.kbc` file format**. There are fifteen root example programs and an independent local verification runner. Full native KBC1 integration tests passed on Linux, but **full Python/native/JavaScript conformance, Windows/macOS validation, classroom review, and secure untrusted-code execution remain unfinished**. Kasa is not a stable 1.0 release. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) and [native integration report](./docs/verification/2026-11-17-kbc1-native-integration.md).
 
 ## See Kasa in action
 
@@ -62,7 +62,7 @@ These programs use implemented Kasa syntax. Runnable versions are available in [
 
 **Offline-first practical computing education, taught through authentic Twi and Ghanaian everyday problems.** We are starting with cashbooks, shop inventory, school fees and numerical reasoning rather than pretending Kasa already competes with Python's libraries or C++ performance.
 
-Try [a market cashbook](./examples/market_cashbook.kasa), [inventory reorder logic](./examples/stock_reorder.kasa), or [a school-fee calculation](./examples/school_fees.kasa). All currency values in these lessons are **integer pesewas**, avoiding floating-point rounding in financial examples.
+Try [a market cashbook](./examples/market_cashbook.kasa), [inventory reorder logic](./examples/stock_reorder.kasa), [a school-fee calculation](./examples/school_fees.kasa), [cash reconciliation](./examples/cash_reconciliation.kasa), or [a mobile-money ledger](./examples/mobile_money_ledger.kasa). All currency values in these lessons are **integer pesewas**, avoiding floating-point rounding in financial examples.
 
 This is a **product hypothesis**, not a measured competitive advantage. Read the [sources, design principles and pilot criteria](./docs/KASA_PRACTICAL_COMPUTING_FOCUS.md). No new Twi syntax was introduced.
 
@@ -178,13 +178,13 @@ The report records the Git commit and whether the checkout is clean. The profile
 | Lexer, parser, and AST | Implemented (0.1.0) |
 | Interpreter and runtime | Implemented (0.1.0; further hardening planned) |
 | CLI, REPL, and packaging | Implemented (0.1.0) |
-| Tests and runnable examples | Nine root programs; independent browser checks on the merged educational branch passed 89/89; full current-branch native/Python suites still require end-to-end verification |
+| Tests and runnable examples | Fifteen root programs; independent browser checks on the merged educational branch passed 89/89; full current-branch native/Python suites still require end-to-end verification |
 | Tutorials and teacher resources | Practical example starter set available; complete classroom guides and educator review still planned |
 | Twi community language review | Needed before release |
 
 The initial interpreter and native bytecode-VM alpha milestones have working implementations. Current engineering priorities are cross-runtime conformance, independently executed C++ integration tests, KBC1 verification, classroom documentation, linguistic review and release hardening. Follow the [implementation plan](./docs/IMPLEMENTATION_PLAN.md) and the [engineering development journal](./docs/DEVELOPMENT_JOURNAL.md), which distinguishes merged features, verified checks and outstanding risks.
 
-A version 1.0 release will require a working, tested interpreter—not merely completed documentation. The specification calls for at least 15 runnable example programs and tests for successful behavior, invalid input, Unicode, and resource limits.
+A version 1.0 release will require a working, tested interpreter—not merely completed documentation. The specification's minimum of 15 runnable example programs is now met (15/15 direct JavaScript output checks passed on 2026-11-18); tests for successful behavior, invalid input, Unicode, and resource limits.
 
 ## Cross-runtime arithmetic contract
 
@@ -254,3 +254,7 @@ python playground/build_site.py --require-wasm
 ```
 
 The generated ZIP includes both `native/kasa-native.js` and `native/kasa-native.wasm`. See [WebAssembly build and Colab instructions](./native/wasm/README.md). **Important:** This code has passed local C++ C-ABI tests, JavaScript worker simulation tests, and existing interpreter regressions, but this environment did not have Emscripten and therefore an actual browser WebAssembly build has **not** been verified here. The existing JS-only playground remains functional until a real WASM deployment is compiled.
+
+### Practical lesson corpus (15 examples)
+
+Six new programs demonstrate [daily sales totals](./examples/daily_sales.kasa), [cash reconciliation](./examples/cash_reconciliation.kasa), [mobile-money balance arithmetic](./examples/mobile_money_ledger.kasa), [student score counting](./examples/student_grades.kasa), [savings targets](./examples/savings_target.kasa), and [inventory valuation](./examples/inventory_valuation.kasa). All examples are **illustrative offline exercises**, not bank integrations, production-grade bookkeeping, or financial advice. Golden stdout lives in [the shared example fixture](./tests/conformance_practical_examples.json), consumed by Python and browser JavaScript tests. On 2026-11-18, all 15 example outputs passed direct execution using the repository JavaScript interpreter in an isolated V8 environment. Full Python/native/KBC1 and actual-browser verification of these newly added examples remain outstanding.
