@@ -16,6 +16,16 @@
     "student_grades.kasa": "Students passed:\n4\nStudents not passed:\n1\nTotal marks:\n365\n",
     "savings_target.kasa": "Total saved (pesewas):\n270000\nStill needed (pesewas):\n30000\n",
     "inventory_valuation.kasa": "Inventory cost value (pesewas):\n32500\n",
-    "bank_reconciliation_matching.kasa": "Matched transactions:\n3\nUnmatched bank count:\n1\nUnmatched bank total (pesewas):\n12000\nUnmatched ledger count:\n1\nUnmatched ledger total (pesewas):\n9000\n"
+    "bank_reconciliation_matching.kasa": "Matched transactions:\n3\nUnmatched bank count:\n1\nUnmatched bank total (pesewas):\n12000\nUnmatched ledger count:\n1\nUnmatched ledger total (pesewas):\n9000\n",
+    "bubble_sort.kasa": "[1, 2, 4, 7, 9]\n",
+    "factorial.kasa": "720\n",
+    "fibonacci.kasa": "0\n1\n1\n2\n3\n5\n8\n13\n21\n34\n",
+    "grades.kasa": "Passed: 4\nClass total: 351\n",
+    "multiplication_table.kasa": "5 x 1 = 5\n5 x 2 = 10\n5 x 3 = 15\n5 x 4 = 20\n5 x 5 = 25\n5 x 6 = 30\n5 x 7 = 35\n5 x 8 = 40\n5 x 9 = 45\n5 x 10 = 50\n5 x 11 = 55\n5 x 12 = 60\n",
+    "number_guess.kasa": "Try again\nTry again\nYou guessed correctly!\n",
+    "prime_check.kasa": "nokware\n",
+    "quiz.kasa": "Ayekoo! Correct.\n",
+    "sales_report.kasa": "Rice: GHS 225\nOil: GHS 210\nBeans: GHS 180\nTotal: GHS 615\n",
+    "savings_goal.kasa": "Weeks: 8\nSaved GHS: 1000\n"
   }
 }
