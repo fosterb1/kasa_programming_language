@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Verified Windows alpha runtime and experimental RFC-0008 integer backend
+
+- **Windows milestone (user-operated):** After merged PR #50, user supplied MSVC native conformance output showing **24/24 test methods passed**, and Windows parity screenshot showing **10/10 stages passed**. The user subsequently reported a clean SHA audit and **18/18** full-profile passes; the final JSON files and exact Windows SHA were not supplied for independent validation. Previously, Python tests passed **239 with 4 skipped**, and Node browser/WASM-protocol tests passed **234**. See [provenance-scoped Windows verification record](./verification/2026-11-18-windows-user-validation.md).
+- **Experimental big-integer foundation:** Added `native/include/kasa/big_integer.hpp` with Boost.Multiprecision `cpp_int` backend, exact decimal parsing, bounded add/subtract/multiply/floor-remainder, and a candidate **16,384-bit** resource cap plus **1,000-digit** text cap. Added `native/tests/big_integer_smoke.cpp` and an **OFF-by-default** `KASA_BUILD_BIGINT_EXPERIMENT` CMake option requiring Boost headers only when explicitly enabled. The existing KBC1, native Value/VM and default alpha build are unchanged.
+- **Test discovery:** Initial experimental smoke used `assert`, which Release builds can compile out. Replaced with runtime checks that cannot be disabled by `NDEBUG`, rebuilt the Release probe, and observed **1/1 CTest** passing. Independently executed the existing full checkout on Linux: **10/10 parity** and **18/18 full** profile stages passed with the experimental source present but not linked into the VM.
+- **Open:** Big integers are not yet usable in `.kasa` programs through the native VM or serialized KBC1. Windows Boost availability and experimental MSVC build, KBC2 versioning, float comparisons and limiting expensive operations remain unverified. Keep progress estimates unchanged.
+
+
+
 ### 2026-11-18 — Native MSVC stdout CRLF portability after real Windows testing
 
 - **Windows user evidence:** On the Windows Build Tools 2026 / MSVC build of Kasa, native conformance comparisons repeatedly failed because `stdout` was `"value\\r\\n"` instead of Python's `"value\\n"`; source location `twi_with_crlf` reported line 3 instead of line 2. This affected both native source and KBC1 execution, numeric comparisons, Unicode output-count tests and CRLF-source locations. The 24-test Windows native conformance command reported **187 subtest failures**; most had this common line-ending cause.
