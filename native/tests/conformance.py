@@ -287,6 +287,26 @@ class Conformance(unittest.TestCase):
                 self.assertIn(location, actual.stderr)
 
 
+    def test_crlf_input_source_and_kbc1(self):
+        """Native stdin must normalize CRLF exactly as Python and JS."""
+        cases = json.loads(
+            (ROOT / "tests" / "conformance_crlf_input.json").read_text(encoding="utf-8")
+        )["cases"]
+        for case in cases:
+            with self.subTest(name=case["name"]):
+                source, stdin, expected = case["source"], case["stdin"], case["expected_stdout"]
+                self.assertEqual(run_python(source, stdin), expected)
+                direct = run_native(source, stdin)
+                self.assertEqual(direct.returncode, 0, direct.stderr)
+                self.assertEqual(direct.stdout, expected)
+                compiled, checked, executed = run_native_serialized(source, stdin)
+                self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+                self.assertIsNotNone(executed)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(executed.stdout, expected)
+
     def test_native_int64_minimum_source_and_kbc1(self):
         """The signed 64-bit minimum must survive source parsing and KBC1."""
         cases = json.loads(

@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Native Windows CRLF stdin parity
+
+- **Observed divergence:** Native `std::getline()` strips the newline but retains `\\r` for `bisa()` input ending in `\\r\\n`, while Python and JavaScript discard terminal carriage returns. Native programs could echo an invisible extra carriage return and fail text equality checks on Windows-style input.
+- **Fix:** Native `bisa()` drops only terminal `\\r` characters after `std::getline()`; internal carriage returns are preserved. Added eight shared input cases and registered them in Python pytest, Node JavaScript, native source VM/KBC1, and the independent parity runner. No changes to Kasa grammar.
+- **Verified independently:** **106/106** direct JavaScript shared cases passed (including eight CRLF fixtures). The isolated C++ `getline`/terminal-CR handling passed **6/6 with GCC and 6/6 with Clang**, each compiled with ASan+UBSan.
+- **Not verified:** Full Python/Node test runners, linked native C++/KBC1 bytecode execution and a new audited 10-stage parity report. GitHub checkout remains inaccessible in the local container because DNS cannot resolve `github.com`. No readiness percentage change.
+
+
+
 ### 2026-11-18 — Concurrent decimal literal fix reconciled; signed subnormal regression
 
 - **Integration discovery:** PR #44 landed the native decimal-literal underflow fix on `main` while a second equivalent PR #45 was being developed. PR #45 was **closed without merging** after GitHub reported conflicts, rather than replacing newer `main` source and documentation.

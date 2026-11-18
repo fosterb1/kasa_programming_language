@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "description": "bisa() removes CR characters at the end of a line (including CRLF terminal input); retains interior CR. Validates Python/JS/native source/KBC1 parity on Windows-style stdin.",
+  "cases": [
+    {
+      "name": "windows_crlf_plain_input",
+      "source": "ka bisa()",
+      "stdin": "Ama\r\n",
+      "expected_stdout": "Ama\n"
+    },
+    {
+      "name": "windows_crlf_prompt_input",
+      "source": "ma edin = bisa(\"Wo din? \")\nka edin",
+      "stdin": "Ama\r\n",
+      "expected_stdout": "Wo din? Ama\n"
+    },
+    {
+      "name": "windows_crlf_unicode",
+      "source": "ka bisa() == \"Kɔfi\"",
+      "stdin": "Kɔfi\r\n",
+      "expected_stdout": "nokware\n"
+    },
+    {
+      "name": "windows_crlf_blank_line",
+      "source": "ka bisa()",
+      "stdin": "\r\n",
+      "expected_stdout": "\n"
+    },
+    {
+      "name": "windows_crlf_multiple_trailing_cr",
+      "source": "ka bisa()",
+      "stdin": "Ama\r\r\n",
+      "expected_stdout": "Ama\n"
+    },
+    {
+      "name": "windows_cr_no_newline",
+      "source": "ka bisa()",
+      "stdin": "Ama\r",
+      "expected_stdout": "Ama\n"
+    },
+    {
+      "name": "windows_crlf_multiple_reads",
+      "source": "ka bisa()\nka bisa()",
+      "stdin": "Ama\r\nKɔfi\r\n",
+      "expected_stdout": "Ama\nKɔfi\n"
+    },
+    {
+      "name": "preserve_internal_carriage_return",
+      "source": "ka bisa()",
+      "stdin": "A\rB\r\n",
+      "expected_stdout": "A\rB\n"
+    }
+  ]
+}

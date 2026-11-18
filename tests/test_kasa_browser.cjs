@@ -353,3 +353,14 @@ for (const fixture of arbitraryIntegerFixtures.cases) {
     assert.equal(result.output, fixture.expected_stdout);
   });
 }
+
+const crlfInputFixtures = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_crlf_input.json'), 'utf8')
+);
+for (const fixture of crlfInputFixtures.cases) {
+  test(`CRLF input conformance: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source, fixture.stdin);
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.output, fixture.expected_stdout);
+  });
+}
