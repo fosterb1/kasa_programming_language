@@ -154,6 +154,10 @@ python -m kasa --version            # Shows the installed version
 
 The `kasa check` command parses source without running it. Runtime errors include source line and column. This is an early implementation: explore the examples and check [known limitations](./docs/IMPLEMENTATION_PLAN.md) before relying on it in classrooms.
 
+## Progress toward Kasa 0.4 and 1.0
+
+Our current [progress scorecard](./docs/PROGRESS_SCORECARD.md) rates **Kasa 0.4 implementation at 8 of 10 checkpoints (80%)** and **stable Kasa 1.0 maturity at approximately 35%** as a planning estimate. These are deliberately different metrics: code existing is not the same as complete interoperability, security, portability or a professionally reviewed educational release.
+
 ## Local cross-runtime verification
 
 For Kasa 0.4, the focused `parity` profile independently checks Python, browser JavaScript, native C++ and compiled KBC1 execution. It requires a **complete local checkout** with Python, Node, CMake and a C++20 compiler; no paid GitHub Actions run is needed:
@@ -161,6 +165,7 @@ For Kasa 0.4, the focused `parity` profile independently checks Python, browser 
 ```bash
 python -m pip install -e ".[dev]"
 python scripts/verify_local.py --profile parity --report build/parity-report.json
+# Includes a new 10,080-case deterministic Python/C++ numeric differential
 ```
 
 The report records the Git commit and whether the checkout is clean. The profile and report design have focused unit-level checks, but **the complete Python-versus-native-KBC1 suite still requires execution before we claim full language parity**. Details: [independent verification guide](./docs/INDEPENDENT_TESTING.md).
