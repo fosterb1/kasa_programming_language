@@ -12,7 +12,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-import os
+
 from pathlib import Path
 import threading
 
@@ -84,6 +84,32 @@ def verify():
             page.locator("#run").click()
             page.wait_for_function("document.querySelector('#output').textContent.includes('Ɛyɛ Kasa!')", timeout=15000)
             assert "Run completed" in page.locator("#status").inner_text()
+
+            # Browser-driven runtime error should remain visible and not
+            # permanently disable the editor.
+            page.locator("#source").fill("ka 1 / 0")
+            page.locator("#run").click()
+            page.wait_for_function(
+                "document.querySelector('#status').dataset.state === 'error'",
+                timeout=15000,
+            )
+            assert "ZeroDivisionError" in page.locator("#output").inner_text()
+            page.wait_for_function("!document.querySelector('#run').disabled", timeout=15000)
+
+            # Example selection changes both the editor and local draft.
+            page.locator("#example").select_option("functions")
+            assert "dwumadie fa_bi" in page.locator("#source").input_value()
+            assert "dwumadie fa_bi" in page.evaluate(
+                "localStorage.getItem('kasa.playground.source.v1')"
+            )
+
+            # Source export uses a real browser download.
+            with page.expect_download(timeout=10000) as pending:
+                page.locator("#download").click()
+            export = pending.value
+            assert export.suggested_filename == "main.kasa"
+            downloaded = Path(export.path()).read_text(encoding="utf-8")
+            assert "dwumadie fa_bi" in downloaded
 
             page.locator("#reset").click()
             assert page.locator("#source").input_value() == 'ka "Maakye, Ghana!"\n'
