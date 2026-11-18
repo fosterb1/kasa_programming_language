@@ -287,6 +287,39 @@ class Conformance(unittest.TestCase):
                 self.assertIn(location, actual.stderr)
 
 
+    def test_unicode_output_budget_source_and_kbc1(self):
+        """Run the same Unicode limits through Python, native source and KBC1."""
+        from kasa.core import KasaError
+
+        fixtures = json.loads(
+            (ROOT / "tests" / "conformance_output_budget.json").read_text(encoding="utf-8")
+        )["cases"]
+        for case in fixtures:
+            with self.subTest(case=case["name"]):
+                source, stdin = case["source"], case["stdin"]
+                output = io.StringIO()
+                try:
+                    Interpreter(stdout=output, stdin=io.StringIO(stdin)).run(parse(source))
+                except KasaError as error:
+                    self.assertFalse(case["expected_ok"])
+                    self.assertEqual(error.category, case["error_category"])
+                else:
+                    self.assertTrue(case["expected_ok"])
+                self.assertEqual(len(output.getvalue()), case["expected_stdout_characters"])
+
+                direct = run_native(source, stdin)
+                compiled, checked, executed = run_native_serialized(source, stdin)
+                self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+                self.assertIsNotNone(executed)
+
+                for result in (direct, executed):
+                    self.assertEqual(result.returncode == 0, case["expected_ok"], result.stderr)
+                    self.assertEqual(len(result.stdout), case["expected_stdout_characters"])
+                    if not case["expected_ok"]:
+                        self.assertIn(f": {case['error_category']}:", result.stderr)
+
     def test_amount_reconciliation_reference_and_kbc1(self):
         """Amount-only lesson must match Python in native source and serialized KBC1."""
         corpus = json.loads(
