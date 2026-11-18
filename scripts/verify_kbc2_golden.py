@@ -49,7 +49,7 @@ def main() -> int:
             source.write_bytes(item["source"].encode("utf-8"))
             checked([binary, "compile-kbc2", str(source), "-o", str(archive)])
             data = archive.read_bytes()
-            if data[:6] != b"KBC2\\x02\\x00":
+            if data[:6] != b"KBC2\x02\x00":
                 raise AssertionError(f"{name}: missing KBC2 v2 header")
             # Verify independent load and execution, not just a hash.
             checked([binary, "check-bytecode", str(archive)])
