@@ -266,6 +266,38 @@ class Conformance(unittest.TestCase):
                 location = f"test.kasa:{case['line']}:{case['column']}: {case['category']}:"
                 self.assertIn(location, actual.stderr)
 
+
+    def test_amount_reconciliation_reference_and_kbc1(self):
+        """Amount-only lesson must match Python in native source and serialized KBC1."""
+        corpus = json.loads(
+            (ROOT / "tests" / "conformance_reconciliation.json").read_text(encoding="utf-8")
+        )["cases"]
+        template = (ROOT / "examples/bank_reconciliation_matching.kasa").read_text(encoding="utf-8")
+        for case in corpus:
+            with self.subTest(name=case["name"]):
+                source = template
+                for label, original in (
+                    ("bank", "[5000, 7000, 5000, 12000]"),
+                    ("ledger", "[5000, 5000, 9000, 7000]"),
+                ):
+                    before = f"ma {label} = {original}"
+                    self.assertEqual(source.count(before), 1)
+                    source = source.replace(
+                        before, f"ma {label} = [" + ", ".join(map(str, case[label])) + "]"
+                    )
+                expected = case["expected_stdout"]
+                self.assertEqual(run_python(source), expected)
+                direct = run_native(source)
+                self.assertEqual(direct.returncode, 0, direct.stderr)
+                self.assertEqual(direct.stdout, expected)
+                compiled, checked, executed = run_native_serialized(source)
+                self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+                self.assertIsNotNone(executed)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(executed.stdout, expected)
+
     def test_syntax_check_never_executes(self):
         p=run_native('ka 1/0\nka "not executed"','', 'check')
         self.assertEqual(p.returncode,0,p.stderr)
