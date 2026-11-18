@@ -102,3 +102,6 @@ Review this scorecard after every substantive pull request. Add or reweight chec
 
 
 **2026-11-18 KBC2 experimental bytecode:** Added opt-in `compile-kbc2` and backward-compatible KBC2 big-int constant encoding (see [KBC2 specification](./KBC2_FORMAT.md)); ten shared RFC-0008 source-to-KBC2 program round trips and seven integration test methods passed on Linux. Default KBC1 unchanged; default Linux parity **10/10** and full **18/18** stages passed. **Windows/macOS, sanitizers and production format stability remain open. Kasa 0.4: 90%; Kasa 1.0: ~35% unchanged.**
+
+
+**2026-11-18 KBC2 determinism verification:** Introduced ten fixed SHA-256 byte-for-byte KBC2 golden fixtures and a Linux-verified opt-in CTest. Linux baseline **10/10** hashes matched, **2/2** opt-in CTest targets passed. User reports prior Windows KBC2 integration success, but **Windows golden hash comparison is still pending**. Percentages unchanged pending platform certification.
