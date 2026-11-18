@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Native MSVC stdout CRLF portability after real Windows testing
+
+- **Windows user evidence:** On the Windows Build Tools 2026 / MSVC build of Kasa, native conformance comparisons repeatedly failed because `stdout` was `"value\\r\\n"` instead of Python's `"value\\n"`; source location `twi_with_crlf` reported line 3 instead of line 2. This affected both native source and KBC1 execution, numeric comparisons, Unicode output-count tests and CRLF-source locations. The 24-test Windows native conformance command reported **187 subtest failures**; most had this common line-ending cause.
+- **Fix A:** In `native/src/main.cpp`, set Windows CRT stdout and stderr handles to binary mode via `_setmode(_fileno(...), _O_BINARY)`, so Kasa output matches LF semantics rather than Windows CRLF translation. Stdin is unchanged and `bisa()` still removes terminal CR as designed.
+- **Fix B:** In `native/tests/conformance.py`, write source test files using `write_bytes(source.encode("utf-8"))` instead of `write_text`, preventing Windows universal newline conversion from changing a preexisting `\\r\\n` into `\\r\\r\\n` and shifting Unicode source coordinates.
+- **Independent regression:** The patched source branch passed **10/10** full-checkout Linux parity stages and **18/18** full-profile stages including native compiler and KBC1. **MSVC/Windows native conformance has not yet been rerun on this patch**; user must pull the merged change and rebuild before Windows success can be claimed.
+- **Checkpoint status:** Keep Windows native parity and full cross-platform release certification open until the Windows rerun is verified; the earlier Kasa 0.4 Linux alpha implementation scorecard and stable 1.0 readiness estimates do not change.
+
+
+
 ### 2026-11-18 — Clean merged-main Linux alpha parity checkpoint verified
 
 - **Merged source tested:** `cbce6a6c6c20b9e994086fddbbeac12d42a45f71` ([PR #48](https://github.com/fosterb1/kasa_programming_language/pull/48)); independent disposable Linux checkout, **clean** before and after the run.
