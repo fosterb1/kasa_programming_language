@@ -17,6 +17,7 @@
 #include <variant>
 #include <vector>
 #include <cctype>
+#include <cstdlib>
 namespace kasa {
 using namespace std;
 E expr(string kind,const Token&t,string op="",Value val={},vector<E>kids={}){return make_shared<Expr>(Expr{std::move(kind),std::move(op),t,std::move(val),std::move(kids)});}
@@ -64,8 +65,14 @@ class Parser{
             try{return expr("literal",x,"",Value(static_cast<int64_t>(stoll(x.text))));}catch(...){throw Failure(x,"ResourceError","Integer literal exceeds 64-bit native range",file);}
         }
         if(match("DECIMAL")){
-            try{double val=stod(x.text);if(!isfinite(val))throw out_of_range("nonfinite");return expr("literal",x,"",Value(val));}
-            catch(...){throw Failure(x,"ResourceError","Decimal literal exceeds supported range",file);}
+            // stod throws out_of_range on valid binary64 subnormals and
+            // underflow-to-zero. strtod retains the correctly rounded result.
+            // The lexer has already validated the decimal literal spelling.
+            char* end=nullptr;
+            double val=std::strtod(x.text.c_str(),&end);
+            if(end!=x.text.c_str()+x.text.size()||!isfinite(val))
+                throw Failure(x,"ResourceError","Decimal literal exceeds supported range",file);
+            return expr("literal",x,"",Value(val));
         }
         if(match("STRING"))return expr("literal",x,"",Value(x.text));
         if(match("TRUE"))return expr("literal",x,"",Value(true));
