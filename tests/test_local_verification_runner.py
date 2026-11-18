@@ -29,7 +29,7 @@ def test_runner_dry_run_never_claims_tests_passed(tmp_path):
     output = json.loads(report.read_text(encoding="utf-8"))
     assert output["dry_run"] is True
     assert output["counts"]["passed"] == 0
-    assert output["counts"]["not_run"] == 15
+    assert output["counts"]["not_run"] == 16
     assert "NOT a pass" in result.stdout
 
 
@@ -110,14 +110,17 @@ def test_parity_plan_runs_all_four_language_execution_paths():
         "Native CMake configure",
         "Native C++ build",
         "Native mixed-number precision smoke",
+        "Native/Python numeric differential",
         "Native Python conformance",
         "Native KBC1 round-trip and rejection tests",
     ]
     # Ensure the conformance.py stage is truly the native/Python harness and
     # the compiled VM path comes from the CMake build, not a stale executable.
-    assert steps[5][1][1] == "native/tests/conformance.py"
-    assert steps[6][1][1] == "native/tests/test_bytecode.py"
-    assert steps[5][1][-1] == steps[6][1][-1]
+    assert steps[5][1][1] == "native/tests/numeric_differential.py"
+    assert Path(steps[5][1][-1]).name.startswith("kasa-numeric-compare-probe")
+    assert steps[6][1][1] == "native/tests/conformance.py"
+    assert steps[7][1][1] == "native/tests/test_bytecode.py"
+    assert steps[6][1][-1] == steps[7][1][-1]
 
 
 def test_parity_dry_run_never_reports_executed_or_passed(tmp_path):
@@ -130,8 +133,8 @@ def test_parity_dry_run_never_reports_executed_or_passed(tmp_path):
     assert result.returncode == 0, result.stderr
     payload = json.loads(report.read_text(encoding="utf-8"))
     assert payload["profile"] == "parity"
-    assert payload["counts"] == {"passed": 0, "failed": 0, "not_run": 7}
-    assert len(payload["checks"]) == 7
+    assert payload["counts"] == {"passed": 0, "failed": 0, "not_run": 8}
+    assert len(payload["checks"]) == 8
     assert "DRY RUN ONLY" in result.stdout
     assert "source_revision" in payload
     assert set(payload["source_revision"]) == {"commit", "working_tree_clean"}
@@ -156,4 +159,4 @@ def test_revision_reports_no_commit_when_git_is_unavailable(monkeypatch):
 def test_full_and_quick_counts_unchanged():
     runner = load_tool()
     assert len(runner.plan("quick", False)) == 7
-    assert len(runner.plan("full", False)) == 15
+    assert len(runner.plan("full", False)) == 16
