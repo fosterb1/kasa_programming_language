@@ -14,7 +14,7 @@ def report():
         "schema_version": 1, "profile": "parity", "dry_run": False,
         "wasm_requested": False,
         "source_revision": {"commit": "a" * 40, "working_tree_clean": True},
-        "counts": {"passed": 8, "failed": 0, "not_run": 0},
+        "counts": {"passed": 9, "failed": 0, "not_run": 0},
         "checks": [{"name": name, "command": ["python", "-V"],
                     "status": "passed", "exit_code": 0} for name in audit_module.STAGES],
     }
