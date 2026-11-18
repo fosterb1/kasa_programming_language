@@ -326,3 +326,14 @@ python3 scripts/verify_real_wasm_browser.py
 ```
 
 See [real WebAssembly browser validation](./docs/verification/2026-11-18-real-wasm-browser.md). Browser portability, offline mode, deployment and security release gates remain open.
+
+
+### Netlify static playground deployment
+
+Build a Netlify-ready production directory containing **real native WebAssembly** (the script refuses JS-only output):
+
+```sh
+bash scripts/netlify_build.sh
+```
+
+Connect the existing Netlify playground site to this GitHub repository, or upload the resulting `dist/netlify` directory to the same site. `netlify.toml` supplies the build command, publish path and embedding headers. The Learning Academy's admin dashboard manages the final Netlify URL under **Website Settings → Playground Settings**, so an administrator can change it without modifying or redeploying academy code. See [Netlify deployment instructions](./docs/NETLIFY_DEPLOYMENT.md).
