@@ -111,3 +111,6 @@ Review this scorecard after every substantive pull request. Add or reweight chec
 
 
 **2026-11-18 platform-release planning:** User reported Windows **3/3** KBC2 hardening CTest targets passed (raw Windows report not independently captured). A fail-closed, commit-aware `scripts/verify_macos_release.py` runner and [macOS test instructions](./verification/MACOS_RELEASE_GATE.md) are prepared. Linux verified `--dry-run` and non-macOS refusal; **neither Intel nor Apple Silicon macOS has been tested**. Alpha implementation 90%, Kasa 1.0 readiness ~35%, unchanged.
+
+
+**2026-11-18 browser milestone:** Actual Chromium Linux browser + real worker UI smoke **passed**, covering run, syntax check, UTF-8 local upload, local-only source draft, reset, download and input privacy. Node JS/WASM-protocol tests **234/234** passed; the module in those WASM tests is simulated, **not a real browser-compiled native WASM runtime**. See [browser evidence](./verification/2026-11-18-real-browser-playground.md). 90% 0.4 checklist / ~35% Kasa 1.0 readiness unchanged.
