@@ -5,7 +5,7 @@
 #include <string>
 using namespace kasa::bigint;
 
-void require(bool condition, const char* why) {
+void require(bool condition, const char* why = "Bigint check failed") {
     if(!condition) throw std::runtime_error(why);
 }
 
