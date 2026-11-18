@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-11-18  
 **Reference branch:** `main`  
-**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16). **Latest test milestone:** [PR #24 — independent parity profile and reproducible reports](https://github.com/fosterb1/kasa_programming_language/pull/24), merged 2026-11-18. **Next risks:** full native VM integration of this precision fix, 58 Python/KBC1 parity fixtures, and cross-platform verification remain pending.  
+**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16). **Latest test milestone:** [PR #25 — 10,080-case Python/C++ numeric differential and progress scorecard](https://github.com/fosterb1/kasa_programming_language/pull/25), merged 2026-11-18. **Next risks:** full native VM integration of this precision fix, 58 Python/KBC1 parity fixtures, and cross-platform verification remain pending.  
 **Blocked external CI:** [Issue #12 — GitHub Actions jobs terminate before recorded steps](https://github.com/fosterb1/kasa_programming_language/issues/12)
 
 ## How to record future milestones
@@ -64,7 +64,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ### 2026-11-18 — Numeric differential extension and milestone progress scorecard
 
-- **Status:** New local verification check implemented on a review branch. It changes testing and documentation, not any Kasa language semantics or Twi keywords.
+- **Status:** **Merged into `main`** in [PR #25](https://github.com/fosterb1/kasa_programming_language/pull/25), squash commit `f2071538ab360deb133327b315b2c8af14c54710`. Changes local verification and documentation, not Kasa language semantics or Twi keywords.
 - **Change:** Added a deterministic **10,080-case** Python-versus-native numeric differential runner and small C++20 batch probe. The local `parity` plan now contains **8** steps and `full` contains **16**; the numeric helper is executed as an independent required stage.
 - **Evidence executed:** GitHub-matched `numeric_compare.hpp`, `numeric_compare_probe.cpp`, and `numeric_differential.py` passed **10,080/10,080** pairs under GCC 14.2 and again under Clang 17. Each compiler also passed the pre-existing standalone numeric smoke **18/18**. The newly added Python harness returned a nonzero status when the native executable was absent.
 - **Browser regression:** Reexecuted the actual GitHub `playground/kasa-runtime.js` against 107 direct interpreter fixtures on 2026-11-18: **107/107 passed** (26 positive programs, 27 expected errors, 15 remainder, 11 source positions, 18 numeric, nine examples, one EOF).
