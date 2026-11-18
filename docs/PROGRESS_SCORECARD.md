@@ -58,6 +58,8 @@ This estimate uses a separate ten-area *readiness* rubric: 1 point for broadly i
 
 The numeric regression result above is in the merged [independent evidence report](./verification/2026-11-18-numeric-differential.md), not a claim that Kasa as a language has 10,080 passing conformance programs.
 
+A [candidate core-language contract](./RFC-0007-core-language-contract.md) and [12-case corpus](../tests/conformance_language_contract.json) were added for Kasa 0.5 preparation. **12/12** direct JavaScript executions passed; Python/native/KBC1 contract parity was **not** executed. This documentation and fixture work does not complete checkpoint 9 or change either progress percentage.
+
 ## Immediate technical priorities
 
 1. Run `python scripts/verify_local.py --profile parity` on a complete local checkout; capture source SHA, exit status and all failures. **Never count dry-run stages as passes.**

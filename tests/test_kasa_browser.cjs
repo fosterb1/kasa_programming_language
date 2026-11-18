@@ -246,3 +246,19 @@ for (const fixture of decimalDisplayConformance.cases) {
     assert.equal(result.output, fixture.expected_stdout);
   });
 }
+
+const languageContract = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_language_contract.json'), 'utf8')
+);
+for (const fixture of languageContract.cases) {
+  test(`Kasa core contract: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source);
+    if (fixture.expected_stdout !== undefined) {
+      assert.equal(result.ok, true, result.error);
+      assert.equal(result.output, fixture.expected_stdout);
+    } else {
+      assert.equal(result.ok, false, fixture.name);
+      assert.ok(result.error.includes(`: ${fixture.error_category}:`), result.error);
+    }
+  });
+}

@@ -265,3 +265,7 @@ Six new programs demonstrate [daily sales totals](./examples/daily_sales.kasa), 
 ### One-to-one reconciliation as a Kasa lesson
 
 [Bank and ledger matching](./examples/bank_reconciliation_matching.kasa) demonstrates duplicate-safe, first-unused **amount-only** matching with integer pesewas. The [four-case fixture](./tests/conformance_reconciliation.json) covers duplicates, no matches, zero values and the baseline (4/4 direct JavaScript runtime checks passed on 2026-11-18). This is **not** production bank reconciliation: dates, references, transactions IDs, ambiguity handling, debit/credit normalization, security and audit trails are absent. See [RFC-0006](./docs/RFC-0006-financial-computing-foundation.md) for design gates. Python/native/KBC1 integration checks are registered but not yet executed.
+
+### Kasa core language contract (candidate)
+
+[RFC-0007 — Core Language Contract](./docs/RFC-0007-core-language-contract.md) documents the existing expression precedence, typing, lexical functions, mutable lists, blocks, built-ins and diagnostics to help human contributors and future AI coding tools reason about Kasa consistently. A [12-case executable contract corpus](./tests/conformance_language_contract.json) passed **12/12 direct JavaScript interpreter checks** on 2026-11-18 and is registered in the Node test suite. **This is not a stable 0.5 specification or four-runtime certification.** The PR #31 native reliability gate, Python/native/KBC1 contract conformance and linguistic review remain open; no new Twi vocabulary or license was added.

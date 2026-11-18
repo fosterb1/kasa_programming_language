@@ -40,6 +40,17 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Kasa 0.5 language-contract preparation (Step 1 remains open)
+
+- **Status:** Candidate language specification and JavaScript conformance fixture implemented on `docs/kasa-language-contract-20261118`; not a stable language-standard announcement.
+- **Changed:** Added [RFC-0007](./RFC-0007-core-language-contract.md) documenting established lexical forms, precedence, statement/block semantics, functions, lists, built-ins, typing, known runtime differences and proposed acceptance criteria. Added a 12-case JSON contract corpus and Node/JavaScript test-suite registration. No runtime semantics, keywords or open-source licensing were changed.
+- **Verification executed:** All **12/12** contract programs were evaluated using the fetched repository JavaScript runtime in a V8 isolate and matched their golden stdout or expected error category. This is direct interpreter execution, **not** a complete Node runner, Python pytest, native VM or KBC1 conformance certification.
+- **Discovery:** Current Python parser and JS implementation agree structurally on key rules, including explicit Boolean conditions, precedence, lexical scope, mutable zero-based lists and rejection of chained comparisons. Native integer size limits and runtime resource/diagnostic differences remain unresolved.
+- **Risks:** Cross-runtime contract tests have not been executed on a complete native/Python checkout. PR #31 remains an independent draft and Step 1 is still incomplete; do not use this RFC to imply otherwise.
+- **Next gate:** Execute the shared contract corpus through Python and native source/KBC1 in a complete checkout, then resolve discrepancies and update RFC-0007 before stabilizing the language.
+
+
+
 ### 2026-11-18 — Verified JavaScript decimal text-formatting mismatch
 
 - **Status:** **Merged into `main`** through [PR #30](https://github.com/fosterb1/kasa_programming_language/pull/30), squash commit `d44cc0971e50bddfbf97072609276a6e9d25617c`. **Not** full Kasa 0.4 parity certification.
