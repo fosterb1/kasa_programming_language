@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Native decimal underflow and subnormal portability
+
+- **Reproduced:** `std::stod` throws `std::out_of_range` for valid binary64 decimal inputs below its normal range, even when they should round to signed zero or a valid subnormal. Python and JavaScript accept the corresponding `nɔma` inputs.
+- **Implemented:** Native `nɔma` retains the strict ASCII decimal grammar, parses valid decimals with `std::strtod`, validates that the input was consumed and rejects non-finite overflow as `ResourceError`. Added four shared fixtures (positive/negative tiny values, nonzero subnormal, huge overflowing decimal); existing Python/JS/native source/KBC1 fixture registrations pick them up automatically.
+- **Actually verified:** **79/79** shared JavaScript cases passed in direct V8 execution (20 numeric conversion, 8 output budget, 15 decimal display, 12 core contract, 24 historic). **13/13** isolated C++ decimal parsing and classification assertions passed using each of GCC 14.2 and Clang 17 with address/undefined sanitizers.
+- **Not verified:** Full Python pytest, complete Node runner, linked native VM, KBC1 round trip, C numeric-locale interactions and full cross-runtime parity. Native `int64_t` versus Python/JS big integers remains open in [issue #39](https://github.com/fosterb1/kasa_programming_language/issues/39). Keep scorecard percentages unchanged.
+
+
+
 
 ### 2026-11-18 — Close native `nɔma` permissive-number parsing gap
 

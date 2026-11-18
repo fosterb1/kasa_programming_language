@@ -20,6 +20,8 @@
 #include <variant>
 #include <vector>
 #include <cctype>
+#include <cstdlib>
+#include <cerrno>
 namespace kasa {
 using namespace std;
 struct Environment{unordered_map<string,Value> values;shared_ptr<Environment> parent;
@@ -191,8 +193,14 @@ class VM{
             try{
                 size_t used=0;
                 if(s.find('.')!=string::npos){
-                    double d=stod(s,&used);
-                    if(used!=s.size())error(t,"TypeError","Invalid numeric text");
+                    // std::stod throws out_of_range even when a finite decimal
+                    // correctly rounds to zero or a subnormal binary64 value.
+                    // strtod preserves IEEE-754 underflow results; reject only
+                    // non-finite overflow after strict Kasa grammar validation.
+                    char* end=nullptr;
+                    const double d=std::strtod(s.c_str(),&end);
+                    if(end!=s.c_str()+s.size())
+                        error(t,"TypeError","Invalid numeric text");
                     return checkedDouble(d,t);
                 }
                 int64_t n=stoll(s,&used);
