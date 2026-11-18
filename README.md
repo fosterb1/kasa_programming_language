@@ -287,3 +287,7 @@ Kasa's Python reference, browser JavaScript and native C++ runtimes now implemen
 ### Intended large-integer model (RFC-0008)
 
 Kasa's intended integer model is **exact arbitrary precision**, bounded by explicit resource limits rather than signed 64-bit overflow. The Python reference interpreter and JavaScript browser runtime already support large integers, and [10 new shared cases](./tests/conformance_arbitrary_integers.json) specify the target behavior. **The C++ native compiler and KBC1 bytecode currently use signed 64-bit integers and do not yet meet this target.** See [RFC-0008](./docs/RFC-0008-arbitrary-precision-integers.md) for the staged migration and verification requirements. This decision is not a claim that a native big-integer backend or big-integer bytecode has shipped.
+
+### Experimental native large integers (RFC-0008)
+
+The C++ VM can be built with `-DKASA_ENABLE_BIGINT_VM=ON` (requires Boost.Multiprecision headers) to run the RFC-0008 large-integer source examples, while the **standard Kasa build continues to use native int64 arithmetic**. The optional feature is not yet a stable, fully portable runtime: large literals are not encodable into existing KBC1 bytecode, Windows/MSVC support remains unverified and a versioned KBC2 extension is planned. See [RFC-0008](./docs/RFC-0008-arbitrary-precision-integers.md) for instructions and constraints.
