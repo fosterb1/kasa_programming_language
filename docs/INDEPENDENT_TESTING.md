@@ -54,6 +54,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Standalone native Unicode lexer executable | No | Yes |
 | Standalone KBC1 serialization and corruption-rejection executable | No | Yes |
 | Deterministic KBC1 loader mutation smoke (2,000 CRC-adjusted changes) | No | Yes |
+| Exact mixed integer/decimal comparison smoke | No | Yes |
 | Native/Python conformance harness (direct source and KBC1-vs-reference fixtures) | No | Yes |
 | Native KBC1 round-trip and malformed-bytecode tests | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
@@ -123,7 +124,7 @@ The exact PR #16 native executable compiled on Linux with **GCC 14.2** and **Cla
   "profile": "full",
   "dry_run": false,
   "counts": {
-    "passed": 14,
+    "passed": 15,
     "failed": 0,
     "not_run": 0
   }
