@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Windows hardening confirmed by user; macOS release runner introduced
+
+- **Windows user report:** Following PR #55, user confirmed the three-target experimental CTest command **PASSED** (RFC-0008, KBC2 SHA golden, 320 malformed-loader checks). Exact Windows logs/SHA not independently available; record it as user-reported.
+- **Created, not macOS-executed:** `scripts/verify_macos_release.py` defines six ordered checks for native macOS: canonical parity, commit-pinned audit, full checks, opt-in KBC2 configure/build, and three KBC2 CTest targets. Requires clean Git SHA and an actual Darwin `arm64` or `x86_64` host. Produces per-stage JSON and fails on any step or changing Git revision.
+- **Independent non-macOS verification:** Python source compiled on Linux; `--dry-run` produced the planned six stage commands, and direct Linux execution returned exit code 2 without generating a false macOS report. **No macOS tests were run.** See [macOS release gate](./verification/MACOS_RELEASE_GATE.md).
+- **Still blocked:** Real macOS Intel/Apple Silicon execution, browser/WASM, long fuzzing, licensing, packaging and signed builds. Keep 90% 0.4 implementation and ~35% 1.0 estimates unchanged.
+
+
+
 ### 2026-11-18 — KBC2 hardening: Windows golden evidence, malformed files, Linux sanitizers
 
 - **Windows user evidence:** After PR #54, user reported the two-target MSVC/Boost KBC2 golden/integration test **passed**. Interpret as user-run Windows byte-for-byte identity for ten fixed cases, not a reviewed raw Windows artifact or exact audited SHA.

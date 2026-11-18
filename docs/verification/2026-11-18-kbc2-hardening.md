@@ -46,3 +46,8 @@ ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 \
 ## Remaining certification gates
 
 Windows rerun of the **new** robustness target, macOS ARM/Intel, real browser/WASM, sanitizer variation and long-duration coverage-guided fuzzing, malformed nested structures, valid-untrusted execution controls, dependency/license audits and reproducible binary packaging. KBC2 remains opt-in; the Kasa 0.4 alpha and stable 1.0 progress percentages are unchanged.
+
+
+### User-reported Windows hardening completion (2026-11-18)
+
+The user subsequently reported **PASSED** after the three-target Windows CTest command from PR #55, which included the KBC2 large-integer integration, ten-file golden hash comparison and 320 deterministic corrupted-loader cases. This is **user-run Windows MSVC+Boost evidence**; no raw CTest log, source SHA or binary hash has been independently retrieved. It is not evidence that Windows AddressSanitizer, long-duration fuzzing, macOS, browser WASM or installer signing has been verified. The earlier line in the remaining-gates list describing Windows hardening as pending reflects the state *before* this follow-up.
