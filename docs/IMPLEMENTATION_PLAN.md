@@ -77,3 +77,7 @@ The JavaScript interpreter previously used ECMAScript decimal-formatting thresho
 ## Preparing Kasa 0.5 — Documented core contract (2026-11-18)
 
 [RFC-0007](./RFC-0007-core-language-contract.md) documents the existing implemented Kasa subset as an **alpha reference contract candidate**, supported by a shared twelve-case success/error corpus. The browser interpreter passed **12/12 direct JavaScript executions**; the scenarios are also registered with the Node test file. This does not certify Python/native/KBC1 conformance or close Kasa 0.4 Step 1. New Twi keywords, modules, packages, currency APIs, and licensing are explicitly out of scope; future AI assistants should use this executable contract rather than assume Kasa is Python with translated syntax.
+
+## Integration of the native numeric display candidate
+
+The previously conflicting PR #31 was reconciled against newer main without overwriting RFC-0007. Required local profiles now include native binary64 smoke and deterministic Python/native text differential (10 parity stages / 18 full stages); core Kasa semantic tests remain registered. Direct JavaScript executions for 15 decimal and 12 core contract fixtures passed on the integration branch. Full Python/Node/native/KBC1 integration still requires actual execution, so the release gate and percentage estimates remain unchanged.
