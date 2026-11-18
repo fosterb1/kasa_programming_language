@@ -117,9 +117,9 @@ def test_parity_plan_runs_all_four_language_execution_paths():
     ]
     # Ensure the conformance.py stage is truly the native/Python harness and
     # the compiled VM path comes from the CMake build, not a stale executable.
-    assert steps[7][1][1] == "native/tests/numeric_differential.py"
+    assert steps[6][1][1] == "native/tests/numeric_differential.py"
     assert Path(steps[6][1][-1]).name.startswith("kasa-numeric-compare-probe")
-    assert steps[6][1][1] == "native/tests/conformance.py"
+    assert steps[7][1][1] == "native/tests/conformance.py"
     assert steps[8][1][1] == "native/tests/test_bytecode.py"
     assert steps[7][1][-1] == steps[8][1][-1]
 
