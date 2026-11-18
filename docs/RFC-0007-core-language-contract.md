@@ -87,3 +87,7 @@ The 12-case JSON corpus covers successful evaluation and category-specific rejec
 6. Seek educational and linguistic review; no new Twi tokens without approved evidence.
 
 This preserves Kasa's goal: independent, offline-capable, Twi-first education leading to useful general-purpose programming, without pretending that an unfinished cross-runtime alpha is already 1.0.
+
+### Browser output budget and Unicode (2026-11-18 clarification)
+
+The browser JavaScript runtime now enforces its **64,000-character** output cap using **Unicode code points**, not JavaScript UTF-16 code units, for both `ka` printed lines and `bisa` prompts. This agrees with Kasa's documented Unicode text-length convention and preserves the difference between Unicode characters and UTF-16 storage units. A newline counts as one character. This is an **engine-specific resource cap**, not a stabilized cross-runtime limit: Python currently does not apply the same cap and the native C++ VM counts output **UTF-8 bytes**. A release-level cap must be specified and tested independently before claiming identical Python/JS/native/KBC1 behavior.
