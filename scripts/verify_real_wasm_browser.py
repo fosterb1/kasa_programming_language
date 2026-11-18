@@ -100,6 +100,28 @@ def run():
                                        timeout=25000)
                 assert "ZeroDivisionError" in page.locator("#output").inner_text()
 
+                # Both engines must agree for the supported shared subset.
+                shared_programs = [
+                    'ka "Ɛyɛ Kasa!"',
+                    'dwumadie fa_bi(a, b)\\n    sanma a + b\\nawiei\\nka fa_bi(25, 15)',
+                    'ma aba = [10, 20, 30]\\nka aba[1]',
+                    'mpɛn 3\\n    ka "Meda wo ase"\\nawiei',
+                ]
+                for program in shared_programs:
+                    outputs = {}
+                    for engine in ("native", "javascript"):
+                        page.locator("#engine").select_option(engine)
+                        page.locator("#source").fill(program)
+                        page.locator("#run").click()
+                        page.wait_for_function(
+                            "document.querySelector('#status').textContent.includes('Run completed')",
+                            timeout=25000,
+                        )
+                        outputs[engine] = page.locator("#output").inner_text()
+                    assert outputs["native"] == outputs["javascript"], (
+                        f"Native/JS browser differential mismatch: {program}: {outputs}"
+                    )
+
                 page.locator("#engine").select_option("javascript")
                 page.locator("#source").fill('ka "JS fallback"')
                 page.locator("#run").click()
