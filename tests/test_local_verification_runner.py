@@ -161,4 +161,4 @@ def test_revision_reports_no_commit_when_git_is_unavailable(monkeypatch):
 def test_full_and_quick_counts_include_numeric_differential():
     runner = load_tool()
     assert len(runner.plan("quick", False)) == 7
-    assert len(runner.plan("full", False)) == 16
+    assert len(runner.plan("full", False)) == 18
