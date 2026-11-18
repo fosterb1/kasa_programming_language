@@ -1,0 +1,69 @@
+{
+  "description": "Amount-only teaching reconciliation: fixed four-entry arrays, no production claims",
+  "cases": [
+    {
+      "name": "duplicate_amounts_never_reused",
+      "bank": [
+        5000,
+        5000,
+        5000,
+        5000
+      ],
+      "ledger": [
+        5000,
+        5000,
+        7000,
+        8000
+      ],
+      "expected_stdout": "Matched transactions:\n2\nUnmatched bank count:\n2\nUnmatched bank total (pesewas):\n10000\nUnmatched ledger count:\n2\nUnmatched ledger total (pesewas):\n15000\n"
+    },
+    {
+      "name": "no_matching_amounts",
+      "bank": [
+        100,
+        200,
+        300,
+        400
+      ],
+      "ledger": [
+        600,
+        700,
+        800,
+        900
+      ],
+      "expected_stdout": "Matched transactions:\n0\nUnmatched bank count:\n4\nUnmatched bank total (pesewas):\n1000\nUnmatched ledger count:\n4\nUnmatched ledger total (pesewas):\n3000\n"
+    },
+    {
+      "name": "zero_value_transactions",
+      "bank": [
+        0,
+        0,
+        100,
+        200
+      ],
+      "ledger": [
+        0,
+        100,
+        0,
+        500
+      ],
+      "expected_stdout": "Matched transactions:\n3\nUnmatched bank count:\n1\nUnmatched bank total (pesewas):\n200\nUnmatched ledger count:\n1\nUnmatched ledger total (pesewas):\n500\n"
+    },
+    {
+      "name": "baseline_duplicate_and_unmatched",
+      "bank": [
+        5000,
+        7000,
+        5000,
+        12000
+      ],
+      "ledger": [
+        5000,
+        5000,
+        9000,
+        7000
+      ],
+      "expected_stdout": "Matched transactions:\n3\nUnmatched bank count:\n1\nUnmatched bank total (pesewas):\n12000\nUnmatched ledger count:\n1\nUnmatched ledger total (pesewas):\n9000\n"
+    }
+  ]
+}
