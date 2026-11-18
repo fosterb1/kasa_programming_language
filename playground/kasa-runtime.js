@@ -289,7 +289,6 @@
     get(name) { if (this.values.has(name)) return [true, this.values.get(name)]; return this.parent?.get(name) || [false, null]; }
   }
   class Signal { constructor(type, value = null) { this.type = type; this.value = value; } }
-  class OutputLimitError extends Error { constructor() { super(`Output exceeded the ${OUTPUT_LIMIT.toLocaleString("en-US")}-character limit`); } }
 
   class Interpreter {
     constructor(inputText) {
@@ -307,16 +306,16 @@
       if (value instanceof FloatValue && !Number.isFinite(value.value)) this.error(tok, "ResourceError", "Numeric result exceeds supported range");
       return value;
     }
-    appendOutput(text) {
+    appendOutput(text, token) {
       // Kasa text length is measured in Unicode code points, not UTF-16 units.
       // Track it incrementally for output emitted by both ka and bisa prompts.
       const characters = length(text);
-      if (this.outputCharacters + characters > OUTPUT_LIMIT) throw new OutputLimitError();
+      if (characters > OUTPUT_LIMIT - this.outputCharacters) this.error(token, "ResourceError", "Output exceeded the 64,000-character limit");
       this.output += text;
       this.outputCharacters += characters;
     }
-    outputLine(value) {
-      this.appendOutput(display(value) + "\n");
+    outputLine(value, token) {
+      this.appendOutput(display(value) + "\n", token);
     }
     boolean(value, tok) { if (typeof value !== "boolean") this.error(tok, "TypeError", "Condition must be 'nokware' or 'atoro'"); return value; }
     number(value, tok) { if (!isNumber(value)) this.error(tok, "TypeError", "Expected a number (not text or a Boolean)"); return value; }
@@ -331,7 +330,7 @@
     execute(s, env) {
       this.tick(s.token);
       switch (s.kind) {
-        case "print": return this.outputLine(this.eval(s.children[0], env));
+        case "print": return this.outputLine(this.eval(s.children[0], env), s.token);
         case "assign": {
           const [target, valueNode] = s.children, value = this.eval(valueNode, env);
           if (target.kind === "name") env.values.set(target.value, value);
@@ -480,7 +479,7 @@
         if (args.length) {
           if (typeof args[0] !== "string") this.error(tok, "TypeError", "'bisa' prompt must be text");
           this.check(args[0], tok);
-          this.appendOutput(args[0]);
+          this.appendOutput(args[0], tok);
         }
         if (this.inputCursor >= this.inputs.length) this.error(tok, "InputError", "No more input is available");
         return this.check(this.inputs[this.inputCursor++].replace(/[\r\n]+$/g, ""), tok);
