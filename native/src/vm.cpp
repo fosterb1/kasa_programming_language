@@ -33,12 +33,60 @@ struct Environment{unordered_map<string,Value> values;shared_ptr<Environment> pa
 };
 struct Function{shared_ptr<FunctionDefinition> definition;shared_ptr<Environment> closure;};
 
-static bool numeric(const Value &v){return holds_alternative<int64_t>(v.data)||holds_alternative<double>(v.data);}
-static bool integer(const Value &v){return holds_alternative<int64_t>(v.data);}
-static double asDouble(const Value &v){return integer(v)?static_cast<double>(get<int64_t>(v.data)):get<double>(v.data);}
+static bool numeric(const Value &v){
+#ifdef KASA_ENABLE_BIGINT_VM
+    if(holds_alternative<bigint::Integer>(v.data))return true;
+#endif
+    return holds_alternative<int64_t>(v.data)||holds_alternative<double>(v.data);
+}
+static bool integer(const Value &v){
+#ifdef KASA_ENABLE_BIGINT_VM
+    if(holds_alternative<bigint::Integer>(v.data))return true;
+#endif
+    return holds_alternative<int64_t>(v.data);
+}
+#ifdef KASA_ENABLE_BIGINT_VM
+static bigint::Integer exactInt(const Value&v){
+    return holds_alternative<int64_t>(v.data)?bigint::Integer(get<int64_t>(v.data)):get<bigint::Integer>(v.data);
+}
+static Value compactInt(const bigint::Integer&v){
+    bigint::check(v);
+    if(v>=numeric_limits<int64_t>::min()&&v<=numeric_limits<int64_t>::max())
+        return Value(v.convert_to<int64_t>());
+    return Value(v);
+}
+static int integerCompareFloat(const Value&v, double decimal){
+    if(holds_alternative<int64_t>(v.data))
+        return numbers::compareIntDouble(get<int64_t>(v.data),decimal);
+    // Represent binary64 exactly as an integer numerator / power-of-two.
+    // This avoids ever rounding large integers through double.
+    if(!isfinite(decimal))throw domain_error("Non-finite decimal comparison");
+    const auto n=exactInt(v);
+    if(decimal==0)return n<0?-1:n>0?1:0;
+    const bool negative=signbit(decimal);
+    int exponent=0;
+    const double fraction=frexp(abs(decimal),&exponent);
+    const auto significand=static_cast<uint64_t>(ldexp(fraction,53));
+    bigint::Integer numerator(significand);
+    if(negative)numerator=-numerator;
+    const int shift=exponent-53;
+    const bigint::Integer lhs=shift>=0?n:(n<<-shift);
+    const bigint::Integer rhs=shift>=0?(numerator<<shift):numerator;
+    return lhs<rhs?-1:lhs>rhs?1:0;
+}
+#endif
+static double asDouble(const Value &v){
+#ifdef KASA_ENABLE_BIGINT_VM
+    if(holds_alternative<bigint::Integer>(v.data))return get<bigint::Integer>(v.data).convert_to<double>();
+#endif
+    return holds_alternative<int64_t>(v.data)?static_cast<double>(get<int64_t>(v.data)):get<double>(v.data);
+}
 static string display(const Value &v,int depth=0){
     if(holds_alternative<monostate>(v.data))return "hwee";
     if(holds_alternative<int64_t>(v.data))return to_string(get<int64_t>(v.data));
+#ifdef KASA_ENABLE_BIGINT_VM
+    if(holds_alternative<bigint::Integer>(v.data))return get<bigint::Integer>(v.data).convert_to<string>();
+#endif
     if(holds_alternative<double>(v.data)){
         return numbers::displayFloat(get<double>(v.data));
     }
@@ -57,11 +105,25 @@ static string display(const Value &v,int depth=0){
     }return s+"]";
 }
 static bool equal(const Value&a,const Value&b,int depth=0){
-    if(integer(a)&&integer(b))return get<int64_t>(a.data)==get<int64_t>(b.data);
+    if(integer(a)&&integer(b)){
+#ifdef KASA_ENABLE_BIGINT_VM
+        return exactInt(a)==exactInt(b);
+#else
+        return get<int64_t>(a.data)==get<int64_t>(b.data);
+#endif
+    }
     if(integer(a)&&holds_alternative<double>(b.data))
+#ifdef KASA_ENABLE_BIGINT_VM
+        return integerCompareFloat(a,get<double>(b.data))==0;
+#else
         return numbers::compareIntDouble(get<int64_t>(a.data),get<double>(b.data))==0;
+#endif
     if(holds_alternative<double>(a.data)&&integer(b))
+#ifdef KASA_ENABLE_BIGINT_VM
+        return integerCompareFloat(b,get<double>(a.data))==0;
+#else
         return numbers::compareIntDouble(get<int64_t>(b.data),get<double>(a.data))==0;
+#endif
     if(numeric(a)&&numeric(b))return get<double>(a.data)==get<double>(b.data);
     if(a.data.index()!=b.data.index())return false;
     if(holds_alternative<monostate>(a.data))return true;
