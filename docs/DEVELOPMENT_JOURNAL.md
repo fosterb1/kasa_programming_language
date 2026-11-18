@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Prepare real-WASM Netlify publishing and Academy CMS embedding
+
+- **New:** `netlify.toml` and `scripts/netlify_build.sh` build genuine Emscripten native WASM and fail closed if unavailable; static deploy contents extracted to `dist/netlify`. The Netlify iframe policy is restricted to the academy's current HTTPS domain.
+- **Independently checked:** Linux Emscripten 3.1.69 successfully ran the Netlify build script. Generated native `kasa-native.wasm` was 491,371 bytes, with compiled JS glue, worker and full static site assets in the publish directory. This is **build readiness, not verified live Netlify deployment**.
+- **Companion integration:** Kasa Learning Academy receives an admin-editable `Website Settings → Playground Settings → Netlify Playground URL` field and dynamic embedded `/playground` route. Existing lesson editors are preserved.
+- **Manual account action:** Reuse the existing Netlify site `sunny-griffin-784c12` and update its deployment/build settings. See [Netlify deployment instructions](./NETLIFY_DEPLOYMENT.md). Production site URL must be taken from the hosting dashboard; no deployment has been performed by this PR.
+- **Remaining:** live hosted end-to-end confirmation, actual Firefox/WebKit, offline PWA, mobile layout and expanded WASM differential corpus.
+
+
+
 ### 2026-11-18 — First actual native WebAssembly execution in Chromium
 
 - **Independently built:** Existing C++ native Kasa WASM bridge compiled using Emscripten 3.1.69; real `kasa-native.wasm` was **491,371 bytes** with 23 WebAssembly exports and 44 imports. The generated binary and JS glue were packaged using `playground/build_site.py --require-wasm`; they remain generated artifacts, not committed source.
