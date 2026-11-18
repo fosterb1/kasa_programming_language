@@ -1,22 +1,10 @@
 name: Kasa Native compiler
+# Development policy: independently run tests first to avoid automatic hosted CI costs.
+# Hosted workflows are preserved for manual release verification.
+# Restore push/pull_request triggers only after budget and runner settings are reviewed.
 on:
-  push:
-    paths:
-      - 'native/**'
-      - 'src/kasa/**'
-      - 'examples/**'
-      - 'tests/conformance_remainder.json'
-      - 'tests/conformance_source_locations.json'
-      - 'docs/RFC-0001-kasa-native-roadmap.md'
-      - '.github/workflows/native.yml'
-  pull_request:
-    paths:
-      - 'native/**'
-      - 'src/kasa/**'
-      - 'examples/**'
-      - 'tests/conformance_remainder.json'
-      - 'tests/conformance_source_locations.json'
-      - '.github/workflows/native.yml'
+  workflow_dispatch:
+
 jobs:
   native:
     runs-on: ${{ matrix.os }}

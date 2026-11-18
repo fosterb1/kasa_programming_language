@@ -5,6 +5,12 @@
 
 Kasa has separate Python, JavaScript and native C++ implementations. A green result from one runtime is not sufficient to claim that all three behave alike.
 
+## Hosted GitHub Actions policy (cost-conscious development)
+
+As of 2026-11-18 the three GitHub Actions workflows are **manual-only** using `workflow_dispatch`. Normal pushes and pull requests should not automatically start hosted test jobs. The definitions remain in `.github/workflows/` so the project owner can explicitly run them in **GitHub → Actions → select workflow → Run workflow** after checking billing and runner permissions.
+
+This policy is about avoiding unexpected hosted CI execution, **not marking builds green**. The local full profile is still required before release claims. When GitHub-hosted verification is affordable, re-enable push and pull-request checks deliberately; retain the exact workflow history. Earlier automatic runs recorded a failure status, but their root cause and any charge have not been confirmed.
+
 ## Requirements
 
 - Python 3.11+ and the project development dependencies, installed with `python -m pip install -e ".[dev]"`

@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-11-18  
 **Reference branch:** `main`  
-**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16) (merged 2026-11-18). **Next risk:** native/Python/JavaScript conformance and cross-platform validation.  
+**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16). **Latest test milestone:** [PR #22 — Python-to-KBC1 conformance harness](https://github.com/fosterb1/kasa_programming_language/pull/22), merged 2026-11-18. **Next risk:** the 58 new native/Python/KBC1 parity fixtures are not yet independently executed; cross-platform validation remains pending.  
 **Blocked external CI:** [Issue #12 — GitHub Actions jobs terminate before recorded steps](https://github.com/fosterb1/kasa_programming_language/issues/12)
 
 ## How to record future milestones
@@ -40,15 +40,24 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+## Hosted CI execution policy — 2026-11-18
+
+**Decision:** GitHub-hosted workflows (`tests.yml`, `native.yml`, `wasm.yml`) are preserved but changed to **`workflow_dispatch` only**. They do not run automatically on new pushes or pull requests during the budget-sensitive independent development phase. The user can manually trigger each workflow for final release verification once billing and runner availability have been reviewed.
+
+**Discovery:** Merging PR #22 caused automatic GitHub Actions workflow attempts on commit `9596cc36`, even though none was requested. The observed workflows reported failure. Their failure status **does not establish failing code tests** or any charge; inspect job steps and account billing before making either claim.
+
+**Trade-off:** Manual-only hosted verification reduces automatic coverage and is **not** a green CI result. Required local Python, Node and C++ tests remain the release gate; restore automatic CI later when practical. This repository change does not improve conformance or address the 58 pending fixture executions.
+
+
 ### 2026-11-18 — Conformance driver staging and fail-closed checks
 
-- **Status:** On [PR #22](https://github.com/fosterb1/kasa_programming_language/pull/22), **test-only development in review**; not a Kasa runtime change.
+- **Status:** [PR #22](https://github.com/fosterb1/kasa_programming_language/pull/22) **merged into `main`** as test-only infrastructure (squash commit `9596cc36ee4eaabfb57f1ba83fd7cfe411fbac2c`). No Kasa runtime behavior changed.
 - **Change:** The cross-runtime harness now tests Python against native source→KBC1→VM execution and failure handling. It adds 58 existing-language test cases to the native reference comparison: 26 successful programs, 10 signed remainders, 11 runtime errors, and 11 malformed Unicode/source inputs. No Twi keyword was introduced.
 - **Independent verification:** Four tests of the new compile→check→run *orchestration* passed locally under **Python 3.13.5 / pytest 9.0.2** using a disposable simulated native CLI. The test file matched the GitHub Git-blob SHA `cd98d4f6b39240f5545e7db62d473db820f34559`. The harness helper used for this isolated check matched the exact extracted PR #22 function text by length (**1,440 characters**) and FNV-1a 32-bit fingerprint (**2248846160**) before the **4/4** retest. This non-cryptographic fingerprint is a reconstruction check, **not** authentication or a complete checkout. The tests prove stage order, input forwarding, and fail-closed behavior after compile or check failures.
 - **What was NOT run:** None of the newly added **58 reference-versus-native-KBC1 conformance cases** were executed against the real native VM in this session. The four simulated-CLI tests do **not** certify the compiler or KBC1 correctness.
 - **Challenge:** Full GitHub checkout is still unavailable in the isolated local container due to external DNS restrictions. We deliberately did not use paid GitHub Actions.
 - **Evidence:** [Exact isolated driver verification record](./verification/2026-11-18-kbc1-parity-driver.md), including command, matched helper fingerprint, and explicit limitations.
-- **Next gate:** Run `python scripts/verify_local.py --profile full` in a complete checkout with the native executable, record the actual results and fix any semantic differences. Keep PR #22 open until those results are reviewed.
+- **Next gate:** Run `python scripts/verify_local.py --profile full` from a complete checkout, record the output, and fix any semantic differences; **merging the tests does not mean the 58 real cases passed**.
 
 ### 2026-11-18 — Experimental KBC1 merged; shared Python/KBC1 conformance expanded
 

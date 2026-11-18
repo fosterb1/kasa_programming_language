@@ -1,8 +1,9 @@
 name: Kasa tests
+# Development policy: independently run tests first to avoid automatic hosted CI costs.
+# Hosted workflows are preserved for manual release verification.
+# Restore push/pull_request triggers only after budget and runner settings are reviewed.
 on:
-  push:
-    branches: [main, "feature/**"]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:

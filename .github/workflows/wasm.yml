@@ -1,23 +1,8 @@
 name: Kasa WebAssembly build
+# Development policy: independently run tests first to avoid automatic hosted CI costs.
+# Hosted workflows are preserved for manual release verification.
+# Restore push/pull_request triggers only after budget and runner settings are reviewed.
 on:
-  push:
-    paths:
-      - 'native/wasm/**'
-      - 'native/src/**'
-      - 'native/include/**'
-      - 'playground/**'
-      - 'tests/test_kasa_wasm.cjs'
-      - 'tests/test_playground.py'
-      - '.github/workflows/wasm.yml'
-  pull_request:
-    paths:
-      - 'native/wasm/**'
-      - 'native/src/**'
-      - 'native/include/**'
-      - 'playground/**'
-      - 'tests/test_kasa_wasm.cjs'
-      - 'tests/test_playground.py'
-      - '.github/workflows/wasm.yml'
   workflow_dispatch:
 
 jobs:
