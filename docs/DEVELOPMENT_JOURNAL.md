@@ -43,6 +43,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 ### 2026-11-18 — Concurrent decimal literal fix reconciled; signed subnormal regression
 
 - **Integration discovery:** PR #44 landed the native decimal-literal underflow fix on `main` while a second equivalent PR #45 was being developed. PR #45 was **closed without merging** after GitHub reported conflicts, rather than replacing newer `main` source and documentation.
+- **Merged into `main`:** [PR #46](https://github.com/fosterb1/kasa_programming_language/pull/46), squash commit `346b4c736f2577ae515782d430e59cb42a507b6a`.
 - **Additional retained work:** One previously absent **negative finite subnormal literal** fixture added to `tests/conformance_decimal_display.json`; it is automatically picked up by the existing Python, JavaScript, native-source and KBC1 source conformance suites. The existing C++ parser fix from PR #44 remains untouched.
 - **Executed:** **98/98** direct JavaScript shared source cases pass with the consolidated 19-case decimal corpus. Previously executed isolated GCC and Clang C++ `std::strtod` conversion probes passed; **no linked native VM/KBC1 or full Python suite on this consolidated branch**.
 - **Gate:** A clean-checkout parity profile and audited report are still required. Do not double-count duplicate PRs or increase readiness estimates.
