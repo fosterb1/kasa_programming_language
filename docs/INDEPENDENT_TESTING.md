@@ -62,6 +62,18 @@ The native conformance harness now includes additional `.kbc` comparison groups:
 
 These are **new test cases, not claimed passing results**. Run the full profile on a complete local checkout and retain its JSON report to verify actual parity.
 
+### Independent conformance-driver safety checks
+
+The new `tests/test_native_conformance_driver.py` checks whether the `compile → check-bytecode → run-bytecode` *test harness* correctly handles success, input forwarding, compiler rejection, malformed-bytecode rejection, and runtime failure.
+
+```sh
+python -m pytest -q tests/test_native_conformance_driver.py
+```
+
+**Focused observation (2026-11-18):** Four tests passed using Python 3.13.5 and pytest 9.0.2 against a reconstructed helper and a disposable fake native CLI, without downloading the full repository. The committed test file's Git blob matched that locally tested file. The simulated binary only checks *test orchestration*; it is **not an implementation of Kasa**. The fixture uses a POSIX shebang and is explicitly skipped on Windows.
+
+The 58 real KBC1 reference-parity fixtures remain **not executed against the native VM**. Those must be verified separately with the local full profile. A green stage-control test does not substitute for a compiled Kasa test.
+
 ### Run the native lexer independently
 
 You can build only the lexer test, without linking Kasa's bytecode compiler or virtual machine:
