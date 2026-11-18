@@ -48,13 +48,31 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Standalone native Unicode lexer executable | No | Yes |
 | Standalone KBC1 serialization and corruption-rejection executable | No | Yes |
 | Deterministic KBC1 loader mutation smoke (2,000 CRC-adjusted changes) | No | Yes |
-| Native/Python conformance harness | No | Yes |
+| Native/Python conformance harness (direct source and KBC1-vs-reference fixtures) | No | Yes |
 | Native KBC1 round-trip and malformed-bytecode tests | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
 
 The script runs subprocesses without a shell, captures the final portion of stdout/stderr, records exit codes and durations, and returns **nonzero** if any required step fails. Missing executables are failures, not skipped passes. An unsuccessful native configuration/build marks every downstream dependent check explicitly as **not_run**, including the reason it was blocked; the complete planned check list is preserved in the report.
 
 **A dry run reports `not_run` for every step and never claims the tests passed.** Do not compare a dry-run exit code to a completed test run.
+
+### Native bytecode versus Python reference
+
+The native conformance harness now includes additional `.kbc` comparison groups: **26 existing valid Kasa programs** (including input), **10 signed-remainder programs**, **11 runtime-error examples**, and **11 deliberately invalid Unicode/source-location cases**. Successful programs compare the Python reference output to `kasa-native compile` → `check-bytecode` → `run-bytecode`. Invalid syntax must fail **before producing executable bytecode**.
+
+These are **new test cases, not claimed passing results**. Run the full profile on a complete local checkout and retain its JSON report to verify actual parity.
+
+### Independent conformance-driver safety checks
+
+The new `tests/test_native_conformance_driver.py` checks whether the `compile → check-bytecode → run-bytecode` *test harness* correctly handles success, input forwarding, compiler rejection, malformed-bytecode rejection, and runtime failure.
+
+```sh
+python -m pytest -q tests/test_native_conformance_driver.py
+```
+
+**Focused observation (2026-11-18):** Four tests passed using Python 3.13.5 and pytest 9.0.2 against the helper extracted from PR #22, reconstructed with matching 1,440-character length and FNV-1a 32-bit fingerprint (2248846160), and a disposable fake native CLI, without downloading the full repository. A non-cryptographic fingerprint is not proof of authenticity. The committed test file's Git blob matched that locally tested file. The simulated binary only checks *test orchestration*; it is **not an implementation of Kasa**. The fixture uses a POSIX shebang and is explicitly skipped on Windows.
+
+The 58 real KBC1 reference-parity fixtures remain **not executed against the native VM**. Those must be verified separately with the local full profile. A green stage-control test does not substitute for a compiled Kasa test.
 
 ### Run the native lexer independently
 
