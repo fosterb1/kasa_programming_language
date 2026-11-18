@@ -69,3 +69,14 @@ footer { padding: 28px 0 50px; display: flex; gap: 20px; justify-content: space-
 .engine-picker { display: inline-flex; align-items: center; gap: 7px; padding: 0 3px; color: var(--muted); font-size: 12px; }
 .engine-picker select { background: var(--surface-2); border: 1px solid var(--border); color: var(--cream); border-radius: 8px; padding: 8px 5px; font-size: 12px; }
 .engine-picker option:disabled { color: #80918d; }
+
+/* Low-bandwidth Kasa learning help for Ghanaian youth. */
+.learning-help{margin-top:26px;padding:26px;border:1px solid #435b4e;border-radius:16px;background:#172d2b;display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.7fr);gap:20px}
+.learning-help h2{margin:8px 0;font-size:23px}
+.learning-help p{color:#d3ded4;line-height:1.7;margin:8px 0}
+.learning-help-actions{display:flex;gap:10px;flex-wrap:wrap;align-content:center}
+.learning-help-actions a{padding:10px 13px;border:1px solid #496a52;border-radius:9px;color:#d9f2c7;font-size:13px;font-weight:750}
+.learning-help-actions a:hover,.learning-help-actions a:focus-visible{background:#254b3c}
+.debug-guidance{grid-column:1/-1;padding:12px 15px;border:1px solid #a87448;border-radius:10px;background:#372c22;color:#ffdeb9!important}
+.debug-guidance[hidden]{display:none}
+@media(max-width:720px){.learning-help{grid-template-columns:1fr;padding:18px}}
