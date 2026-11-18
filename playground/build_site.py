@@ -8,6 +8,7 @@ Use --require-wasm to reject accidentally producing a JS-only deployment.
 from __future__ import annotations
 
 import argparse
+import hashlib
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -18,6 +19,10 @@ FILES = {
     "playground/app.js": "app.js",
     "playground/worker.js": "worker.js",
     "playground/kasa-runtime.js": "kasa-runtime.js",
+    "playground/sw.js": "sw.js",
+    "playground/manifest.webmanifest": "manifest.webmanifest",
+    "playground/icons/kasa-192.png": "icons/kasa-192.png",
+    "playground/icons/kasa-512.png": "icons/kasa-512.png",
 }
 WASM_FILES = {
     "playground/native/kasa-native.js": "native/kasa-native.js",
@@ -39,9 +44,20 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
         wasm = ROOT / "playground/native/kasa-native.wasm"
         if wasm.read_bytes()[:8] != b"\x00asm\x01\x00\x00\x00":
             raise RuntimeError("WASM asset is invalid (missing WebAssembly header)")
+    # A stable content digest invalidates the previous offline cache on every update.
+    digest = hashlib.sha256()
+    for source in (*FILES, *(WASM_FILES if all(have_wasm) else ())):
+        digest.update(source.encode("utf-8"))
+        digest.update((ROOT / source).read_bytes())
+    revision = digest.hexdigest()[:12]
     with ZipFile(output, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
         for source, destination in FILES.items():
-            if destination == "worker.js":
+            if destination == "sw.js":
+                text = (ROOT / source).read_text(encoding="utf-8")
+                if text.count("__KASA_BUILD_HASH__") != 1:
+                    raise RuntimeError("Cannot safely version the offline cache")
+                archive.writestr(destination, text.replace("__KASA_BUILD_HASH__", revision).encode("utf-8"))
+            elif destination == "worker.js":
                 text = (ROOT / source).read_text(encoding="utf-8")
                 if text.count(WORKER_FLAG) != 1:
                     raise RuntimeError("Cannot patch the WASM worker flag safely")
