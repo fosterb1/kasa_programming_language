@@ -1,0 +1,20 @@
+{
+  "description": "Expected stdout for all root example programs; shared by Python and browser JavaScript tests.",
+  "expected_stdout_by_file": {
+    "hello.kasa": "Maakye, Ghana!\n",
+    "conditions.kasa": "Maakye, Ama\n",
+    "functions.kasa": "10\n",
+    "loops.kasa": "1\n2\n3\nMeda wo ase\nMeda wo ase\n",
+    "lists.kasa": "99\n3\n",
+    "remainder.kasa": "1\n2\n-2\n-1\n",
+    "market_cashbook.kasa": "Closing cash in pesewas:\n268250\nCash position is non-negative\n",
+    "stock_reorder.kasa": "Remaining stock units:\n13\nReorder needed\n",
+    "school_fees.kasa": "Outstanding fees (pesewas):\n45000\n",
+    "daily_sales.kasa": "Transactions:\n4\nSales total (pesewas):\n45900\n",
+    "cash_reconciliation.kasa": "Cash difference (pesewas):\n-500\nShortage: investigate\n",
+    "mobile_money_ledger.kasa": "Mobile money balance (pesewas):\n185000\n",
+    "student_grades.kasa": "Students passed:\n4\nStudents not passed:\n1\nTotal marks:\n365\n",
+    "savings_target.kasa": "Total saved (pesewas):\n270000\nStill needed (pesewas):\n30000\n",
+    "inventory_valuation.kasa": "Inventory cost value (pesewas):\n32500\n"
+  }
+}
