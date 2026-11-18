@@ -9,9 +9,9 @@ python -m pip install -e ".[dev]"
 python scripts/verify_local.py --profile parity --report build/parity-report.json
 ```
 
-This executes **seven verification stages**, rather than the full profile's 15. It includes the signed-remainder, Unicode, numeric-precision and KBC1 tests, but omits unrelated full-profile smoke and WASM protocol checks. A missing compiler or failing command produces a nonzero exit and an explicit failure/`not_run` record; a dry-run never counts as a pass.
+This executes **eight verification stages**, rather than the full profile's **16**. The extra step runs **10,080 deterministic Python-versus-native int64/binary64 comparisons** (including 80 precision boundaries) against a separately built C++ probe. The profile includes signed-remainder, Unicode, native/KBC1 and numeric checks, while omitting unrelated full-profile smoke and WASM protocol checks. A missing compiler or failing command produces a nonzero exit and an explicit failure/`not_run` record; a dry-run never counts as a pass.
 
-Each JSON report now records `source_revision.commit` and `source_revision.working_tree_clean` (null when Git metadata is unavailable). See the [2026-11-18 verification record](./verification/2026-11-18-parity-profile.md) for the independent plan checks and the **still-unexecuted full native parity gate**.
+Each JSON report now records `source_revision.commit` and `source_revision.working_tree_clean` (null when Git metadata is unavailable). The [numeric differential report](./verification/2026-11-18-numeric-differential.md) independently verifies **10,080/10,080 C++/Python comparator pairs under each of GCC and Clang**. This is a component check and **not** a completed full native parity gate. The [original seven-stage plan record](./verification/2026-11-18-parity-profile.md) describes the version before this new step was added.
 
 
 
@@ -70,6 +70,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Standalone KBC1 serialization and corruption-rejection executable | No | Yes |
 | Deterministic KBC1 loader mutation smoke (2,000 CRC-adjusted changes) | No | Yes |
 | Exact mixed integer/decimal comparison smoke | No | Yes |
+| Python-versus-C++ numeric differential (10,080 deterministic comparisons) | No | Yes |
 | Native/Python conformance harness (direct source and KBC1-vs-reference fixtures) | No | Yes |
 | Native KBC1 round-trip and malformed-bytecode tests | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |

@@ -56,6 +56,12 @@ A focused reconstruction of the `plan()` and `source_revision()` Python function
 
 These are checks of the **extracted plan and metadata logic**; the full merged Python verifier script and its newly added pytest test module have **not** been independently executed in a complete checkout.
 
+## Subsequent development note — numeric differential extension
+
+The historical seven-stage profile described in this document was extended on 2026-11-18. The current development version has **eight parity stages** and **16 full stages**, adding the 10,080-case deterministic Python/C++ numeric comparison. The old seven-stage counts above are retained as evidence of the earlier profile, **not** presented as the current plan.
+
+See the [new numeric differential report](./2026-11-18-numeric-differential.md) and [Kasa progress scorecard](../PROGRESS_SCORECARD.md). The full current Python/JavaScript/native/KBC1 integration run remains pending.
+
 ## Outstanding verification gate
 
 - The **58 added Python-versus-KBC1 fixtures** and **18 numeric comparison fixtures** have not been rerun together against the complete native compiler on this exact revision.

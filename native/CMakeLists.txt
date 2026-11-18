@@ -62,4 +62,15 @@ if(BUILD_TESTING)
         target_compile_options(kasa-numeric-comparison-smoke PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME kasa_numeric_comparison_exact COMMAND kasa-numeric-comparison-smoke)
+
+    # Python drives a reusable batch probe with 10,080 deterministic numeric
+    # comparisons; unlike the fixed smoke it tests thousands of input pairs.
+    add_executable(kasa-numeric-compare-probe tests/numeric_compare_probe.cpp)
+    target_compile_features(kasa-numeric-compare-probe PRIVATE cxx_std_20)
+    target_include_directories(kasa-numeric-compare-probe PRIVATE include)
+    if(MSVC)
+        target_compile_options(kasa-numeric-compare-probe PRIVATE /W4 /utf-8)
+    else()
+        target_compile_options(kasa-numeric-compare-probe PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
 endif()

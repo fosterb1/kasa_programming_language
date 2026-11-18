@@ -62,6 +62,18 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 - **Next gate:** Run `python scripts/verify_local.py --profile parity --report build/parity-report.json` from a complete checkout. Record its exit code, observed fixture failures and source commit before claiming the 58 Python/KBC1 cases and 18 recent numeric fixtures passed together.
 - **Infrastructure:** GitHub-hosted Actions stay manual-only to avoid automatic runner execution; no hosted verification charges are necessary for this profile.
 
+### 2026-11-18 — Numeric differential extension and milestone progress scorecard
+
+- **Status:** New local verification check implemented on a review branch. It changes testing and documentation, not any Kasa language semantics or Twi keywords.
+- **Change:** Added a deterministic **10,080-case** Python-versus-native numeric differential runner and small C++20 batch probe. The local `parity` plan now contains **8** steps and `full` contains **16**; the numeric helper is executed as an independent required stage.
+- **Evidence executed:** GitHub-matched `numeric_compare.hpp`, `numeric_compare_probe.cpp`, and `numeric_differential.py` passed **10,080/10,080** pairs under GCC 14.2 and again under Clang 17. Each compiler also passed the pre-existing standalone numeric smoke **18/18**. The newly added Python harness returned a nonzero status when the native executable was absent.
+- **Browser regression:** Reexecuted the actual GitHub `playground/kasa-runtime.js` against 107 direct interpreter fixtures on 2026-11-18: **107/107 passed** (26 positive programs, 27 expected errors, 15 remainder, 11 source positions, 18 numeric, nine examples, one EOF).
+- **Discovery:** Component tests can provide strong numeric correctness evidence without implying full KBC1 language parity. For the current alpha engineering checklist, **8/10 implementation checkpoints** are present; the unverified full cross-runtime and platform/release checks remain substantial.
+- **Progress rubric:** [Kasa 0.4 80% implementation and approximate 1.0 35% maturity scorecard](./PROGRESS_SCORECARD.md); estimates are checklist indicators, not feature coverage, time remaining, or stable-release readiness.
+- **Proof:** [Exact source fingerprints, build commands, and local output](./verification/2026-11-18-numeric-differential.md).
+- **Next gate:** Run all 58 Python-to-KBC1 reference cases and 18 numeric Kasa-source cases with the complete native VM and Python runtime in the same clean checkout, then record individual failures and fixes. The new numeric differential is **not** a substitute for that.
+- **Hosting:** GitHub Actions remains manual-only; no paid hosted CI runs were requested.
+
 ## Hosted CI execution policy — 2026-11-18
 
 **Decision:** GitHub-hosted workflows (`tests.yml`, `native.yml`, `wasm.yml`) are preserved but changed to **`workflow_dispatch` only**. They do not run automatically on new pushes or pull requests during the budget-sensitive independent development phase. The user can manually trigger each workflow for final release verification once billing and runner availability have been reviewed.

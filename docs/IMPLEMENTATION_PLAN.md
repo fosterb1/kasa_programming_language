@@ -29,9 +29,9 @@ A cross-runtime bug was discovered on 2026-11-18: both the JavaScript and C++ en
 
 ## Focused local reference-parity profile
 
-- Added `python scripts/verify_local.py --profile parity` to run a seven-stage Python, JavaScript, native VM and KBC1 compatibility check locally. Its output is machine-readable, includes the source commit and dirty-worktree status, and never treats a missing build as success.
-- **Verification:** The extracted command-planning logic passed four focused plan-shape checks and the Git-revision helper passed five local scenarios (Python 3.13.5). The complete native parity execution against the current revision remains **unverified**, as do the 58 Python/KBC1 fixtures and 18 recent numeric fixtures together.
-- Evidence: [parity profile verification record](./verification/2026-11-18-parity-profile.md). Keep GitHub Actions manual-only; do not infer a green hosted CI check.
+- Added `python scripts/verify_local.py --profile parity` for an **eight-stage** Python, JavaScript, native VM and KBC1 compatibility check locally, including a deterministic **10,080-case** Python/C++ numeric differential. Its output is machine-readable, includes the source commit and dirty-worktree status, and never treats a missing build as success.
+- **Verification:** The earlier extracted command-planning logic passed four focused plan-shape checks and the Git-revision helper passed five local scenarios (Python 3.13.5). The numeric comparison differential **passed 10,080/10,080 cases under both GCC and Clang** independently; this does not certify full VM behavior. The complete native parity execution against the current revision remains **unverified**, as do the 58 Python/KBC1 fixtures and 18 recent numeric fixtures together.
+- Evidence: [updated numeric differential record](./verification/2026-11-18-numeric-differential.md) and [original seven-stage parity profile record](./verification/2026-11-18-parity-profile.md). Keep GitHub Actions manual-only; do not infer a green hosted CI check.
 
 ## Cross-runtime conformance milestone
 
