@@ -186,7 +186,7 @@ class VM{
             // Use the same ASCII-decimal grammar as the Python/JS runtimes.
             // std::stod alone accepts exponent notation and other spellings
             // which are not legal Kasa numeric input.
-            static const regex decimalGrammar(R"([+-]?([0-9]+(\\.[0-9]+)?|\\.[0-9]+))");
+            static const regex decimalGrammar(R"([+-]?([0-9]+(\.[0-9]+)?|\.[0-9]+))");
             if(!regex_match(s,decimalGrammar))error(t,"TypeError","Invalid numeric text");
             try{
                 size_t used=0;
