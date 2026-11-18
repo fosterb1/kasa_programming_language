@@ -40,6 +40,17 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Verified JavaScript decimal text-formatting mismatch
+
+- **Status:** Targeted JavaScript interpreter fix on `fix/js-decimal-display-parity-20261118`, proposed for merge. **Not** full Kasa 0.4 parity certification.
+- **Reproduced defect:** Browser output used JavaScript's binary64 exponent formatting. For example `ka 1 / 10000000` returned `1e-7` instead of the Python reference's `1e-07`; large `1e16` values used fixed notation and negative zero lost its sign.
+- **Changed:** `playground/kasa-runtime.js` decimal display thresholds, signed zero and exponent width; shared 12-case fixture and browser test registration. No new syntax, keywords, arithmetic APIs, Python/C++ runtime modifications, packages or licensing.
+- **Verification:** Exact files read through the connected GitHub repository, executed directly in V8: **129/129 checks passed**: 12 new display fixtures, 16 root examples, 48 other shared semantic fixtures and 53 positive/negative interpreter scenarios. Python 3.13.5 `repr(float)` checked independently for 11 scalar reference values. [Detailed test record](./verification/2026-11-18-browser-decimal-display.md).
+- **Known limitations:** Node's full test runner, Python interpreter suite, native CMake/VM and KBC1 were **not executed** on this revision. Local Git clone remains blocked by `github.com` DNS failure. Shortest-decimal formatting still requires wider differential tests.
+- **Next gate:** Run the complete real offline parity profile and audit JSON in a clean checkout, fix actual discrepancies, then consider 0.4 checkpoint closure. **Progress remains 80% alpha implementation / ~35% 1.0 maturity.**
+
+
+
 ### 2026-11-18 — One-to-one reconciliation teaching algorithm (RFC-0006)
 
 - **Status:** Feature branch implemented for review/merge; not a stable financial standard library.
