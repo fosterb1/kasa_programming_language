@@ -63,6 +63,19 @@ The script runs subprocesses without a shell, captures the final portion of stdo
 
 **A dry run reports `not_run` for every step and never claims the tests passed.** Do not compare a dry-run exit code to a completed test run.
 
+### Exact mixed integer/decimal comparisons
+
+`tests/conformance_numeric_comparisons.json` includes **18 shared cases** involving 64-bit integer boundaries, precision beyond `2^53`, decimal fractions and nested-list equality. This corpus is consumed by Python, JavaScript and the native source/KBC1 conformance harness. The separate native C++20 helper can be tested without the VM:
+
+```sh
+c++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror \
+  -I native/include native/tests/numeric_comparison_smoke.cpp \
+  -o kasa-numeric-comparison-smoke
+./kasa-numeric-comparison-smoke
+```
+
+On 2026-11-18, **18/18 standalone C++ checks** and **107/107 direct JavaScript regression checks** passed independently, along with **3,000/3,000 randomized C++/Python numerical cross-checks**. The full native VM and Python/KBC1 fixture execution on this exact branch remain separate verification gates. See [evidence](./verification/2026-11-18-mixed-numeric-comparison.md).
+
 ### Native bytecode versus Python reference
 
 The native conformance harness now includes additional `.kbc` comparison groups: **26 existing valid Kasa programs** (including input), **10 signed-remainder programs**, **11 runtime-error examples**, and **11 deliberately invalid Unicode/source-location cases**. Successful programs compare the Python reference output to `kasa-native compile` → `check-bytecode` → `run-bytecode`. Invalid syntax must fail **before producing executable bytecode**.
