@@ -69,3 +69,10 @@ ctest --test-dir build/kasa-bigvm -R kasa_bigint_vm_rfc0008_source_and_kbc1 --ou
 ```
 
 **Verified on candidate Linux source:** All **10/10** shared big-integer source cases passed in the experimental native VM. The new CTest integration suite **1/1** passed and also checks backward KBC1 loading and *runtime promotion* of expressions with int64 constants, rejection of unencodable large literal constants, and integer size-limit errors. The **default** implementation still passed **10/10 parity** and **18/18 full** test stages. A legacy KBC1 file remains readable and its 64-bit constants retain their encoding. Compiling source with a big-integer **constant** to KBC1 still fails explicitly; a versioned KBC2 extension is required. **Windows MSVC/Boost, full experimental runtime differential suite, security/limit benchmarking and KBC2 compatibility remain unverified.** This candidate does not make arbitrary precision part of the default Kasa distribution.
+
+
+## Experimental versioned KBC2 support (2026-11-18)
+
+A new **opt-in** `compile-kbc2` mode is implemented when `-DKASA_ENABLE_BIGINT_VM=ON`. This serializes arbitrary-precision integer constants via a versioned KBC2 header and canonical tag-5 big-integer encoding. Existing `compile` still emits KBC1, KBC1 reader/writer behavior is unchanged, and default native builds reject KBC2. The big-int-enabled VM can read both KBC1 and KBC2. See [KBC2_FORMAT.md](./KBC2_FORMAT.md) for exact wire layout, checks and compatibility contract.
+
+**Independent Linux tests:** all 10 RFC-0008 programs compiled from source into KBC2 and executed matching the expected output; 7/7 opt-in integration test methods passed in one CTest target. Default Linux 10/10 parity and 18/18 full stages remained green. **Not yet default/stable:** Windows/MSVC and macOS testing, broad malformed-binary fuzzing, sanitizers and exact cross-platform golden output.
