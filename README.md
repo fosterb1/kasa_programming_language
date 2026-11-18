@@ -311,3 +311,18 @@ python scripts/verify_browser_playground.py
 ```
 
 This checks the **real JavaScript browser experience**, not native WebAssembly. See [browser verification record](./docs/verification/2026-11-18-real-browser-playground.md).
+
+
+### Genuine native WebAssembly browser execution (experimental)
+
+Kasa's C++20 native VM can now be compiled with Emscripten, packaged into the playground and run **inside a real Chromium browser Web Worker** (independently verified on Linux). The default website remains JavaScript-only unless both real generated native assets are included; loading failures fall back to JavaScript. The WASM build currently uses native **int64** arithmetic (not the opt-in KBC2/Boost big-integer VM). To build and reproduce:
+
+```sh
+bash native/wasm/build.sh
+python3 playground/build_site.py --require-wasm
+python3 -m pip install playwright
+python3 -m playwright install chromium
+python3 scripts/verify_real_wasm_browser.py
+```
+
+See [real WebAssembly browser validation](./docs/verification/2026-11-18-real-wasm-browser.md). Browser portability, offline mode, deployment and security release gates remain open.
