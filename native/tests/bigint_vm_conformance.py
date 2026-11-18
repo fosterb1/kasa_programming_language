@@ -66,7 +66,7 @@ class BigIntegerNativeExperiment(unittest.TestCase):
                 result = run(["compile-kbc2", str(source), "-o", str(output)])
                 self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", "replace"))
                 archive = output.read_bytes()
-                self.assertEqual(archive[:6], b"KBC2\\x02\\x00")
+                self.assertEqual(archive[:6], b"KBC2\x02\x00")
                 checked = run(["check-bytecode", str(output)])
                 self.assertEqual(checked.returncode, 0, checked.stderr)
                 executed = run(["run-bytecode", str(output)])
@@ -77,12 +77,12 @@ class BigIntegerNativeExperiment(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             source = pathlib.Path(directory) / "program.kasa"
             output = pathlib.Path(directory) / "program.kbc"
-            source.write_bytes(b"ka 18446744073709551616\\n")
+            source.write_bytes(b"ka 18446744073709551616\n")
             self.assertNotEqual(run(["compile", str(source), "-o", str(output)]).returncode, 0)
             self.assertFalse(output.exists())
             self.assertEqual(run(["compile-kbc2", str(source), "-o", str(output)]).returncode, 0)
             self.assertEqual(run(["run-bytecode", str(output)]).stdout,
-                             b"18446744073709551616\\n")
+                             b"18446744073709551616\n")
 
     def test_kbc2_rejects_corrupt_bigint_and_version_magic(self):
         import binascii
@@ -91,7 +91,7 @@ class BigIntegerNativeExperiment(unittest.TestCase):
             source = pathlib.Path(directory) / "program.kasa"
             original = pathlib.Path(directory) / "original.kbc"
             changed = pathlib.Path(directory) / "changed.kbc"
-            source.write_bytes(b"ka 18446744073709551616\\n")
+            source.write_bytes(b"ka 18446744073709551616\n")
             self.assertEqual(run(["compile-kbc2", str(source), "-o", str(original)]).returncode, 0)
             base = bytearray(original.read_bytes())
             # KBC1 and KBC2 share a 16-byte header and CRC32 payload checksum.
