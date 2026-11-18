@@ -15,6 +15,7 @@
     "mobile_money_ledger.kasa": "Mobile money balance (pesewas):\n185000\n",
     "student_grades.kasa": "Students passed:\n4\nStudents not passed:\n1\nTotal marks:\n365\n",
     "savings_target.kasa": "Total saved (pesewas):\n270000\nStill needed (pesewas):\n30000\n",
-    "inventory_valuation.kasa": "Inventory cost value (pesewas):\n32500\n"
+    "inventory_valuation.kasa": "Inventory cost value (pesewas):\n32500\n",
+    "bank_reconciliation_matching.kasa": "Matched transactions:\n3\nUnmatched bank count:\n1\nUnmatched bank total (pesewas):\n12000\nUnmatched ledger count:\n1\nUnmatched ledger total (pesewas):\n9000\n"
   }
 }
