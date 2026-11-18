@@ -331,3 +331,14 @@ for (const fixture of numericConversionFixtures.cases) {
     }
   });
 }
+
+const int64BoundaryFixtures = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_int64_boundary.json'), 'utf8')
+);
+for (const fixture of int64BoundaryFixtures.cases) {
+  test(`signed int64 minimum: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source);
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.output, fixture.expected_stdout);
+  });
+}

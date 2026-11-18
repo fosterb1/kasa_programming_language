@@ -44,7 +44,21 @@ class Parser{
     }
     E primary(){
         Token x=cur();
-        if(match("-"))return expr("unary",x,"-",{}, {expression(70)});
+        if(match("-")){
+            // The magnitude of INT64_MIN is one beyond INT64_MAX. Fold this
+            // one signed-boundary spelling before parsing the positive token.
+            // Other unary expressions retain their usual precedence.
+            if(cur().kind=="INTEGER"){
+                const string& digits=cur().text;
+                const size_t first=digits.find_first_not_of('0');
+                const string magnitude=first==string::npos?"0":digits.substr(first);
+                if(magnitude=="9223372036854775808"){
+                    ++i;
+                    return expr("literal",x,"",Value(numeric_limits<int64_t>::min()));
+                }
+            }
+            return expr("unary",x,"-",{}, {expression(70)});
+        }
         if(match("NOT"))return expr("unary",x,"NOT",{}, {expression(70)});
         if(match("INTEGER")){
             try{return expr("literal",x,"",Value(static_cast<int64_t>(stoll(x.text))));}catch(...){throw Failure(x,"ResourceError","Integer literal exceeds 64-bit native range",file);}

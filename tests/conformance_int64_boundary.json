@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "description": "Signed int64 minimum boundary: Kasa source and nɔma must agree on the representable negative minimum without positive magnitude parser overflow",
+  "cases": [
+    {
+      "name": "native_min_signed_literal",
+      "source": "ka -9223372036854775808",
+      "expected_stdout": "-9223372036854775808\n"
+    },
+    {
+      "name": "native_min_leading_zero_literal",
+      "source": "ka -0009223372036854775808",
+      "expected_stdout": "-9223372036854775808\n"
+    },
+    {
+      "name": "native_min_plus_one",
+      "source": "ka -9223372036854775808 + 1",
+      "expected_stdout": "-9223372036854775807\n"
+    },
+    {
+      "name": "native_min_remainder_negative_one",
+      "source": "ka -9223372036854775808 % -1",
+      "expected_stdout": "0\n"
+    },
+    {
+      "name": "native_min_equal_numeric_text",
+      "source": "ka -9223372036854775808 == nɔma(\"-9223372036854775808\")",
+      "expected_stdout": "nokware\n"
+    }
+  ]
+}
