@@ -287,6 +287,42 @@ class Conformance(unittest.TestCase):
                 self.assertIn(location, actual.stderr)
 
 
+    def test_numeric_text_conversion_source_and_kbc1(self):
+        """Numeric text must use Kasa's ASCII grammar on all runtimes."""
+        cases = json.loads(
+            (ROOT / "tests" / "conformance_numeric_conversion.json").read_text(encoding="utf-8")
+        )["cases"]
+        for case in cases:
+            with self.subTest(name=case["name"]):
+                source = case["source"]
+                expected = case.get("expected_stdout")
+                if expected is not None:
+                    self.assertEqual(run_python(source), expected)
+                else:
+                    with self.assertRaises(KasaError) as caught:
+                        run_python(source)
+                    self.assertEqual(caught.exception.category, case["error_category"])
+                direct = run_native(source)
+                compiled, checked, executed = run_native_serialized(source)
+                self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+                self.assertIsNotNone(executed)
+                for execution in (direct, executed):
+                    self.assertEqual(execution.returncode == 0, expected is not None, execution.stderr)
+                    if expected is not None:
+                        self.assertEqual(execution.stdout, expected)
+                    else:
+                        self.assertIn(f": {case['error_category']}:", execution.stderr)
+
+    def test_native_numeric_text_overflow_is_resource_error(self):
+        """Native int64 conversion overflow must not masquerade as invalid syntax."""
+        source = 'ka nɔma("9223372036854775808")'
+        for execution in (run_native(source), run_native_serialized(source)[2]):
+            self.assertIsNotNone(execution)
+            self.assertNotEqual(execution.returncode, 0)
+            self.assertIn(": ResourceError:", execution.stderr)
+
     def test_unicode_output_budget_source_and_kbc1(self):
         """Run the same Unicode limits through Python, native source and KBC1."""
         from kasa.core import KasaError

@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+
+### 2026-11-18 — Close native `nɔma` permissive-number parsing gap
+
+- **Reproduced:** Native C++ `std::stod("1.25e2")` accepts exponent notation, whereas Kasa's Python and JS `nɔma` reject that input with `TypeError`. Native `std::stoll` overflow was wrongly caught by `catch(...)` and labeled invalid numeric text (`TypeError`) instead of range exhaustion.
+- **Fix:** Native VM now checks the strict ASCII decimal spelling before host conversion, and catches `std::out_of_range` to raise `ResourceError`. Added 16 common valid/invalid conversion fixtures across Node browser, Python pytest and native source/KBC1 conformance, including the local parity profile. No Twi grammar change.
+- **Verification:** **16/16** numeric fixtures + **59/59** prior shared checks passed in direct JS execution (**75/75** total). **16/16** C++ regular-expression cases and one native overflow classification condition passed isolated sanitizer probes under GCC 14.2 and Clang 17. Full Python, Node test runner, linked native VM and serialized KBC1 tests were not executed.
+- **Open:** Large-int `nɔma` conversion differs because native uses int64 while Python/JS use larger integers; extremely small decimal underflow and host-text whitespace policy also need cross-runtime specification. Do not mark full parity achieved.
+
+
+
 ### 2026-11-18 — Output-limit semantics standardized in candidate runtime source
 
 - **Design decision:** 64,000 Unicode **code points** per Kasa program execution, shared between printed lines (`ka`, including newline) and text prompts (`bisa`). Exceeding the cap raises `ResourceError` **before** emitting the overflowing operation; already emitted text remains available. Native UTF-8 string validation on hostile input remains a distinct issue.

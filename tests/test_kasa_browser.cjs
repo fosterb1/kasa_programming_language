@@ -315,3 +315,19 @@ for (const fixture of outputBudgetFixtures.cases) {
     }
   });
 }
+
+const numericConversionFixtures = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_numeric_conversion.json'), 'utf8')
+);
+for (const fixture of numericConversionFixtures.cases) {
+  test(`nɔma numeric text contract: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source);
+    if (fixture.expected_stdout !== undefined) {
+      assert.equal(result.ok, true, result.error);
+      assert.equal(result.output, fixture.expected_stdout);
+    } else {
+      assert.equal(result.ok, false);
+      assert.ok(result.error.includes(`: ${fixture.error_category}:`), result.error);
+    }
+  });
+}
