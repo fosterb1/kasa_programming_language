@@ -169,19 +169,14 @@ def test_cli_run_and_invalid_file() -> None:
 
 
 def test_all_examples() -> None:
-    expected = {
-        "hello.kasa": "Maakye, Ghana!\n",
-        "conditions.kasa": "Maakye, Ama\n",
-        "functions.kasa": "10\n",
-        "loops.kasa": "1\n2\n3\nMeda wo ase\nMeda wo ase\n",
-        "lists.kasa": "99\n3\n",
-        "remainder.kasa": "1\n2\n-2\n-1\n",
-        "market_cashbook.kasa": "Closing cash in pesewas:\n268250\nCash position is non-negative\n",
-        "stock_reorder.kasa": "Remaining stock units:\n13\nReorder needed\n",
-        "school_fees.kasa": "Outstanding fees (pesewas):\n45000\n",
-    }
-    for name, output in expected.items():
-        assert run((ROOT / "examples" / name).read_text(encoding="utf-8")) == output
+    fixtures = json.loads(
+        (ROOT / "tests" / "conformance_practical_examples.json").read_text(encoding="utf-8")
+    )["expected_stdout_by_file"]
+    actual_examples = {file.name for file in (ROOT / "examples").glob("*.kasa")}
+    assert actual_examples == set(fixtures), "Every root example must have a golden output"
+    assert len(actual_examples) >= 15
+    for name, expected in fixtures.items():
+        assert run((ROOT / "examples" / name).read_text(encoding="utf-8")) == expected
 
 
 def test_runtime_keeps_global_environment_between_repl_inputs() -> None:
