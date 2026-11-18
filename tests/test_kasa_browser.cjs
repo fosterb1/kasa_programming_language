@@ -342,3 +342,14 @@ for (const fixture of int64BoundaryFixtures.cases) {
     assert.equal(result.output, fixture.expected_stdout);
   });
 }
+
+const arbitraryIntegerFixtures = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_arbitrary_integers.json'), 'utf8')
+);
+for (const fixture of arbitraryIntegerFixtures.cases) {
+  test(`arbitrary integer target contract: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source);
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.output, fixture.expected_stdout);
+  });
+}
