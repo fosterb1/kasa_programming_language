@@ -262,3 +262,42 @@ for (const fixture of languageContract.cases) {
     }
   });
 }
+
+const unicodeOutputProgram = (power, statement) =>
+  'ma s = "😀"\nmpɛn ' + power + '\n ma s = s + s\nawiei\n' + statement;
+
+test('output budget counts Unicode code points rather than UTF-16 units', () => {
+  const result = executeKasa(unicodeOutputProgram(15, 'ka s'));
+  assert.equal(result.ok, true, result.error);
+  assert.equal([...result.output].length, 32769);
+  assert.equal(result.output.endsWith('\n'), true);
+});
+
+test('output budget still rejects over-limit Unicode output', () => {
+  const result = executeKasa(unicodeOutputProgram(16, 'ka s'));
+  assert.equal(result.ok, false);
+  assert.match(result.error, /64,000-character limit/);
+});
+
+test('bisa prompt and ka output share the Unicode output budget', () => {
+  const result = executeKasa(
+    unicodeOutputProgram(15, 'ma response = bisa(s)\nka response'), 'ok\n'
+  );
+  assert.equal(result.ok, true, result.error);
+  assert.equal([...result.output].length, 32771);
+  assert.equal(result.output.endsWith('ok\n'), true);
+});
+
+test('bisa prompt cannot bypass the Unicode output budget', () => {
+  const result = executeKasa(
+    unicodeOutputProgram(16, 'ma response = bisa(s)'), 'ok\n'
+  );
+  assert.equal(result.ok, false);
+  assert.match(result.error, /64,000-character limit/);
+});
+
+test('ASCII output budget behavior is unchanged', () => {
+  const result = executeKasa('ka "Ghana"');
+  assert.equal(result.ok, true, result.error);
+  assert.equal(result.output, 'Ghana\n');
+});

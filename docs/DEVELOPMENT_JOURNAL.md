@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+
+### 2026-11-18 — Browser Unicode output-budget precision fix
+
+- **Status:** Targeted independent JavaScript runtime behavior fix implemented on `fix/unicode-output-budget-20261118`. Full current-commit Node runner, Python, native C++ and KBC1 integration are not claimed.
+- **Reproduced defect:** A program building 32,768 emoji code points and printing them was incorrectly rejected as over 64,000 characters because JS checked UTF-16 `.length` (65,537 code units including newline) rather than Unicode code points (32,769). `bisa` prompts shared this bug.
+- **Changed:** Added a single `appendOutput` path tracking Unicode code-point count for both `ka` and `bisa`. Five test cases added for below/above-cap Unicode output and prompt behavior plus ASCII compatibility. No Twi words or grammar changed.
+- **Actually verified:** **5/5** focused direct interpreter checks on the updated source; **51/51** shared browser regression fixtures (15 decimal, 12 core-contract, 24 historical conformance) passed in direct V8 execution.
+- **Unresolved:** Native uses UTF-8 byte budgeting while Python has no equivalent stdout budget; current JS source/input budgets also differ across engines. This patch does **not** close cross-runtime semantics, security, or release gate. Next: define common output budget units and run native/Python conformance in a complete checkout.
+
+
 ### 2026-11-18 — Open pull request backlog cleared (all branches integrated)
 
 - **Status:** GitHub reported **zero open pull requests** after the integration merges. The conflicting draft native PR [#31](https://github.com/fosterb1/kasa_programming_language/pull/31) was merged through conflict-resolving [PR #33](https://github.com/fosterb1/kasa_programming_language/pull/33), merge commit `890b745145db47fbb30d68c80d3acaad9e6b0959`. The old platform [PR #7](https://github.com/fosterb1/kasa_programming_language/pull/7) was merged through reconciling [PR #34](https://github.com/fosterb1/kasa_programming_language/pull/34), merge commit `6dea0471420fc673635854bd7523023384f24ecb`. Both original PRs are marked `merged=true` by GitHub.
