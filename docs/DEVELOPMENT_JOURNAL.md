@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — First clean-checkout full Python/Node/native/KBC1 verification baseline
+
+- **Infrastructure breakthrough:** A temporary, disposable Linux sandbox cloned Kasa directly from GitHub after the original local environment was unable to resolve the GitHub hostname. The repository can now be tested as a complete checkout independently of GitHub Actions.
+- **Actual baseline failure:** At `e9ec7ffe4715d0ec38cb685243fd7d6793206447`, `python -m pytest -q` returned **242 passed / 1 failed**. The stale full-profile runner test expected 16 stages although the runner defines 18. The 10-stage parity profile passed 9 and failed the native Python conformance stage due to a CRLF fixture with *internal* carriage return. Raw native stdout bytes were correct (`b'A\\rB\\n'`), but `subprocess.run(..., text=True)` automatically translated its internal `\\r` into a newline in the conformance harness. The executable was not faulty.
+- **Corrections:** `native/tests/conformance.py` now captures raw process bytes and explicitly decodes UTF-8 for native source and KBC1 runs, preserving carriage returns. Updated the full verification plan assertion to 18 stages. Added `.gitignore` rules for `.venv/`, `build/`, Python caches, pytest caches and editable-install artifacts so local tests do not dirty an otherwise clean Git checkout.
+- **Independently executed on branch commit `974f9d0d2b73804fcdc4f297716169cddcd9ef64` (clean Linux sandbox):** **243/243** complete Python pytest passed; **227/227** Node browser semantic tests passed; `scripts/verify_local.py --profile parity` passed **10/10 stages**; `scripts/audit_parity_report.py --expected-commit 974f9d0d2b73804fcdc4f297716169cddcd9ef64` passed; `scripts/verify_local.py --profile full` passed **18/18 stages**, including the native C++20 build, lexer/serializer/mutation smoke, decimal and integer differential probes, source VM conformance and KBC1 bytecode round trips/rejections. Parity JSON records matching clean Git source revision before and after execution.
+- **Still open:** Verify again on the **merged main commit**, not just the reviewed branch. Native big integers and KBC1 arbitrary-integer encoding remain unsupported; those deliberate future acceptance cases are not part of the native-success gate. macOS/Windows, actual WASM browser execution and package installation are also unverified. Audited JSON is reproducible evidence, not cryptographic attestation.
+
+
+
 ### 2026-11-18 — Native Windows CRLF stdin parity
 
 - **Observed divergence:** Native `std::getline()` strips the newline but retains `\\r` for `bisa()` input ending in `\\r\\n`, while Python and JavaScript discard terminal carriage returns. Native programs could echo an invisible extra carriage return and fail text equality checks on Windows-style input.
