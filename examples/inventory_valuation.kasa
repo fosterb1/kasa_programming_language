@@ -1,0 +1,12 @@
+# Value inventory at unit cost, both quantities and costs are integers.
+# This example does not model FIFO or weighted-average valuation.
+ma units = [4, 6, 3]
+ma costs_pesewas = [2500, 1700, 4100]
+ma index = 0
+ma total_value = 0
+bere_a index < tentɛn(units)
+    ma total_value = total_value + units[index] * costs_pesewas[index]
+    ma index = index + 1
+awiei
+ka "Inventory cost value (pesewas):"
+ka total_value
