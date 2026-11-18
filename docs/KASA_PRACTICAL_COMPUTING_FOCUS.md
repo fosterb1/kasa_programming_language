@@ -35,6 +35,8 @@ These sources support **relevance and design reasoning**, not a verified user-pr
 - [Stock reorder](../examples/stock_reorder.kasa): inventory additions, sales and reorder threshold
 - [School fees](../examples/school_fees.kasa): remaining fees after payments and scholarship
 
+The growing example corpus also includes [one-to-one bank/ledger amount matching](../examples/bank_reconciliation_matching.kasa). Its limits and production-library gates are specified in [RFC-0006](./RFC-0006-financial-computing-foundation.md).
+
 These are deterministic teaching programs with illustrative numbers. **They are not complete accounting packages** and do not provide bank reconciliation, audit trails, regulatory reporting, or financial controls.
 
 ## Experiment before scaling
