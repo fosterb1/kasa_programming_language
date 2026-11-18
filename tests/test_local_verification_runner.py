@@ -98,3 +98,62 @@ def test_full_plan_executes_the_native_lexer_binary_not_an_empty_ctest_suite():
     assert len(lexer_checks) == 1
     assert Path(lexer_checks[0][0]).is_absolute()
     assert Path(lexer_checks[0][0]).name.startswith("kasa-lexer-smoke")
+
+
+def test_parity_plan_runs_all_four_language_execution_paths():
+    runner = load_tool()
+    steps = runner.plan("parity", False)
+    names = [name for name, _, _ in steps]
+    assert names == [
+        "Python semantic conformance",
+        "JavaScript semantic conformance",
+        "Native CMake configure",
+        "Native C++ build",
+        "Native mixed-number precision smoke",
+        "Native Python conformance",
+        "Native KBC1 round-trip and rejection tests",
+    ]
+    # Ensure the conformance.py stage is truly the native/Python harness and
+    # the compiled VM path comes from the CMake build, not a stale executable.
+    assert steps[5][1][1] == "native/tests/conformance.py"
+    assert steps[6][1][1] == "native/tests/test_bytecode.py"
+    assert steps[5][1][-1] == steps[6][1][-1]
+
+
+def test_parity_dry_run_never_reports_executed_or_passed(tmp_path):
+    report = tmp_path / "parity.json"
+    result = subprocess.run(
+        [sys.executable, str(TOOL), "--profile", "parity",
+         "--dry-run", "--report", str(report)],
+        check=False, capture_output=True, text=True, timeout=10,
+    )
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(report.read_text(encoding="utf-8"))
+    assert payload["profile"] == "parity"
+    assert payload["counts"] == {"passed": 0, "failed": 0, "not_run": 7}
+    assert len(payload["checks"]) == 7
+    assert "DRY RUN ONLY" in result.stdout
+    assert "source_revision" in payload
+    assert set(payload["source_revision"]) == {"commit", "working_tree_clean"}
+
+
+def test_parity_wasm_attempt_requires_full_profile(tmp_path):
+    result = subprocess.run(
+        [sys.executable, str(TOOL), "--profile", "parity",
+         "--wasm", "--dry-run", "--report", str(tmp_path / "bad.json")],
+        check=False, capture_output=True, text=True, timeout=10,
+    )
+    assert result.returncode != 0
+    assert "requires --profile full" in result.stderr
+
+
+def test_revision_reports_no_commit_when_git_is_unavailable(monkeypatch):
+    runner = load_tool()
+    monkeypatch.setattr(runner.shutil, "which", lambda name: None)
+    assert runner.source_revision() == {"commit": None, "working_tree_clean": None}
+
+
+def test_full_and_quick_counts_unchanged():
+    runner = load_tool()
+    assert len(runner.plan("quick", False)) == 7
+    assert len(runner.plan("full", False)) == 15
