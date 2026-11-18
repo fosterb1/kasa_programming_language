@@ -114,3 +114,6 @@ Review this scorecard after every substantive pull request. Add or reweight chec
 
 
 **2026-11-18 browser milestone:** Actual Chromium Linux browser + real worker UI smoke **passed**, covering run, syntax check, UTF-8 local upload, local-only source draft, reset, download and input privacy. Node JS/WASM-protocol tests **234/234** passed; the module in those WASM tests is simulated, **not a real browser-compiled native WASM runtime**. See [browser evidence](./verification/2026-11-18-real-browser-playground.md). 90% 0.4 checklist / ~35% Kasa 1.0 readiness unchanged.
+
+
+**2026-11-18 true WebAssembly milestone:** Independent Emscripten 3.1.69 build created real native WASM (491,371 bytes, 23 exports), deployed locally inside a WASM-required static website ZIP, and executed it with a true Chromium Web Worker via Playwright. Native run/check/input/error and four native-vs-JS output comparisons passed. **Unlike previous simulated protocol tests, native C++ WASM was genuinely executed in Chromium.** See [verification evidence](./verification/2026-11-18-real-wasm-browser.md). This is targeted browser evidence, not cross-browser certification. 90% alpha implementation / ~35% stable 1.0 estimates unchanged.
