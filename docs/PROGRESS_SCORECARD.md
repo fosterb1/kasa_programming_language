@@ -58,6 +58,8 @@ This estimate uses a separate ten-area *readiness* rubric: 1 point for broadly i
 
 The numeric regression result above is in the merged [independent evidence report](./verification/2026-11-18-numeric-differential.md), not a claim that Kasa as a language has 10,080 passing conformance programs.
 
+| Native binary64 display repair candidate (2026-11-18) | 18/18 C++ smoke under GCC, Clang and GCC ASan/UBSan; 9,999/9,999 finite values matched Python | Full native VM/KBC1 integration not run; branch not merged |
+
 ## Immediate technical priorities
 
 1. Run `python scripts/verify_local.py --profile parity` on a complete local checkout; capture source SHA, exit status and all failures. **Never count dry-run stages as passes.**
