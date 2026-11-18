@@ -49,6 +49,7 @@ class ParityReportAuditTests(unittest.TestCase):
     def test_dirty_diagnostic_override_does_not_waive_stages(self):
         data = report()
         data["source_revision"]["working_tree_clean"] = False
+        data["source_revision_after"]["working_tree_clean"] = False
         self.assertEqual(audit_module.audit(data, require_clean=False), [])
         data["checks"][0]["status"] = "not_run"
         self.assertTrue(audit_module.audit(data, require_clean=False))
