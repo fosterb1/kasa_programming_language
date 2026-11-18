@@ -60,6 +60,11 @@
       "name": "nested_list",
       "source": "ka [0.0000001, 10000000000000000.0]",
       "expected_stdout": "[1e-07, 1e+16]\n"
+    },
+    {
+      "name": "one_seventh_round_trip",
+      "source": "ka 1 / 7",
+      "expected_stdout": "0.14285714285714285\n"
     }
   ]
 }
