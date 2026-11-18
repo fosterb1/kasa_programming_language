@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Begin cross-platform KBC2 byte-for-byte verification
+
+- **Source:** Recorded user-reported successful Windows MSVC+Boost opt-in KBC2 integration test (exact binary report/commit not uploaded); avoid calling it independent certification.
+- **Changed:** New `tests/kbc2_golden_sha256.json` with ten SHA-256/byte-length pairs from Linux GCC Release for RFC-0008 KBC2 output; standalone nonmutating `scripts/verify_kbc2_golden.py`; opt-in CMake CTest. This checks byte-for-byte serialized identity, not merely output equality. UTF-8 temp input is written in binary mode to avoid Windows CRLF rewrite.
+- **Independently verified:** Linux 10/10 golden fixtures matched and **2/2** opt-in CTest targets passed, including previously introduced KBC2 conformance tests.
+- **Pending:** Run the golden CTest on Windows and compare to Linux reference fingerprints; macOS and real-browser verification, sanitizers, fuzzing, packaging. No change to planning percentages.
+
+
+
 ### 2026-11-18 — KBC2 version-gated large integer serialization
 
 - **Change:** New explicitly requested `compile-kbc2` CLI mode on the **opt-in** `KASA_ENABLE_BIGINT_VM=ON` build; `compile` still emits KBC1. KBC2 header uses new magic `KBC2` and unsigned version 2; constants add canonical sign-and-magnitude tag 5 (sign byte, LE 16-bit length, big-endian unsigned magnitude, 16,384-bit cap). KBC1 remains byte-for-byte unchanged and all legacy value tags are unchanged. KBC2 is refused by non-bigint native builds.
