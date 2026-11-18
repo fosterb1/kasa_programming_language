@@ -1,5 +1,20 @@
 # Verify Kasa without GitHub Actions
 
+## Focused four-runtime compatibility profile
+
+Use the new **`parity` profile** during Kasa 0.4 language development to compare the Python reference, browser JavaScript, direct native execution and KBC1 bytecode. It configures/builds the native compiler and runs the native-vs-Python conformance harness, without requiring hosted GitHub Actions:
+
+```sh
+python -m pip install -e ".[dev]"
+python scripts/verify_local.py --profile parity --report build/parity-report.json
+```
+
+This executes **seven verification stages**, rather than the full profile's 15. It includes the signed-remainder, Unicode, numeric-precision and KBC1 tests, but omits unrelated full-profile smoke and WASM protocol checks. A missing compiler or failing command produces a nonzero exit and an explicit failure/`not_run` record; a dry-run never counts as a pass.
+
+Each JSON report now records `source_revision.commit` and `source_revision.working_tree_clean` (null when Git metadata is unavailable). See the [2026-11-18 verification record](./verification/2026-11-18-parity-profile.md) for the independent plan checks and the **still-unexecuted full native parity gate**.
+
+
+
 **Status:** Independent command-line test runner for the existing Kasa codebase.
 **Language changes:** None. No Twi keywords or syntax rules are added.
 
