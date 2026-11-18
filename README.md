@@ -291,3 +291,8 @@ Kasa's intended integer model is **exact arbitrary precision**, bounded by expli
 ### Experimental native large integers (RFC-0008)
 
 The C++ VM can be built with `-DKASA_ENABLE_BIGINT_VM=ON` (requires Boost.Multiprecision headers) to run the RFC-0008 large-integer source examples, while the **standard Kasa build continues to use native int64 arithmetic**. The optional feature is not yet a stable, fully portable runtime: large literals are not encodable into existing KBC1 bytecode, Windows/MSVC support remains unverified and a versioned KBC2 extension is planned. See [RFC-0008](./docs/RFC-0008-arbitrary-precision-integers.md) for instructions and constraints.
+
+
+### Experimental KBC2 big-integer bytecode
+
+Build with `-DKASA_ENABLE_BIGINT_VM=ON` and Boost.Multiprecision headers, then run `kasa-native compile-kbc2 example.kasa -o example.kbc` followed by `kasa-native run-bytecode example.kbc`. KBC2 supports exact large integer constants, while **standard** `compile` continues to produce KBC1 and default native builds do not load KBC2. The format is experimental; see [KBC2 format and limits](./docs/KBC2_FORMAT.md).

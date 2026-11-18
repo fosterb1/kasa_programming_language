@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — KBC2 version-gated large integer serialization
+
+- **Change:** New explicitly requested `compile-kbc2` CLI mode on the **opt-in** `KASA_ENABLE_BIGINT_VM=ON` build; `compile` still emits KBC1. KBC2 header uses new magic `KBC2` and unsigned version 2; constants add canonical sign-and-magnitude tag 5 (sign byte, LE 16-bit length, big-endian unsigned magnitude, 16,384-bit cap). KBC1 remains byte-for-byte unchanged and all legacy value tags are unchanged. KBC2 is refused by non-bigint native builds.
+- **Tested on experimental Linux GCC + Boost:** **10/10** RFC-0008 source programs compiled to KBC2, reloaded and matched expected output. Integration CTest **7/7 methods** passed (including malformed-file tests with valid refreshed checksums, KBC1 backwards compatibility, correct refusal to store big constants in KBC1, and resource guard checks). Default repo checks: **10/10 parity**, **18/18 full** passes.
+- **Discovery:** First mutation test searched for magnitude length bytes in the wrong endian order; that was a test-fixture error, corrected, and rerun green. All regression claims distinguish opt-in from default build.
+- **Open:** MSVC and macOS, cross-platform binary golden fixtures, sanitizers, broader hostile-file fuzzing and review for public stable format. See [experimental KBC2 specification](./KBC2_FORMAT.md).
+
+
+
 ### 2026-11-18 — Opt-in native VM execution of arbitrary-precision integers
 
 - **Implemented on branch:** Added an optional `KASA_ENABLE_BIGINT_VM=ON` switch requiring Boost.Multiprecision, leaving normal native builds and the KBC1 wire format unchanged. The experimental native `Value` holds a `cpp_int`; lexer/parser accepts large integer literal magnitude; VM supports exact integer promotion, arithmetic, signed remainder, `nɔma`, output, nested list equality and integer/binary64 mixed comparisons. Big repeat counts and indexes are explicitly constrained.

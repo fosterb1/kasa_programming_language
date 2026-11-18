@@ -18,6 +18,9 @@ constexpr uint32_t kMaxPayload = 8'000'000;
 constexpr uint32_t kMaxInstructions = 100'000;
 constexpr uint32_t kMaxText = 1'000'000;
 constexpr uint32_t kMaxName = 4096;
+#ifdef KASA_ENABLE_BIGINT_VM
+constexpr uint16_t kMaxBigintBytes = 2048; // 16,384 bits
+#endif
 constexpr int kMaxNesting = 48;
 constexpr int kMaxStack = 10'000;
 constexpr uint8_t kLastOpcode = static_cast<uint8_t>(Op::CountCheck);
@@ -65,25 +68,67 @@ public:
     }
     bool done() const { return pos == finish; }
 };
-void writeValue(Writer& w, const Value& value) {
+void writeValue(Writer& w, const Value& value, unsigned version) {
     if (std::holds_alternative<std::monostate>(value.data)) w.u8(0);
     else if (const auto* n = std::get_if<int64_t>(&value.data)) { w.u8(1); w.u64(std::bit_cast<uint64_t>(*n)); }
     else if (const auto* n = std::get_if<double>(&value.data)) { if (!std::isfinite(*n)) invalid("non-finite constant"); w.u8(2); w.u64(std::bit_cast<uint64_t>(*n)); }
     else if (const auto* s = std::get_if<std::string>(&value.data)) { w.u8(3); w.str(*s); }
     else if (const auto* b = std::get_if<bool>(&value.data)) { w.u8(4); w.u8(*b ? 1 : 0); }
+#ifdef KASA_ENABLE_BIGINT_VM
+    else if (const auto* n = std::get_if<bigint::Integer>(&value.data)) {
+        // The tag is reserved in KBC1. Do not reinterpret legacy payloads.
+        if(version != 2) invalid("big integer constant requires KBC2");
+        if(*n==0 || (*n>=std::numeric_limits<int64_t>::min() && *n<=std::numeric_limits<int64_t>::max()))
+            invalid("noncanonical big integer constant");
+        if(bigint::bits(*n)>bigint::kMaxBits)invalid("big integer exceeds bit limit");
+        bigint::Integer magnitude = *n<0 ? -*n : *n;
+        std::vector<uint8_t> bytes;
+        while(magnitude>0){
+            bytes.push_back(static_cast<uint8_t>((magnitude & 0xff).convert_to<unsigned>()));
+            magnitude >>= 8;
+        }
+        if(bytes.empty() || bytes.size()>kMaxBigintBytes)invalid("big integer exceeds byte limit");
+        w.u8(5);
+        w.u8(*n<0 ? 2 : 1);
+        w.u16(static_cast<uint16_t>(bytes.size()));
+        for(auto it=bytes.rbegin();it!=bytes.rend();++it)w.u8(*it);
+    }
+#endif
     else invalid("unsupported constant type");
 }
-Value readValue(Reader& r) {
+Value readValue(Reader& r, unsigned version) {
     switch (r.u8()) {
     case 0: return Value{};
     case 1: return Value(std::bit_cast<int64_t>(r.u64()));
     case 2: { double n=std::bit_cast<double>(r.u64()); if(!std::isfinite(n))invalid("non-finite constant"); return Value(n); }
     case 3: return Value(r.str());
     case 4: { uint8_t b=r.u8(); if (b>1)invalid("invalid Boolean constant"); return Value(b==1); }
+#ifdef KASA_ENABLE_BIGINT_VM
+    case 5: {
+        if(version != 2)invalid("big integer tag not supported in KBC1");
+        const uint8_t sign=r.u8();
+        if(sign!=1 && sign!=2)invalid("invalid big integer sign");
+        const uint16_t length=r.u16();
+        if(length==0||length>kMaxBigintBytes)invalid("invalid big integer length");
+        bigint::Integer magnitude=0;
+        for(unsigned i=0;i<length;++i){
+            const uint8_t byte=r.u8();
+            if(i==0&&byte==0)invalid("noncanonical big integer leading zero");
+            magnitude <<= 8;
+            magnitude += byte;
+        }
+        const bigint::Integer number=sign==2 ? -magnitude : magnitude;
+        if(bigint::bits(number)>bigint::kMaxBits)invalid("big integer exceeds bit limit");
+        if(number>=std::numeric_limits<int64_t>::min() &&
+           number<=std::numeric_limits<int64_t>::max())
+            invalid("noncanonical big integer constant");
+        return Value(number);
+    }
+#endif
     default: invalid("unknown constant type");
     }
 }
-void writeChunk(Writer& w,const std::shared_ptr<Chunk>& chunk,int depth) {
+void writeChunk(Writer& w,const std::shared_ptr<Chunk>& chunk,int depth,unsigned version) {
     if (!chunk || depth > kMaxNesting || chunk->code.size()>kMaxInstructions) invalid("code exceeds limits");
     w.u32(static_cast<uint32_t>(chunk->code.size()));
     for(const auto& i:chunk->code) {
@@ -92,18 +137,18 @@ void writeChunk(Writer& w,const std::shared_ptr<Chunk>& chunk,int depth) {
         w.u32(static_cast<uint32_t>(i.loc.col));
         w.u32(std::bit_cast<uint32_t>(static_cast<int32_t>(i.number)));
         w.str(i.name);
-        writeValue(w, i.value);
+        writeValue(w, i.value, version);
         w.u8(i.fn ? 1 : 0);
         if (i.fn) {
             w.str(i.fn->name);
             w.u32(static_cast<uint32_t>(i.fn->params.size()));
             for(const auto& p:i.fn->params) w.str(p);
-            writeChunk(w,i.fn->code,depth+1);
+            writeChunk(w,i.fn->code,depth+1,version);
         }
     }
     if (w.buf.size()>kMaxPayload) invalid("payload exceeds size limit");
 }
-std::shared_ptr<Chunk> readChunk(Reader& r,int depth,uint32_t& total) {
+std::shared_ptr<Chunk> readChunk(Reader& r,int depth,uint32_t& total,unsigned version) {
     if (depth > kMaxNesting)invalid("function nesting too deep");
     uint32_t count=r.u32();
     if (count>kMaxInstructions || count>kMaxInstructions-total)invalid("instruction limit exceeded");
@@ -120,7 +165,7 @@ std::shared_ptr<Chunk> readChunk(Reader& r,int depth,uint32_t& total) {
         i.loc={"", "", static_cast<int>(line), static_cast<int>(col)};
         i.number=std::bit_cast<int32_t>(r.u32());
         i.name=r.str(kMaxName);
-        i.value=readValue(r);
+        i.value=readValue(r,version);
         uint8_t hasFn=r.u8(); if(hasFn>1)invalid("invalid function flag");
         if (hasFn) {
             auto f=std::make_shared<FunctionDefinition>();
@@ -128,7 +173,7 @@ std::shared_ptr<Chunk> readChunk(Reader& r,int depth,uint32_t& total) {
             uint32_t params=r.u32();
             if(params>255)invalid("too many function parameters");
             for(uint32_t j=0;j<params;++j)f->params.push_back(r.str(kMaxName));
-            f->code=readChunk(r,depth+1,total);
+            f->code=readChunk(r,depth+1,total,version);
             i.fn=std::move(f);
         }
         chunk->code.push_back(std::move(i));
@@ -204,14 +249,18 @@ void verifyChunk(const std::shared_ptr<Chunk>& chunk,int depth,bool function,uin
 }
 } // namespace
 
-void writeBytecode(const std::shared_ptr<Chunk>& code,const std::string& path) {
+void writeBytecode(const std::shared_ptr<Chunk>& code,const std::string& path,unsigned version) {
+    if(version!=1 && version!=2)invalid("unsupported version");
+#ifndef KASA_ENABLE_BIGINT_VM
+    if(version==2)invalid("KBC2 requires experimental bigint VM");
+#endif
     uint32_t verifiedInstructions=0;
     verifyChunk(code,0,false,verifiedInstructions);
-    Writer payload;writeChunk(payload,code,0);
+    Writer payload;writeChunk(payload,code,0,version);
     if(payload.buf.size()>kMaxPayload)invalid("payload exceeds size limit");
     Writer archive;
-    for(char c:std::string("KBC1"))archive.u8(static_cast<uint8_t>(c));
-    archive.u16(1);archive.u16(0);
+    for(char c:std::string(version==1?"KBC1":"KBC2"))archive.u8(static_cast<uint8_t>(c));
+    archive.u16(static_cast<uint16_t>(version));archive.u16(0);
     archive.u32(static_cast<uint32_t>(payload.buf.size()));
     archive.u32(crc32(payload.buf));
     archive.buf.insert(archive.buf.end(),payload.buf.begin(),payload.buf.end());
@@ -230,8 +279,15 @@ std::shared_ptr<Chunk> readBytecode(const std::string& path) {
     in.read(reinterpret_cast<char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
     if(!in)invalid("file truncated");
     Reader header(bytes,0,16);
-    for(char c:std::string("KBC1"))if(header.u8()!=static_cast<uint8_t>(c))invalid("wrong magic");
-    if(header.u16()!=1)invalid("unsupported version");
+    std::string magic;
+    for(int i=0;i<4;++i)magic.push_back(static_cast<char>(header.u8()));
+    if(magic!="KBC1" && magic!="KBC2")invalid("wrong magic");
+    const unsigned version=header.u16();
+    if((magic=="KBC1" && version!=1) || (magic=="KBC2" && version!=2))
+        invalid("unsupported version");
+#ifndef KASA_ENABLE_BIGINT_VM
+    if(version==2)invalid("KBC2 requires experimental bigint VM");
+#endif
     if(header.u16()!=0)invalid("unsupported flags");
     uint32_t length=header.u32(),digest=header.u32();
     if(length!=bytes.size()-16)invalid("payload length mismatch");
@@ -239,7 +295,7 @@ std::shared_ptr<Chunk> readBytecode(const std::string& path) {
     if(crc32(payload)!=digest)invalid("checksum mismatch");
     Reader reader(bytes,16,bytes.size());
     uint32_t total=0;
-    auto chunk=readChunk(reader,0,total);
+    auto chunk=readChunk(reader,0,total,version);
     if(!reader.done())invalid("extra bytes after code");
     uint32_t verifiedInstructions=0;
     verifyChunk(chunk,0,false,verifiedInstructions);

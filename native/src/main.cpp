@@ -30,12 +30,19 @@ int main(int argc, char **argv) {
     if (argc<3) {
         cerr << "Usage: kasa-native run|check|disasm file.kasa\n"
              << "       kasa-native compile file.kasa [-o file.kbc]\n"
+             << "       kasa-native compile-kbc2 file.kasa [-o file.kbc] (experimental)\n"
              << "       kasa-native run-bytecode|check-bytecode|disasm-bytecode file.kbc\n";
         return 2;
     }
     string mode=argv[1], file=argv[2];
     bool loading=(mode=="run-bytecode"||mode=="check-bytecode"||mode=="disasm-bytecode");
-    bool compiling=mode=="compile";
+    bool compiling=mode=="compile"||mode=="compile-kbc2";
+#ifndef KASA_ENABLE_BIGINT_VM
+    if(mode=="compile-kbc2") {
+        cerr<<"KBC2 requires experimental bigint VM build\n";
+        return 2;
+    }
+#endif
     if (loading && argc!=3) { cerr<<"Unexpected arguments to "<<mode<<"\n";return 2; }
     if (compiling && !(argc==3 || (argc==5 && string(argv[3])=="-o"))) {
         cerr << "Usage: kasa-native compile file.kasa [-o file.kbc]\n";return 2;
@@ -74,7 +81,7 @@ int main(int argc, char **argv) {
                 same = sourcePath == outputPath;
             }
             if(same){cerr<<"Refusing to overwrite source file\n";return 2;}
-            writeBytecode(code,output);
+            writeBytecode(code,output,mode=="compile-kbc2"?2:1);
             cout<<"Compiled "<<file<<" -> "<<output<<"\n";
             return 0;
         }
