@@ -65,6 +65,16 @@
       "name": "one_seventh_round_trip",
       "source": "ka 1 / 7",
       "expected_stdout": "0.14285714285714285\n"
+    },
+    {
+      "name": "one_seventh_nested_list",
+      "source": "ka [1 / 7, -0.0]",
+      "expected_stdout": "[0.14285714285714285, -0.0]\n"
+    },
+    {
+      "name": "one_seventh_string_conversion",
+      "source": "ka nsɛm(1 / 7)",
+      "expected_stdout": "0.14285714285714285\n"
     }
   ]
 }
