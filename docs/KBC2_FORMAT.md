@@ -71,3 +71,8 @@ ctest --test-dir build\kasa-kbc2-vcpkg -C Release -R kasa_kbc2_cross_platform_go
 ```
 
 **Keep open:** Windows hash parity until that exact golden run passes, native macOS, actual WASM/browser, fuzzing, sanitizers, packaging and release certification.
+
+
+## Security testing evidence (2026-11-18)
+
+In addition to the existing structural validator and checksum/version checks, a deterministic **320-mutation** loader-only robustness test now runs with the experimental KBC2 build. Tested modifications include invalid magic, versions, flags, lengths, truncated payloads, incorrect CRCs and checksum-adjusted arbitrary payload changes. Unexpected native exits and sanitizer diagnostics fail the test; some structurally valid changed bytecode may be accepted and is **never executed** during this robustness test. Linux GCC Release and Clang AddressSanitizer/UndefinedBehaviorSanitizer Debug builds passed the three opt-in test targets. See [hardening evidence](./verification/2026-11-18-kbc2-hardening.md). This does not imply that arbitrary downloaded bytecode is trusted or sandboxed.

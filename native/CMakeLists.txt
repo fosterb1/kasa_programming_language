@@ -115,6 +115,11 @@ if(KASA_ENABLE_BIGINT_VM)
         add_test(NAME kasa_kbc2_cross_platform_golden
                  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/verify_kbc2_golden.py"
                          --binary "$<TARGET_FILE:kasa-native>")
+        # Bounded, deterministic malformed KBC2 loader smoke. Mutated files
+        # are checked but never executed; run under sanitizers as a release gate.
+        add_test(NAME kasa_kbc2_loader_robustness
+                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/verify_kbc2_robustness.py"
+                         --binary "$<TARGET_FILE:kasa-native>")
     endif()
 endif()
 

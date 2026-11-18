@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — KBC2 hardening: Windows golden evidence, malformed files, Linux sanitizers
+
+- **Windows user evidence:** After PR #54, user reported the two-target MSVC/Boost KBC2 golden/integration test **passed**. Interpret as user-run Windows byte-for-byte identity for ten fixed cases, not a reviewed raw Windows artifact or exact audited SHA.
+- **New:** Added 320 deterministic checksum-stale/checksum-repaired KBC2 mutations and loader check-only test (`scripts/verify_kbc2_robustness.py`), registered as opt-in CTest `kasa_kbc2_loader_robustness`. Malformed archives are never executed; CRC-updated mutations may validate successfully if structurally legal.
+- **Independent Linux tests:** GCC Release **3/3** opt-in CTest targets, including 320-case mutation run; Clang 21 Debug with AddressSanitizer + UndefinedBehaviorSanitizer and leak detection **3/3** targets passed with no sanitizer reports in this workload.
+- **Remaining:** Windows hardening rerun, macOS, coverage-guided fuzz, sanitizer variation, trust model and release packaging. See [hardening verification record](./verification/2026-11-18-kbc2-hardening.md). Existing 90% Kasa 0.4 checklist and ~35% Kasa 1.0 estimate unchanged.
+
+
+
 ### 2026-11-18 — Begin cross-platform KBC2 byte-for-byte verification
 
 - **Source:** Recorded user-reported successful Windows MSVC+Boost opt-in KBC2 integration test (exact binary report/commit not uploaded); avoid calling it independent certification.

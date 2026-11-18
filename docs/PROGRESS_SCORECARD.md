@@ -105,3 +105,6 @@ Review this scorecard after every substantive pull request. Add or reweight chec
 
 
 **2026-11-18 KBC2 determinism verification:** Introduced ten fixed SHA-256 byte-for-byte KBC2 golden fixtures and a Linux-verified opt-in CTest. Linux baseline **10/10** hashes matched, **2/2** opt-in CTest targets passed. User reports prior Windows KBC2 integration success, but **Windows golden hash comparison is still pending**. Percentages unchanged pending platform certification.
+
+
+**2026-11-18 KBC2 hardening:** User reports Windows golden SHA tests passed (10 reference programs); full user logs/SHA not independently checked. Linux independent new deterministic 320-file KBC2 loader robustness check passed; **3/3** opt-in integration targets passed both GCC Release and Clang ASan+UBSan Debug (with leak detection). See [verification detail](./verification/2026-11-18-kbc2-hardening.md). This is targeted smoke testing, not a security certification. No change to 90% alpha / ~35% 1.0 readiness.
