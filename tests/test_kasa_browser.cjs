@@ -214,3 +214,24 @@ test('worker reports missing local script', () => {
   assert.equal(messages[0].type,'BOOT_ERROR');
   assert.match(messages[0].message,/Local script missing/);
 });
+
+const reconciliationCases = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_reconciliation.json'), 'utf8')
+).cases;
+const reconciliationTemplate = fs.readFileSync(
+  path.join(ROOT, 'examples/bank_reconciliation_matching.kasa'), 'utf8'
+);
+for (const item of reconciliationCases) {
+  test(`reconciliation amount matching: ${item.name}`, () => {
+    const bankLiteral = 'ma bank = [5000, 7000, 5000, 12000]';
+    const ledgerLiteral = 'ma ledger = [5000, 5000, 9000, 7000]';
+    assert.equal(reconciliationTemplate.split(bankLiteral).length, 2);
+    assert.equal(reconciliationTemplate.split(ledgerLiteral).length, 2);
+    const source = reconciliationTemplate
+      .replace(bankLiteral, `ma bank = [${item.bank.join(', ')}]`)
+      .replace(ledgerLiteral, `ma ledger = [${item.ledger.join(', ')}]`);
+    const result = executeKasa(source);
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.output, item.expected_stdout);
+  });
+}

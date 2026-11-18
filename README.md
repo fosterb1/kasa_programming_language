@@ -6,7 +6,7 @@ Kasa is an educational programming-language project intended to become open sour
 
 Kasa's guiding idea is simple: **learners should focus on solving problems, not memorizing unfamiliar English keywords.** The language uses familiar Twi-inspired vocabulary while teaching transferable concepts such as variables, conditions, loops, functions, lists, and debugging.
 
-> **Project status — Experimental alpha (native 0.4).** Kasa includes a Python reference interpreter, a browser JavaScript runtime, and a **C++20 native compiler/VM with an experimental KBC1 `.kbc` file format**. There are fifteen root example programs and an independent local verification runner. Full native KBC1 integration tests passed on Linux, but **full Python/native/JavaScript conformance, Windows/macOS validation, classroom review, and secure untrusted-code execution remain unfinished**. Kasa is not a stable 1.0 release. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) and [native integration report](./docs/verification/2026-11-17-kbc1-native-integration.md).
+> **Project status — Experimental alpha (native 0.4).** Kasa includes a Python reference interpreter, a browser JavaScript runtime, and a **C++20 native compiler/VM with an experimental KBC1 `.kbc` file format**. There are sixteen root example programs and an independent local verification runner. Full native KBC1 integration tests passed on Linux, but **full Python/native/JavaScript conformance, Windows/macOS validation, classroom review, and secure untrusted-code execution remain unfinished**. Kasa is not a stable 1.0 release. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) and [native integration report](./docs/verification/2026-11-17-kbc1-native-integration.md).
 
 ## See Kasa in action
 
@@ -178,7 +178,7 @@ The report records the Git commit and whether the checkout is clean. The profile
 | Lexer, parser, and AST | Implemented (0.1.0) |
 | Interpreter and runtime | Implemented (0.1.0; further hardening planned) |
 | CLI, REPL, and packaging | Implemented (0.1.0) |
-| Tests and runnable examples | Fifteen root programs; independent browser checks on the merged educational branch passed 89/89; full current-branch native/Python suites still require end-to-end verification |
+| Tests and runnable examples | Sixteen root programs; independent browser checks on the merged educational branch passed 89/89; full current-branch native/Python suites still require end-to-end verification |
 | Tutorials and teacher resources | Practical example starter set available; complete classroom guides and educator review still planned |
 | Twi community language review | Needed before release |
 
@@ -258,3 +258,7 @@ The generated ZIP includes both `native/kasa-native.js` and `native/kasa-native.
 ### Practical lesson corpus (15 examples)
 
 Six new programs demonstrate [daily sales totals](./examples/daily_sales.kasa), [cash reconciliation](./examples/cash_reconciliation.kasa), [mobile-money balance arithmetic](./examples/mobile_money_ledger.kasa), [student score counting](./examples/student_grades.kasa), [savings targets](./examples/savings_target.kasa), and [inventory valuation](./examples/inventory_valuation.kasa). All examples are **illustrative offline exercises**, not bank integrations, production-grade bookkeeping, or financial advice. Golden stdout lives in [the shared example fixture](./tests/conformance_practical_examples.json), consumed by Python and browser JavaScript tests. On 2026-11-18, all 15 example outputs passed direct execution using the repository JavaScript interpreter in an isolated V8 environment. Full Python/native/KBC1 and actual-browser verification of these newly added examples remain outstanding.
+
+### One-to-one reconciliation as a Kasa lesson
+
+[Bank and ledger matching](./examples/bank_reconciliation_matching.kasa) demonstrates duplicate-safe, first-unused **amount-only** matching with integer pesewas. The [four-case fixture](./tests/conformance_reconciliation.json) covers duplicates, no matches, zero values and the baseline (4/4 direct JavaScript runtime checks passed on 2026-11-18). This is **not** production bank reconciliation: dates, references, transactions IDs, ambiguity handling, debit/credit normalization, security and audit trails are absent. See [RFC-0006](./docs/RFC-0006-financial-computing-foundation.md) for design gates. Python/native/KBC1 integration checks are registered but not yet executed.

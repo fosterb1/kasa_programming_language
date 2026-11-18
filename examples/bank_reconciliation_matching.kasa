@@ -1,0 +1,51 @@
+# One-to-one matching of bank and ledger transaction amounts.
+# Illustrative amounts are integer pesewas. Duplicate values are supported.
+# Real reconciliation must ALSO check dates/references and review ambiguity.
+ma bank = [5000, 7000, 5000, 12000]
+ma ledger = [5000, 5000, 9000, 7000]
+ma ledger_used = [atoro, atoro, atoro, atoro]
+ma bank_index = 0
+ma matched_count = 0
+ma unmatched_bank_total = 0
+
+bere_a bank_index < tentɛn(bank)
+    ma ledger_index = 0
+    ma found = atoro
+    bere_a ledger_index < tentɛn(ledger)
+        sɛ found == atoro a
+            sɛ ledger_used[ledger_index] == atoro a
+                sɛ bank[bank_index] == ledger[ledger_index] a
+                    ma ledger_used[ledger_index] = nokware
+                    ma found = nokware
+                    ma matched_count = matched_count + 1
+                awiei
+            awiei
+        awiei
+        ma ledger_index = ledger_index + 1
+    awiei
+    sɛ found == atoro a
+        ma unmatched_bank_total = unmatched_bank_total + bank[bank_index]
+    awiei
+    ma bank_index = bank_index + 1
+awiei
+
+ma unmatched_ledger_count = 0
+ma unmatched_ledger_total = 0
+ma ledger_index = 0
+bere_a ledger_index < tentɛn(ledger)
+    sɛ ledger_used[ledger_index] == atoro a
+        ma unmatched_ledger_count = unmatched_ledger_count + 1
+        ma unmatched_ledger_total = unmatched_ledger_total + ledger[ledger_index]
+    awiei
+    ma ledger_index = ledger_index + 1
+awiei
+ka "Matched transactions:"
+ka matched_count
+ka "Unmatched bank count:"
+ka tentɛn(bank) - matched_count
+ka "Unmatched bank total (pesewas):"
+ka unmatched_bank_total
+ka "Unmatched ledger count:"
+ka unmatched_ledger_count
+ka "Unmatched ledger total (pesewas):"
+ka unmatched_ledger_total
