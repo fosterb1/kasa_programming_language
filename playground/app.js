@@ -149,10 +149,18 @@ function prepareWorker() {
       setReady(true);
       if (data.type === "EXECUTION_ERROR") {
         output.textContent = data.message;
+        debugGuidance.textContent = explainError(data.message || "");
+        debugGuidance.hidden = false;
         setStatus("Unexpected interpreter error", "error");
         return;
       }
       const result = data.result;
+      if (!result.ok) {
+        debugGuidance.textContent = explainError(result.error || "");
+        debugGuidance.hidden = false;
+      } else {
+        debugGuidance.hidden = true;
+      }
       output.textContent = result.output + (result.error ? `${result.output ? "\n" : ""}${result.error}` : "") || (mode === "check" ? "Syntax OK. No program code was executed." : "Program finished without output.");
       const engineLabel = data.engine === "native-wasm" ? "Native WebAssembly" : "JavaScript";
       setStatus(result.ok ? (mode === "check" ? "Syntax valid" : "Run completed") + ` · ${engineLabel}` : "Kasa reported an error", result.ok ? "ready" : "error");
@@ -179,6 +187,7 @@ function execute(mode) {
   setReady(false);
   setStatus(mode === "check" ? "Checking syntax…" : "Running program…", "pending");
   output.textContent = "";
+  debugGuidance.hidden = true;
   worker.postMessage({ type: "EXECUTE", source: source.value, input: input.value, mode, requestId, engine: engineSelect.value });
   timeoutId = setTimeout(() => {
     stopWorker();
@@ -194,12 +203,16 @@ checkButton.addEventListener("click", () => execute("check"));
 $("clear").addEventListener("click", () => { output.textContent = ""; });
 exampleSelect.addEventListener("change", () => {
   source.value = EXAMPLES[exampleSelect.value] || EXAMPLES.hello;
+  exampleExplanation.textContent = EXAMPLE_GUIDES[exampleSelect.value] || EXAMPLE_GUIDES.hello;
+  debugGuidance.hidden = true;
   saveDraft();
 });
 $("reset").addEventListener("click", () => {
   source.value = EXAMPLES.hello;
   input.value = "";
   exampleSelect.value = "hello";
+  exampleExplanation.textContent = EXAMPLE_GUIDES.hello;
+  debugGuidance.hidden = true;
   output.textContent = "Draft reset. Press Run code to begin.";
   try { localStorage.removeItem(DRAFT_KEY); }
   catch (_) { /* Storage may be disabled. */ }
