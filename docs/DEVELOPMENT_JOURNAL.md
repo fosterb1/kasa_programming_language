@@ -74,6 +74,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 - **Next gate:** Run all 58 Python-to-KBC1 reference cases and 18 numeric Kasa-source cases with the complete native VM and Python runtime in the same clean checkout, then record individual failures and fixes. The new numeric differential is **not** a substitute for that.
 - **Hosting:** GitHub Actions remains manual-only; no paid hosted CI runs were requested.
 
+### 2026-11-18 — Fail-closed parity-report evidence auditing
+
+- **Status:** Implemented on `feature/parity-report-audit-20261118`, proposed for merge. This is verification infrastructure, not new language syntax or full runtime parity.
+- **Changed:** Added `scripts/audit_parity_report.py`, eight isolated unit scenarios in `tests/test_audit_parity_report.py`, and an offline usage section in `docs/INDEPENDENT_TESTING.md`.
+- **Independent verification:** Eight analogous local standard-library unit scenarios passed on 2026-11-18 against a locally reconstructed report auditor; syntax compile passed. The final GitHub file version and complete repository suite have **not** been independently executed here.
+- **Discovery:** Merely producing a JSON report is insufficient as a green release gate: reports can describe a dry-run, missing stage, altered counts or dirty checkout. The new audit fails those cases without paid CI.
+- **Risk:** The audit verifies self-reported stage identity, ordering, statuses and commit metadata, not the truth of actual command execution; forged reports cannot be cryptographically ruled out.
+- **Next gate:** Run `python scripts/verify_local.py --profile parity --report build/parity-report.json` and `python scripts/audit_parity_report.py build/parity-report.json` in a real, clean full checkout, then investigate any Python/native/KBC1 mismatches.
+
 ## Hosted CI execution policy — 2026-11-18
 
 **Decision:** GitHub-hosted workflows (`tests.yml`, `native.yml`, `wasm.yml`) are preserved but changed to **`workflow_dispatch` only**. They do not run automatically on new pushes or pull requests during the budget-sensitive independent development phase. The user can manually trigger each workflow for final release verification once billing and runner availability have been reviewed.

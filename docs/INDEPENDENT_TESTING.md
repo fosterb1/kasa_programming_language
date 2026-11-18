@@ -26,6 +26,29 @@ As of 2026-11-18 the three GitHub Actions workflows are **manual-only** using `w
 
 This policy is about avoiding unexpected hosted CI execution, **not marking builds green**. The local full profile is still required before release claims. When GitHub-hosted verification is affordable, re-enable push and pull-request checks deliberately; retain the exact workflow history. Earlier automatic runs recorded a failure status, but their root cause and any charge have not been confirmed.
 
+
+### Fail-closed parity report audit (alpha evidence gate)
+
+After running the **real** local parity profile on a clean checkout, independently inspect its report:
+
+```bash
+python scripts/verify_local.py --profile parity --report build/parity-report.json
+python scripts/audit_parity_report.py build/parity-report.json
+python -m unittest discover -s tests -p test_audit_parity_report.py -v
+```
+
+The report auditor requires exactly eight named parity stages in order, zero failed or
+not-run stages, successful exit codes, a real (non-dry-run) result, a 40-character
+Git revision and a clean working tree. A missing JSON file or inconsistent report
+fails closed. The optional `--allow-dirty` switch is strictly for local diagnosis;
+do not use it as clean-release evidence.
+
+**Important distinction:** This auditor tests the integrity of the report *shape
+and claims*. It cannot independently prove that the executable commands were
+really run or that a Kasa implementation is correct. The native VM, Python,
+browser and serialized KBC1 tests still need to execute on a full local checkout.
+Hosted GitHub CI is not required by this gate.
+
 ## Requirements
 
 - Python 3.11+ and the project development dependencies, installed with `python -m pip install -e ".[dev]"`
