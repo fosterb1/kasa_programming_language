@@ -40,6 +40,17 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Native binary64 display repair candidate; Step 1 still gated
+
+- **Status:** Tested and implemented on branch `fix/native-float-display-step1-20261118`; **full VM/KBC1 integration unverified, do not merge until the required native verification succeeds**.
+- **Verified defect:** Native `ostringstream << setprecision(15)` truncates output precision. The standalone C++ component printed `0.142857142857143` for 1/7 while Python displays `0.14285714285714285`.
+- **Changed:** Introduced shortest-round-trip `std::to_chars` binary64 display with Python-style exponent conventions, native smoke and seeded differential probes, shared 13-case Kasa-source fixtures, and Python/JS/native/KBC1 test registrations. Local parity profile expands from 8 to 10 required stages and full profile from 16 to 18.
+- **Independent local evidence:** GCC 14.2 **18/18**, Clang 17 **18/18**, GCC ASan/UBSan **18/18** standalone formatter cases; **9,999/9,999** finite seeded GCC/Python binary64 text comparisons; JS interpreter **13/13** decimal Kasa fixtures; eight locally reconstructed report-auditor scenarios passed.
+- **Blocking verification:** No complete full repository checkout because `git ls-remote` could not resolve `github.com`. Native CMake/VM, KBC1 conformance, whole-project pytest and Node test runner have **not** been executed for this branch. [Exact component-level record](./verification/2026-11-18-native-float-output.md).
+- **Next gate:** Run `scripts/verify_local.py --profile parity`, audit its report and complete `--profile full` on a clean checkout. Fix observed defects before merge or marking Step 1 complete. No changes to the Twi vision or license; 0.4 remains 80% implementation and 1.0 ~35% maturity.
+
+
+
 ### 2026-11-18 — Verified JavaScript decimal text-formatting mismatch
 
 - **Status:** **Merged into `main`** through [PR #30](https://github.com/fosterb1/kasa_programming_language/pull/30), squash commit `d44cc0971e50bddfbf97072609276a6e9d25617c`. **Not** full Kasa 0.4 parity certification.
