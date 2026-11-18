@@ -70,7 +70,7 @@ The new `tests/test_native_conformance_driver.py` checks whether the `compile â†
 python -m pytest -q tests/test_native_conformance_driver.py
 ```
 
-**Focused observation (2026-11-18):** Four tests passed using Python 3.13.5 and pytest 9.0.2 against a reconstructed helper and a disposable fake native CLI, without downloading the full repository. The committed test file's Git blob matched that locally tested file. The simulated binary only checks *test orchestration*; it is **not an implementation of Kasa**. The fixture uses a POSIX shebang and is explicitly skipped on Windows.
+**Focused observation (2026-11-18):** Four tests passed using Python 3.13.5 and pytest 9.0.2 against the helper extracted from PR #22, reconstructed with matching 1,440-character length and FNV-1a 32-bit fingerprint (2248846160), and a disposable fake native CLI, without downloading the full repository. A non-cryptographic fingerprint is not proof of authenticity. The committed test file's Git blob matched that locally tested file. The simulated binary only checks *test orchestration*; it is **not an implementation of Kasa**. The fixture uses a POSIX shebang and is explicitly skipped on Windows.
 
 The 58 real KBC1 reference-parity fixtures remain **not executed against the native VM**. Those must be verified separately with the local full profile. A green stage-control test does not substitute for a compiled Kasa test.
 
