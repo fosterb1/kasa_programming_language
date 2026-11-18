@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-11-18  
 **Reference branch:** `main`  
-**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16). **Latest test milestone:** [PR #23 — exact mixed integer/decimal comparisons](https://github.com/fosterb1/kasa_programming_language/pull/23), merged 2026-11-18. **Next risks:** full native VM integration of this precision fix, 58 Python/KBC1 parity fixtures, and cross-platform verification remain pending.  
+**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16). **Latest test milestone:** [PR #24 — independent parity profile and reproducible reports](https://github.com/fosterb1/kasa_programming_language/pull/24), merged 2026-11-18. **Next risks:** full native VM integration of this precision fix, 58 Python/KBC1 parity fixtures, and cross-platform verification remain pending.  
 **Blocked external CI:** [Issue #12 — GitHub Actions jobs terminate before recorded steps](https://github.com/fosterb1/kasa_programming_language/issues/12)
 
 ## How to record future milestones
@@ -53,7 +53,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ### 2026-11-18 — Focused independent parity profile and reproducible reports
 
-- **Status:** Implemented on a review branch; the real native parity suite has not yet been run against this exact change.
+- **Status:** **Merged into main** as verification tooling through [PR #24](https://github.com/fosterb1/kasa_programming_language/pull/24), commit `6bb82da224496b1da92d096ca678a324ec4c4da7`. The real native parity suite has **not** been run against the merged revision.
 - **Change:** `scripts/verify_local.py --profile parity` selects seven local stages for Python, JavaScript, C++20 compiler/VM, exact numeric precision, native/Python conformance and KBC1 round-trips. The existing `quick` and `full` plans remain seven and fifteen stages respectively.
 - **Discovery:** A broad full-profile run includes unrelated WebAssembly/protocol and platform tests. A smaller parity-only profile helps isolate language inconsistencies without confusing a successful component check with stable release certification.
 - **Provenance:** Every JSON report now records Git `HEAD` and whether the working tree is clean. Missing Git metadata is explicitly `null`, and both tracked and untracked changes are considered.
