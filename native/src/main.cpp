@@ -5,10 +5,24 @@
 #include <iostream>
 #include <iterator>
 #include <utility>
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#include <cstdio>
+#endif
 using namespace std;
 using namespace kasa;
 
 int main(int argc, char **argv) {
+#ifdef _WIN32
+    // Prevent the Windows CRT from turning each Kasa LF into CRLF.
+    // Keep stdin in text mode: bisa() already strips trailing CR.
+    if (_setmode(_fileno(stdout), _O_BINARY) == -1 ||
+        _setmode(_fileno(stderr), _O_BINARY) == -1) {
+        std::cerr << "kasa-native: failed to set binary output mode\n";
+        return 2;
+    }
+#endif
     if (argc==2 && string(argv[1])=="--version") {
         cout << "Kasa Native 0.4.0-alpha (C++20 VM; experimental KBC1)\n";
         return 0;
