@@ -108,3 +108,6 @@ Review this scorecard after every substantive pull request. Add or reweight chec
 
 
 **2026-11-18 KBC2 hardening:** User reports Windows golden SHA tests passed (10 reference programs); full user logs/SHA not independently checked. Linux independent new deterministic 320-file KBC2 loader robustness check passed; **3/3** opt-in integration targets passed both GCC Release and Clang ASan+UBSan Debug (with leak detection). See [verification detail](./verification/2026-11-18-kbc2-hardening.md). This is targeted smoke testing, not a security certification. No change to 90% alpha / ~35% 1.0 readiness.
+
+
+**2026-11-18 platform-release planning:** User reported Windows **3/3** KBC2 hardening CTest targets passed (raw Windows report not independently captured). A fail-closed, commit-aware `scripts/verify_macos_release.py` runner and [macOS test instructions](./verification/MACOS_RELEASE_GATE.md) are prepared. Linux verified `--dry-run` and non-macOS refusal; **neither Intel nor Apple Silicon macOS has been tested**. Alpha implementation 90%, Kasa 1.0 readiness ~35%, unchanged.
