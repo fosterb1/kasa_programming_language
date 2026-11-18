@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Clean merged-main Linux alpha parity checkpoint verified
+
+- **Merged source tested:** `cbce6a6c6c20b9e994086fddbbeac12d42a45f71` ([PR #48](https://github.com/fosterb1/kasa_programming_language/pull/48)); independent disposable Linux checkout, **clean** before and after the run.
+- **Actual execution:** Python pytest **243/243**; Node semantic **227/227**; ten-stage `--profile parity` **10/10**, audited successfully using `--expected-commit cbce6a6c6c20b9e994086fddbbeac12d42a45f71`; full `--profile full` **18/18**. The full checks include native C++20 build, native source/VM and serialized KBC1 conformance, lexer/bytecode mutation/serializer smokes and numeric differential probes.
+- **Scope:** This verifies the **implemented Linux Kasa 0.4 portable subset**, not full arbitrary-precision native integers/KBC1, real-browser WASM, Windows/macOS installation or untrusted-code security. See [complete evidence record](./verification/2026-11-18-linux-full-parity.md).
+- **Scorecard:** Linux alpha subset parity checkpoint #9 is now verified; **Kasa 0.4 implementation checklist 9/10 = 90%**. Stable **Kasa 1.0 readiness remains ~35%**. These are planning rubrics, not time or measured code coverage estimates.
+- **Next release gate:** Cross-platform and real-browser/packaging checks; separately start staged native bigint implementation under RFC-0008.
+
+
+
 ### 2026-11-18 — First clean-checkout full Python/Node/native/KBC1 verification baseline
 
 - **Infrastructure breakthrough:** A temporary, disposable Linux sandbox cloned Kasa directly from GitHub after the original local environment was unable to resolve the GitHub hostname. The repository can now be tested as a complete checkout independently of GitHub Actions.
