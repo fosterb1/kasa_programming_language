@@ -69,3 +69,16 @@ See the [new numeric differential report](./2026-11-18-numeric-differential.md) 
 - Real WASM runtime execution, malformed/untrusted bytecode security review, native Windows/macOS builds and human Twi terminology approval remain separate release gates.
 
 **Next step:** Run `--profile parity` locally on a complete checkout, retain the JSON report, inspect any failures, and update `docs/DEVELOPMENT_JOURNAL.md` with actual observed outcomes. Do not mark the language as stable based on a planned or simulated test.
+
+## Improved parity audit (2026-11-18)
+
+The local runner now records `source_revision` **before** running tests and `source_revision_after` **after** completing them. The report auditor checks these snapshots match, verifies that each of the ten reported stage command vectors is the expected parity command, and optionally requires a chosen commit SHA. This prevents accidental green reports containing unrelated commands such as ten `python -V` checks. It is **not a cryptographic attestation of execution**: JSON can be forged, and a source checkout must still be trustworthy.
+
+From a **clean** repository checkout, use:
+
+```sh
+python3 scripts/verify_local.py --profile parity --report build/parity-report.json
+python3 scripts/audit_parity_report.py build/parity-report.json --expected-commit "$(git rev-parse HEAD)"
+```
+
+Run on the exact intended commit and keep the JSON, platform metadata, output logs and source SHA. Any runner report created before this change must be regenerated: older reports lack the post-run revision. The auditor is a separate report consistency gate; it **does not execute** the listed Python/Node/C++/KBC1 tests by itself.
