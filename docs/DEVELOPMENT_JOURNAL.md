@@ -40,6 +40,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — First actual native WebAssembly execution in Chromium
+
+- **Independently built:** Existing C++ native Kasa WASM bridge compiled using Emscripten 3.1.69; real `kasa-native.wasm` was **491,371 bytes** with 23 WebAssembly exports and 44 imports. The generated binary and JS glue were packaged using `playground/build_site.py --require-wasm`; they remain generated artifacts, not committed source.
+- **Verified real browser:** New `scripts/verify_real_wasm_browser.py` ran the WASM-enabled site ZIP in actual headless Chromium. Native WASM loaded in a real Web Worker; forced-native run, syntax check, `bisa()` input and error handling passed; four real Twi program outputs matched the separately forced JavaScript engine. Forced JavaScript fallback was also verified. See [real WASM browser evidence](./verification/2026-11-18-real-wasm-browser.md).
+- **Prior limitation resolved in narrow scope:** This is **real WebAssembly execution**, not merely simulated Node WASM-protocol tests or a static binary check. **Still open:** WebKit/Firefox/Edge, mobile, offline PWA, public hosting, WASM KBC2/Boost bigint support, broader differential and release security gates. Progress percentages unchanged.
+
+
+
 ### 2026-11-18 — Real Chromium JavaScript playground execution and local editor workflow
 
 - **Changed:** The browser editor now opens local `.kasa` files (UTF-8, 50 KB cap), saves only source drafts in localStorage with a Reset control, and never saves program input. Engine labels now make it clearer that JavaScript works immediately while native WebAssembly is conditional on an actual compiled/deployed module.
