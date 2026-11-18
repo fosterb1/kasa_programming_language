@@ -296,3 +296,18 @@ The C++ VM can be built with `-DKASA_ENABLE_BIGINT_VM=ON` (requires Boost.Multip
 ### Experimental KBC2 big-integer bytecode
 
 Build with `-DKASA_ENABLE_BIGINT_VM=ON` and Boost.Multiprecision headers, then run `kasa-native compile-kbc2 example.kasa -o example.kbc` followed by `kasa-native run-bytecode example.kbc`. KBC2 supports exact large integer constants, while **standard** `compile` continues to produce KBC1 and default native builds do not load KBC2. The format is experimental; see [KBC2 format and limits](./docs/KBC2_FORMAT.md).
+
+
+### Browser playground: local source files and real-browser testing
+
+The [Kasa playground](./playground/index.html) runs Kasa programs using a JavaScript interpreter in a browser Web Worker, even without native WASM. You can now import UTF-8 `.kasa` files, download source, save only the source draft in your browser profile and reset it. Program input is **not** saved. Draft storage is local to the browser profile, not encrypted. Native WebAssembly remains conditional on a real compiled module included in the deployment.
+
+For reproducible headless Chromium verification (optional developer dependencies):
+
+```sh
+python -m pip install playwright
+python -m playwright install chromium
+python scripts/verify_browser_playground.py
+```
+
+This checks the **real JavaScript browser experience**, not native WebAssembly. See [browser verification record](./docs/verification/2026-11-18-real-browser-playground.md).
