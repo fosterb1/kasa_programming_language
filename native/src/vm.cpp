@@ -246,8 +246,13 @@ class VM{
             }
         }
 #endif
-        double x=number(a,t),y=number(b,t);
-        if(op==Op::Div){if(y==0)error(t,"ZeroDivisionError","Cannot divide by zero");return checkedDouble(x/y,t);}
+        // Only floating-point operations require conversion to binary64.
+        // Keep arbitrary integer arithmetic entirely exact and bounded.
+        if(op==Op::Div){
+            double x=number(a,t),y=number(b,t);
+            if(y==0)error(t,"ZeroDivisionError","Cannot divide by zero");
+            return checkedDouble(x/y,t);
+        }
         if(op==Op::Mod){if(!integer(a)||!integer(b))error(t,"TypeError","Remainder requires integers");
             int64_t z=get<int64_t>(b.data);if(z==0)error(t,"ZeroDivisionError","Cannot divide by zero");
             int64_t n=get<int64_t>(a.data);
@@ -264,6 +269,7 @@ class VM{
             if(op==Op::Sub)return safeSub(p,q,t);
             if(op==Op::Mul)return safeMul(p,q,t);
         }
+        double x=number(a,t),y=number(b,t);
         if(op==Op::Add)return checkedDouble(x+y,t);
         if(op==Op::Sub)return checkedDouble(x-y,t);
         if(op==Op::Mul)return checkedDouble(x*y,t);
@@ -307,7 +313,9 @@ class VM{
             static const regex decimalGrammar(R"([+-]?([0-9]+(\.[0-9]+)?|\.[0-9]+))");
             if(!regex_match(s,decimalGrammar))error(t,"TypeError","Invalid numeric text");
             try{
+#ifndef KASA_ENABLE_BIGINT_VM
                 size_t used=0;
+#endif
                 if(s.find('.')!=string::npos){
                     // std::stod throws out_of_range even when a finite decimal
                     // correctly rounds to zero or a subnormal binary64 value.
