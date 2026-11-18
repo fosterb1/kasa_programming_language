@@ -1,0 +1,65 @@
+{
+  "description": "Python-style binary64 decimal display for existing Kasa expressions (not decimal financial arithmetic)",
+  "cases": [
+    {
+      "name": "small_exp_7",
+      "source": "ka 1 / 10000000",
+      "expected_stdout": "1e-07\n"
+    },
+    {
+      "name": "small_exp_5",
+      "source": "ka 1 / 100000",
+      "expected_stdout": "1e-05\n"
+    },
+    {
+      "name": "fixed_lower_boundary",
+      "source": "ka 1 / 10000",
+      "expected_stdout": "0.0001\n"
+    },
+    {
+      "name": "large_fixed",
+      "source": "ka 1000000000000000.0",
+      "expected_stdout": "1000000000000000.0\n"
+    },
+    {
+      "name": "large_scientific_boundary",
+      "source": "ka 10000000000000000.0",
+      "expected_stdout": "1e+16\n"
+    },
+    {
+      "name": "large_scientific_20",
+      "source": "ka 100000000000000000000.0",
+      "expected_stdout": "1e+20\n"
+    },
+    {
+      "name": "fractional_mantissa_small",
+      "source": "ka 0.0000123",
+      "expected_stdout": "1.23e-05\n"
+    },
+    {
+      "name": "fractional_mantissa_large",
+      "source": "ka 12300000000000000.0",
+      "expected_stdout": "1.23e+16\n"
+    },
+    {
+      "name": "negative_small_exp",
+      "source": "ka -0.0000001",
+      "expected_stdout": "-1e-07\n"
+    },
+    {
+      "name": "negative_zero",
+      "source": "ka -0.0",
+      "expected_stdout": "-0.0\n"
+    },
+    {
+      "name": "positive_zero",
+      "source": "ka 0.0",
+      "expected_stdout": "0.0\n"
+    },
+    {
+      "name": "nested_list",
+      "source": "ka [0.0000001, 10000000000000000.0]",
+      "expected_stdout": "[1e-07, 1e+16]\n"
+    }
+  ]
+}

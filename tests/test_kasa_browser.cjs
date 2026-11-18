@@ -235,3 +235,14 @@ for (const item of reconciliationCases) {
     assert.equal(result.output, item.expected_stdout);
   });
 }
+
+const decimalDisplayConformance = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_decimal_display.json'), 'utf8')
+);
+for (const fixture of decimalDisplayConformance.cases) {
+  test(`Python-compatible decimal display: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source);
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.output, fixture.expected_stdout);
+  });
+}

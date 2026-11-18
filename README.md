@@ -194,6 +194,9 @@ The three engines retain other documented differences, notably the native 64-bit
 
 **Numeric precision improvement (Kasa 0.4 alpha):** [PR #23](https://github.com/fosterb1/kasa_programming_language/pull/23) corrected mixed integer/decimal comparison logic to avoid rounding large integers through binary64, with 18 shared regression cases. Focused JavaScript/C++ checks passed; full native VM and Python/KBC1 integration verification of this change remains outstanding. [Verification and known limitations](./docs/verification/2026-11-18-mixed-numeric-comparison.md). This work does not claim that mixed-type arithmetic or every financial computation is exact.
 
+
+**Decimal display compatibility (targeted repair, 2026-11-18):** The browser now displays binary64 decimal values using Python-reference exponent thresholds and signed-zero conventions. **12/12 new decimal fixtures** and **129/129 combined direct JS runtime checks** passed independently. This does not establish complete C++/KBC1 output formatting parity. [Independent verification record](./docs/verification/2026-11-18-browser-decimal-display.md).
+
 ## Unicode diagnostic coordinates (Kasa 0.4 proposal)
 
 Kasa syntax errors should report **one-based line and Unicode code-point column numbers** regardless of whether the code runs in Python, browser JavaScript, or the C++ native VM. This is especially important for Twi characters like `ɛ` and `ɔ`. The proposed rule, limitations and compatibility fixtures are documented in [RFC-0004](./docs/RFC-0004-unicode-source-locations.md). The browser runtime passed the eleven direct source-location checks; full native and Python integration tests remain pending.

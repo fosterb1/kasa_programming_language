@@ -250,8 +250,20 @@
     if (value === false) return "atoro";
     if (typeof value === "bigint") return value.toString();
     if (value instanceof FloatValue) {
-      const text = String(value.value);
-      return Number.isInteger(value.value) && !text.includes("e") ? `${text}.0` : text;
+      const number = value.value;
+      // Match Python's shortest binary64 display notation used by the
+      // reference Kasa runtime: scientific for 0 < |x| < 1e-4 or |x| >= 1e16.
+      // ECMAScript uses different notation cutoffs (1e-6 and 1e21).
+      if (Object.is(number, -0)) return "-0.0";
+      const magnitude = Math.abs(number);
+      if (magnitude !== 0 && (magnitude < 1e-4 || magnitude >= 1e16)) {
+        const [mantissa, exponent] = number.toExponential().split("e");
+        const exponentValue = Number(exponent);
+        const sign = exponentValue >= 0 ? "+" : "-";
+        return `${mantissa}e${sign}${String(Math.abs(exponentValue)).padStart(2, "0")}`;
+      }
+      const text = String(number);
+      return Number.isInteger(number) ? `${text}.0` : text;
     }
     if (typeof value === "string") return value;
     if (Array.isArray(value)) return "[" + value.map(item => typeof item === "string" ? "'" + item.replace(/\\/g, "\\\\").replace(/'/g, "\\'") + "'" : display(item)).join(", ") + "]";

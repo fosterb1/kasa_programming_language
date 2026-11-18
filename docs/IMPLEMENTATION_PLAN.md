@@ -69,3 +69,7 @@ A cross-runtime bug was discovered on 2026-11-18: both the JavaScript and C++ en
 - Blocks end with `awiei`; indentation is cosmetic.
 - `kasa check` parses but never runs source code.
 - No Python code translation, `eval()`, or `exec()` is used.
+
+## Kasa 0.4 — Browser decimal text-format parity repair (2026-11-18)
+
+The JavaScript interpreter previously used ECMAScript decimal-formatting thresholds, producing output such as `1e-7` for a Python-reference output of `1e-07`, `0.00001` instead of `1e-05`, and `10000000000000000.0` instead of `1e+16`. A targeted browser display fix adds Python-like scientific-notation thresholds, exponent zero-padding and signed-zero preservation without changing arithmetic or Twi vocabulary. **12 new display fixtures and 129 total direct JavaScript checks passed** in isolated V8 execution using exact connected-GitHub source. This does not establish complete Python/native/KBC1 parity or a full Node test-runner pass. The [verification record](./verification/2026-11-18-browser-decimal-display.md) documents exact scope and the blocked full-checkout gate. Keep the 80% / ~35% score unchanged until the full cross-runtime milestone is independently verified.

@@ -53,6 +53,7 @@ This estimate uses a separate ten-area *readiness* rubric: 1 point for broadly i
 | 15/15 previous root example outputs directly executed in JavaScript V8 (2026-11-18) | Existing and six new financial/education lessons match the golden output corpus | Does not establish Python/native/KBC1 or actual-browser execution |
 | 58 KBC1 reference fixture cases | Added to native conformance harness | **Not yet run end-to-end on the current main revision** |
 
+| 12/12 decimal-display fixtures, plus 117 prior semantic/program checks (2026-11-18) | 129/129 direct JavaScript interpreter checks on formatting-fix branch | Python/Node full runner, native VM and KBC1 not executed on same revision |
 | 4/4 amount-reconciliation edge cases directly executed in JavaScript V8 (2026-11-18) | Duplicate-safe one-to-one amount matching behavior | Does not establish Python/native/KBC1 parity or production financial reconciliation |
 
 The numeric regression result above is in the merged [independent evidence report](./verification/2026-11-18-numeric-differential.md), not a claim that Kasa as a language has 10,080 passing conformance programs.
