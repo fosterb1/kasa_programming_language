@@ -1,7 +1,7 @@
 # Kasa 0.4 — Exact mixed integer/decimal comparisons
 
 **Date:** 2026-11-18  
-**Status:** Implementation and focused independent verification on a feature branch. The full native VM, Python interpreter suite, and compiled KBC1 integration have **not yet been rerun against this exact branch**.  
+**Status:** Merged into `main` via [PR #23](https://github.com/fosterb1/kasa_programming_language/pull/23) (squash `d0adbda82180ea7e1f88c3390adb1b6c7b459464`) after focused independent checks. The full native VM, Python interpreter suite, and compiled KBC1 integration have **not yet been rerun against the merged revision**.  
 **Language changes:** No new Twi keywords; Python-reference behavior retained.
 
 ## Discovery
