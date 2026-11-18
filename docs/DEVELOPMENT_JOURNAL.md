@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Conformance driver staging and fail-closed checks
+
+- **Status:** On [PR #22](https://github.com/fosterb1/kasa_programming_language/pull/22), **test-only development in review**; not a Kasa runtime change.
+- **Change:** The cross-runtime harness now tests Python against native source→KBC1→VM execution and failure handling. It adds 58 existing-language test cases to the native reference comparison: 26 successful programs, 10 signed remainders, 11 runtime errors, and 11 malformed Unicode/source inputs. No Twi keyword was introduced.
+- **Independent verification:** Four tests of the new compile→check→run *orchestration* passed locally under **Python 3.13.5 / pytest 9.0.2** using a disposable simulated native CLI. The test file matched the GitHub Git-blob SHA `cd98d4f6b39240f5545e7db62d473db820f34559`. The harness helper used for this isolated check was a locally reconstructed copy, **not a full checkout**. The tests prove stage order, input forwarding, and fail-closed behavior after compile or check failures.
+- **What was NOT run:** None of the newly added **58 reference-versus-native-KBC1 conformance cases** were executed against the real native VM in this session. The four simulated-CLI tests do **not** certify the compiler or KBC1 correctness.
+- **Challenge:** Full GitHub checkout is still unavailable in the isolated local container due to external DNS restrictions. We deliberately did not use paid GitHub Actions.
+- **Next gate:** Run `python scripts/verify_local.py --profile full` in a complete checkout with the native executable, record the actual results and fix any semantic differences. Keep PR #22 open until those results are reviewed.
+
 ### 2026-11-18 — Experimental KBC1 merged; shared Python/KBC1 conformance expanded
 
 - **Status:** [PR #16](https://github.com/fosterb1/kasa_programming_language/pull/16) **merged to `main`** as Kasa native 0.4 alpha, squash SHA `637a3cee73c50dba6d1c9f6d5c024867f5207894`. The merge does **not** establish language 1.0 or a secure bytecode format.
