@@ -110,6 +110,11 @@ if(KASA_ENABLE_BIGINT_VM)
         add_test(NAME kasa_bigint_vm_rfc0008_source_and_kbc1
                  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/bigint_vm_conformance.py"
                          "$<TARGET_FILE:kasa-native>")
+        # Verify byte-for-byte KBC2 cross-platform determinism against the
+        # reviewed SHA256 golden manifest (never regenerates expected hashes).
+        add_test(NAME kasa_kbc2_cross_platform_golden
+                 COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/verify_kbc2_golden.py"
+                         --binary "$<TARGET_FILE:kasa-native>")
     endif()
 endif()
 
