@@ -51,6 +51,17 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 - **Evidence:** [Precision-bug report, source identities, commands, results and limitations](./verification/2026-11-18-mixed-numeric-comparison.md).
 - **Next gate:** Run local quick/full profiles on the exact revision; if native tests pass, merge as an alpha compatibility fix, and retain the broader 58-case parity gate.
 
+### 2026-11-18 — Focused independent parity profile and reproducible reports
+
+- **Status:** Implemented on a review branch; the real native parity suite has not yet been run against this exact change.
+- **Change:** `scripts/verify_local.py --profile parity` selects seven local stages for Python, JavaScript, C++20 compiler/VM, exact numeric precision, native/Python conformance and KBC1 round-trips. The existing `quick` and `full` plans remain seven and fifteen stages respectively.
+- **Discovery:** A broad full-profile run includes unrelated WebAssembly/protocol and platform tests. A smaller parity-only profile helps isolate language inconsistencies without confusing a successful component check with stable release certification.
+- **Provenance:** Every JSON report now records Git `HEAD` and whether the working tree is clean. Missing Git metadata is explicitly `null`, and both tracked and untracked changes are considered.
+- **Verification performed:** Four reconstructed profile-plan checks passed (quick 7, parity 7, full 15, full+WASM 17); five Git revision helper scenarios passed (non-Git, clean, untracked, modified, restored). These **are focused checks of extracted helper functions**, not a full run of the new Python pytest tests or Kasa's native compiler.
+- **Evidence:** [Independent profile-verification record](./verification/2026-11-18-parity-profile.md).
+- **Next gate:** Run `python scripts/verify_local.py --profile parity --report build/parity-report.json` from a complete checkout. Record its exit code, observed fixture failures and source commit before claiming the 58 Python/KBC1 cases and 18 recent numeric fixtures passed together.
+- **Infrastructure:** GitHub-hosted Actions stay manual-only to avoid automatic runner execution; no hosted verification charges are necessary for this profile.
+
 ## Hosted CI execution policy — 2026-11-18
 
 **Decision:** GitHub-hosted workflows (`tests.yml`, `native.yml`, `wasm.yml`) are preserved but changed to **`workflow_dispatch` only**. They do not run automatically on new pushes or pull requests during the budget-sensitive independent development phase. The user can manually trigger each workflow for final release verification once billing and runner availability have been reviewed.
