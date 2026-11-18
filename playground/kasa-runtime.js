@@ -261,8 +261,12 @@
   }
   function equal(a, b) {
     if (isNumber(a) && isNumber(b)) {
+      // Python compares integers to binary64 decimals without first rounding
+      // the integer through Number(). Convert only integral floats to BigInt.
       if (typeof a === "bigint" && typeof b === "bigint") return a === b;
-      return toNumber(a) === toNumber(b);
+      if (typeof a === "bigint") return Number.isInteger(b.value) && a === BigInt(b.value);
+      if (typeof b === "bigint") return Number.isInteger(a.value) && BigInt(a.value) === b;
+      return a.value === b.value;
     }
     if (a === null || b === null || typeof a === "boolean" || typeof b === "boolean") return a === b;
     if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((v, i) => equal(v, b[i]));
@@ -401,8 +405,10 @@
           if (op === "+" && typeof a === "string" && typeof b === "string") return this.check(a + b, e.token);
           this.number(a, e.token); this.number(b, e.token);
           if (["<", "<=", ">", ">="].includes(op)) {
-            const x = typeof a === "bigint" && typeof b === "bigint" ? a : toNumber(a);
-            const y = typeof a === "bigint" && typeof b === "bigint" ? b : toNumber(b);
+            // JS relational comparisons of BigInt and Number preserve the
+            // exact mathematical ordering (unlike Number(bigInteger)).
+            const x = typeof a === "bigint" ? a : a.value;
+            const y = typeof b === "bigint" ? b : b.value;
             return op === "<" ? x < y : op === "<=" ? x <= y : op === ">" ? x > y : x >= y;
           }
           if ((op === "/" || op === "%") && (b === 0n || b instanceof FloatValue && b.value === 0)) this.error(e.token, "ZeroDivisionError", "Cannot divide by zero");

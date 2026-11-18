@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -49,6 +50,19 @@ def run(source: str, stdin: str = "", limit: int = 10_000) -> str:
 ])
 def test_programs(source: str, expected: str) -> None:
     assert run(source, stdin="Ama\n") == expected
+
+
+NUMERIC_COMPARISON_FIXTURES = json.loads(
+    (ROOT / "tests" / "conformance_numeric_comparisons.json").read_text(encoding="utf-8")
+)
+
+@pytest.mark.parametrize(
+    ("fixture"),
+    NUMERIC_COMPARISON_FIXTURES["cases"],
+    ids=lambda item: item["name"],
+)
+def test_exact_mixed_numeric_comparison(fixture: dict) -> None:
+    assert run(fixture["source"]) == fixture["expected_stdout"]
 
 
 def test_scope_and_recursion() -> None:

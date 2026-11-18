@@ -22,6 +22,9 @@ sys.argv = sys.argv[:1]
 REMAINDER_FIXTURES = json.loads(
     (ROOT / "tests" / "conformance_remainder.json").read_text(encoding="utf-8")
 )
+NUMERIC_COMPARISON_FIXTURES = json.loads(
+    (ROOT / "tests" / "conformance_numeric_comparisons.json").read_text(encoding="utf-8")
+)
 SOURCE_LOCATION_FIXTURES = json.loads(
     (ROOT / "tests" / "conformance_source_locations.json").read_text(encoding="utf-8")
 )
@@ -157,6 +160,27 @@ class Conformance(unittest.TestCase):
                 expected = fixture["expected_stdout"]
                 self.assertEqual(run_python(fixture["source"]), expected)
                 compiled, checked, executed = run_native_serialized(fixture["source"])
+                self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+                self.assertIsNotNone(executed)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(executed.stdout, expected)
+
+    def test_mixed_numeric_comparison_against_python(self):
+        for fixture in NUMERIC_COMPARISON_FIXTURES["cases"]:
+            with self.subTest(name=fixture["name"]):
+                expected=fixture["expected_stdout"]
+                self.assertEqual(run_python(fixture["source"]), expected)
+                native=run_native(fixture["source"])
+                self.assertEqual(native.returncode, 0, native.stderr)
+                self.assertEqual(native.stdout, expected)
+
+    def test_mixed_numeric_comparison_in_kbc1(self):
+        for fixture in NUMERIC_COMPARISON_FIXTURES["cases"]:
+            with self.subTest(name=fixture["name"]):
+                expected=fixture["expected_stdout"]
+                compiled, checked, executed=run_native_serialized(fixture["source"])
                 self.assertEqual(compiled.returncode, 0, compiled.stderr)
                 self.assertIsNotNone(checked)
                 self.assertEqual(checked.returncode, 0, checked.stderr)

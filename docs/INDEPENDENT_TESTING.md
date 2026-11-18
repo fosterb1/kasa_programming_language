@@ -54,6 +54,7 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 | Standalone native Unicode lexer executable | No | Yes |
 | Standalone KBC1 serialization and corruption-rejection executable | No | Yes |
 | Deterministic KBC1 loader mutation smoke (2,000 CRC-adjusted changes) | No | Yes |
+| Exact mixed integer/decimal comparison smoke | No | Yes |
 | Native/Python conformance harness (direct source and KBC1-vs-reference fixtures) | No | Yes |
 | Native KBC1 round-trip and malformed-bytecode tests | No | Yes |
 | Emscripten native WASM and site bundle | No | Optional |
@@ -61,6 +62,19 @@ This **requires the Emscripten toolchain** and confirms the WASM source builds a
 The script runs subprocesses without a shell, captures the final portion of stdout/stderr, records exit codes and durations, and returns **nonzero** if any required step fails. Missing executables are failures, not skipped passes. An unsuccessful native configuration/build marks every downstream dependent check explicitly as **not_run**, including the reason it was blocked; the complete planned check list is preserved in the report.
 
 **A dry run reports `not_run` for every step and never claims the tests passed.** Do not compare a dry-run exit code to a completed test run.
+
+### Exact mixed integer/decimal comparisons
+
+`tests/conformance_numeric_comparisons.json` includes **18 shared cases** involving 64-bit integer boundaries, precision beyond `2^53`, decimal fractions and nested-list equality. This corpus is consumed by Python, JavaScript and the native source/KBC1 conformance harness. The separate native C++20 helper can be tested without the VM:
+
+```sh
+c++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror \
+  -I native/include native/tests/numeric_comparison_smoke.cpp \
+  -o kasa-numeric-comparison-smoke
+./kasa-numeric-comparison-smoke
+```
+
+On 2026-11-18, **18/18 standalone C++ checks** and **107/107 direct JavaScript regression checks** passed independently, along with **3,000/3,000 randomized C++/Python numerical cross-checks**. The full native VM and Python/KBC1 fixture execution on this exact branch remain separate verification gates. See [evidence](./verification/2026-11-18-mixed-numeric-comparison.md).
 
 ### Native bytecode versus Python reference
 
@@ -123,7 +137,7 @@ The exact PR #16 native executable compiled on Linux with **GCC 14.2** and **Cla
   "profile": "full",
   "dry_run": false,
   "counts": {
-    "passed": 14,
+    "passed": 15,
     "failed": 0,
     "not_run": 0
   }
