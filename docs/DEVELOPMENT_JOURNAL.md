@@ -43,6 +43,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 ### 2026-11-18 — Native signed int64 minimum source parsing
 
 - **Defect:** Native parse rejected `ka -9223372036854775808` while Python/JavaScript accepted it, because `std::stoll` parsed an out-of-range positive magnitude before unary minus.
+- **Merged into `main`:** [PR #41](https://github.com/fosterb1/kasa_programming_language/pull/41), squash commit `7cf550fb4748d08bfa0906c3af3afe2795804adf`.
 - **Fix:** When unary minus immediately precedes the exact decimal magnitude of `2^63`, after stripping leading zeros, native parser emits a signed `int64_t` minimum literal. The surrounding unary grammar is unchanged; values beyond `int64_t` are still unsupported in native. Five shared fixture programs cover minimum value, leading zeros, addition, remainder, and equality with `nɔma`.
 - **Test registration:** Python pytest, Node JS, native source and KBC1 serialized execution, and the independent parity profile now cover these fixtures.
 - **Executed evidence:** **84/84** direct JS shared conformance cases passed on the branch. **Not executed:** Full Python pytest, Node full runner, linked native parser/VM or KBC1 round trip. Native change requires the full local parity gate and may reveal integration issues. No additional syntax, Twi vocabulary or license decisions.
