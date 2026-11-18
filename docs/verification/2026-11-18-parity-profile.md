@@ -1,7 +1,7 @@
 # Kasa 0.4 — Independent parity-profile runner verification
 
 **Date:** 2026-11-18  
-**Status:** New focused verification profile implemented on a development branch; **full cross-runtime execution remains pending**.  
+**Status:** New focused verification profile **merged into main** in [PR #24](https://github.com/fosterb1/kasa_programming_language/pull/24), commit `6bb82da224496b1da92d096ca678a324ec4c4da7`; **full cross-runtime execution remains pending**.  
 **Scope:** Local test orchestration and Git revision metadata, not confirmation that Python/native/KBC1 outputs are identical.
 
 ## Why this was added
