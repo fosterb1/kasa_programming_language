@@ -1,3 +1,5 @@
+> **Historical bytecode proposal.** This draft predates the implemented KBC1 RFC and subsequent security/resource fixes. The current bytecode reference is [RFC-0005](./RFC-0005-kbc1-portable-bytecode.md). Do not implement this older document in preference to RFC-0005.
+
 # RFC-0003 — Kasa Bytecode Container (KBC1) — Alpha proposal
 
 **Status:** Implemented experimental file format, not a stable or secure public standard.
