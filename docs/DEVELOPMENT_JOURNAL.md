@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Strengthened parity-report audit integrity (verification tooling)
+
+- **Discovered weakness:** The previous report auditor checked stage names, success counts, clean state and a 40-digit SHA, but **did not check that stage commands were the actual intended tests**. Ten reported `python -V` checks could be labeled as successful parity stages and accepted.
+- **Change:** Auditor rebuilds its expected 10-stage command argv from the local `verify_local.plan("parity", False)` and rejects mismatches, while allowing alternate Python virtualenv interpreter paths only when the argument vector is intact. Runner now records Git source revisions **before and after** execution; auditor rejects a moving or unknown revision. Optional `--expected-commit` binds the audit to an externally chosen SHA. Six regression tests added for counterfeit argv, command substitution, changed/missing final revision, commit mismatch and virtualenv portability; prior dirty-diagnostic test updated.
+- **Verification scope:** Source-level review and registration only. Full `python -m unittest tests/test_audit_parity_report.py`, Python/Node/native/KBC1 integration, and an actual clean-checkout 10-stage parity report **were not run** on this revision. No verified full-parity claim; percentages unchanged.
+- **Limit:** An auditor reading JSON **cannot cryptographically attest execution** or rule out intentionally forged records. Keep trusted execution, release provenance and code review separate. Existing reports without `source_revision_after` are now rejected and must be regenerated with the updated runner.
+
+
+
 ### 2026-11-18 — Arbitrary-precision integer direction and release gate
 
 - **Merged into `main`:** [PR #42](https://github.com/fosterb1/kasa_programming_language/pull/42), squash commit `cee26f5b0b945a0bbc119237548eaf2544802721`.
