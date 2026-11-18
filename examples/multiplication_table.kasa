@@ -1,0 +1,6 @@
+# Five-times table
+ma i = 1
+bere_a i <= 12
+    ka "5 x " + nsɛm(i) + " = " + nsɛm(5 * i)
+    ma i = i + 1
+awiei

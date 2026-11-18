@@ -1,0 +1,32 @@
+{
+  "schema": "kasa-conformance-v1",
+  "note": "Shared language behaviors; diagnostics compare categories rather than exact wording/columns.",
+  "success": [
+    {"id":"hello","source":"ka \"Maakye, Ghana!\"","output":"Maakye, Ghana!\n"},
+    {"id":"arithmetic","source":"ka 2 + 3 * 4\nka (2 + 3) * 4\nka 17 % 5","output":"14\n20\n2\n"},
+    {"id":"variables","source":"ma ɛdin = \"Ama\"\nka \"Maakye, \" + ɛdin\nma ɛdin = \"Kofi\"\nka ɛdin","output":"Maakye, Ama\nKofi\n"},
+    {"id":"unicode","source":"ma ɔman = \"Ghana\"\nma ɛdin = \"Akosua\"\nka ɛdin + \" - \" + ɔman","output":"Akosua - Ghana\n"},
+    {"id":"if_else","source":"ma mfe = 16\nsɛ mfe >= 18 a\n  ka \"Adult\"\nanyɛ_saa_a\n  ka \"Young\"\nawiei","output":"Young\n"},
+    {"id":"repeat","source":"mpɛn 3\nka \"Kasa\"\nawiei","output":"Kasa\nKasa\nKasa\n"},
+    {"id":"while","source":"ma n = 1\nbere_a n <= 4\nka n * n\nma n = n + 1\nawiei","output":"1\n4\n9\n16\n"},
+    {"id":"break_continue","source":"ma i=0\nmpɛn 5\nma i=i+1\nsɛ i == 2 a\ntoa_so\nawiei\nsɛ i == 4 a\ngyae\nawiei\nka i\nawiei","output":"1\n3\n"},
+    {"id":"function","source":"dwumadie fa_bi(a,b)\nsanma a+b\nawiei\nka fa_bi(20,22)","output":"42\n"},
+    {"id":"recursion","source":"dwumadie fact(n)\nsɛ n <= 1 a\nsanma 1\nawiei\nsanma n * fact(n - 1)\nawiei\nka fact(5)","output":"120\n"},
+    {"id":"list_mutation","source":"ma nɔma=[10,20,30]\nma nɔma[1]=99\nka nɔma[1]\nka tentɛn(nɔma)","output":"99\n3\n"},
+    {"id":"nested_lists","source":"ma a=[1,[2,3]]\nka a[1][0]","output":"2\n"},
+    {"id":"boolean","source":"ka nokware\nka atoro\nka hwee\nka ɛnyɛ atoro","output":"nokware\natoro\nhwee\nnokware\n"},
+    {"id":"short_circuit","source":"ka atoro ne (1/0 == 1)\nka nokware anaa (1/0 == 1)","output":"atoro\nnokware\n"},
+    {"id":"conversion","source":"ka nɔma(\"12\") + 3\nka nsɛm(nokware)\nka tentɛn(\"Ghana\")","output":"15\nnokware\n5\n"},
+    {"id":"input","source":"ma edin = bisa()\nka \"Akwaaba, \" + edin","input":"Akosua\n","output":"Akwaaba, Akosua\n"}
+  ],
+  "failures": [
+    {"id":"undefined","source":"ka missing_name","error":"NameError"},
+    {"id":"division_by_zero","source":"ka 1 / 0","error":"ZeroDivisionError"},
+    {"id":"type_error","source":"ka 1 + \"a\"","error":"TypeError"},
+    {"id":"invalid_condition","source":"sɛ 1 a\nka \"x\"\nawiei","error":"TypeError"},
+    {"id":"invalid_index","source":"ka [1][9]","error":"IndexError"},
+    {"id":"missing_block_end","source":"mpɛn 3\nka 1","error":"SyntaxError"},
+    {"id":"bad_string","source":"ka \"unterminated","error":"SyntaxError"},
+    {"id":"break_outside_loop","source":"gyae","error":"SyntaxError"}
+  ]
+}

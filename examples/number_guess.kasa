@@ -1,0 +1,13 @@
+# Demonstration: a deterministic guessing game
+ma secret = 7
+ma guesses = [3, 9, 7]
+ma i = 0
+bere_a i < tentɛn(guesses)
+    sɛ guesses[i] == secret a
+        ka "You guessed correctly!"
+        gyae
+    anyɛ_saa_a
+        ka "Try again"
+    awiei
+    ma i = i + 1
+awiei

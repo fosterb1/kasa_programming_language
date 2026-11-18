@@ -81,3 +81,7 @@ The JavaScript interpreter previously used ECMAScript decimal-formatting thresho
 ## Integration of the native numeric display candidate
 
 The previously conflicting PR #31 was reconciled against newer main without overwriting RFC-0007. Required local profiles now include native binary64 smoke and deterministic Python/native text differential (10 parity stages / 18 full stages); core Kasa semantic tests remain registered. Direct JavaScript executions for 15 decimal and 12 core contract fixtures passed on the integration branch. Full Python/Node/native/KBC1 integration still requires actual execution, so the release gate and percentage estimates remain unchanged.
+
+## Legacy platform workstream reconciliation (2026-11-18)
+
+PR #7's non-obsolete deliverables have been applied against the current source: 10 additional root exercises, VS Code metadata/runner prototype, opt-in beginner diagnostics, and a JS-capable offline PWA package. Actual JS execution passed 26 root programs and 24 legacy shared conformance cases. These features do not complete full runtime parity, real-browser WASM testing, linguistic validation or release licensing. Older native compiler and KBC1 implementations were explicitly not allowed to replace subsequent hardening.

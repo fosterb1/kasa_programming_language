@@ -1,0 +1,8 @@
+{
+  "Print in Kasa": {"prefix":"ka", "body":["ka \"${1:Maakye, Ghana!}\""], "description":"Print a Kasa value"},
+  "Assignment": {"prefix":"ma", "body":["ma ${1:edin} = ${2:\"Ama\"}"], "description":"Create or update a variable"},
+  "If and else": {"prefix":"sɛ", "body":["sɛ ${1:nokware} a", "    $2", "anyɛ_saa_a", "    $3", "awiei"], "description":"Conditional Kasa block"},
+  "Repeat": {"prefix":"mpɛn", "body":["mpɛn ${1:5}", "    $2", "awiei"], "description":"Repeat N times"},
+  "While": {"prefix":"bere_a", "body":["bere_a ${1:n < 10}", "    $2", "awiei"], "description":"While loop"},
+  "Function": {"prefix":"dwumadie", "body":["dwumadie ${1:fa_bi}(${2:a, b})", "    sanma ${3:a + b}", "awiei"], "description":"Define a Kasa function"}
+}

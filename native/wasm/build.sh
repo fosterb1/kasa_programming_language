@@ -27,4 +27,7 @@ em++ \
   -s 'EXPORTED_RUNTIME_METHODS=["ccall","UTF8ToString"]' \
   -o "$ROOT/playground/native/kasa-native.js"
 ls -lh "$ROOT/playground/native/kasa-native.js" "$ROOT/playground/native/kasa-native.wasm"
+if command -v node >/dev/null 2>&1; then
+  node "$ROOT/native/wasm/validate_artifacts.mjs"
+fi
 echo 'Now run: python playground/build_site.py --require-wasm'

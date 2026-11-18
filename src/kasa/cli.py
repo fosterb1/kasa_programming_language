@@ -8,9 +8,11 @@ from pathlib import Path
 
 from . import __version__
 from .core import Interpreter, KasaError, parse
+from .diagnostics import explain_error
 
 
-def run_file(path: str, check: bool = False) -> int:
+def run_file(path: str, check: bool = False, explain: bool = False) -> int:
+    source = ""
     try:
         source = Path(path).read_text(encoding="utf-8")
         program = parse(source, filename=path)
@@ -21,7 +23,7 @@ def run_file(path: str, check: bool = False) -> int:
         print(f"kasa: cannot read {path}: {exc}", file=sys.stderr)
         return 2
     except KasaError as exc:
-        print(exc, file=sys.stderr)
+        print(explain_error(exc, source) if explain else exc, file=sys.stderr)
         return 1
 
 
@@ -65,11 +67,12 @@ def main(argv: list[str] | None = None) -> int:
     for command in ("run", "check"):
         sub = subs.add_parser(command, help=f"{command.title()} a .kasa program")
         sub.add_argument("file", help="Path to a UTF-8 .kasa source file")
+        sub.add_argument("--explain", action="store_true", help="Show the source line and a beginner-friendly correction hint")
     subs.add_parser("repl", help="Start an interactive Kasa interpreter")
     args = parser.parse_args(argv)
     if args.command == "repl":
         return repl()
-    return run_file(args.file, check=args.command == "check")
+    return run_file(args.file, check=args.command == "check", explain=args.explain)
 
 
 if __name__ == "__main__":

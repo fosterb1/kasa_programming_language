@@ -171,3 +171,12 @@ source.addEventListener("keydown", (event) => {
 });
 
 prepareWorker();
+
+// Offline installation is optional and does not block interpreter startup.
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(error => {
+      console.warn('Kasa offline mode unavailable:', error);
+    });
+  });
+}

@@ -1,0 +1,9 @@
+# Weekly savings towards a goal
+ma sika = 0
+ma dapɛn = 0
+bere_a sika < 1000
+    ma sika = sika + 125
+    ma dapɛn = dapɛn + 1
+awiei
+ka "Weeks: " + nsɛm(dapɛn)
+ka "Saved GHS: " + nsɛm(sika)
