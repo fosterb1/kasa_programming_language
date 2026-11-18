@@ -102,7 +102,7 @@ def capture_native(
 def run_native(source: str, input_text: str = "", mode: str = "run") -> subprocess.CompletedProcess[str]:
     with tempfile.TemporaryDirectory() as folder:
         name = pathlib.Path(folder) / "test.kasa"
-        name.write_text(source, encoding="utf-8")
+        name.write_bytes(source.encode("utf-8"))
         return capture_native([str(BINARY), mode, str(name)], input_text)
 
 
@@ -120,7 +120,7 @@ def run_native_serialized(source: str, input_text: str = "") -> tuple[
     with tempfile.TemporaryDirectory() as folder:
         source_path = pathlib.Path(folder) / "test.kasa"
         bytecode_path = pathlib.Path(folder) / "test.kbc"
-        source_path.write_text(source, encoding="utf-8")
+        source_path.write_bytes(source.encode("utf-8"))
         compiled = subprocess.run(
             [str(BINARY), "compile", str(source_path), "-o", str(bytecode_path)],
             text=True, capture_output=True, timeout=5, check=False,
