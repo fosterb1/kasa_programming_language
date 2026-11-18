@@ -63,6 +63,27 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME kasa_numeric_comparison_exact COMMAND kasa-numeric-comparison-smoke)
 
+    # Standalone shortest-round-trip binary64 display smoke; no VM dependency.
+    add_executable(kasa-float-display-smoke tests/float_display_smoke.cpp)
+    target_compile_features(kasa-float-display-smoke PRIVATE cxx_std_20)
+    target_include_directories(kasa-float-display-smoke PRIVATE include)
+    if(MSVC)
+        target_compile_options(kasa-float-display-smoke PRIVATE /W4 /utf-8)
+    else()
+        target_compile_options(kasa-float-display-smoke PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME kasa_float_display_python_notation COMMAND kasa-float-display-smoke)
+
+    # Native binary64 formatting differential: Python drives this executable.
+    add_executable(kasa-float-display-probe tests/float_display_probe.cpp)
+    target_compile_features(kasa-float-display-probe PRIVATE cxx_std_20)
+    target_include_directories(kasa-float-display-probe PRIVATE include)
+    if(MSVC)
+        target_compile_options(kasa-float-display-probe PRIVATE /W4 /utf-8)
+    else()
+        target_compile_options(kasa-float-display-probe PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+
     # Python drives a reusable batch probe with 10,080 deterministic numeric
     # comparisons; unlike the fixed smoke it tests thousands of input pairs.
     add_executable(kasa-numeric-compare-probe tests/numeric_compare_probe.cpp)
