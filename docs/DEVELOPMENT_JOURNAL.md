@@ -40,6 +40,17 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Mixed integer/decimal comparison precision defect
+
+- **Status:** **Fixed on a dedicated review branch**; standalone native comparator and browser runtime verified independently. This entry does not claim full native VM or Python/KBC1 parity until those tests execute.
+- **Discovery:** The browser converted `BigInt` to JavaScript `Number`, while the C++ VM converted signed 64-bit integers to `double` during mixed integer/decimal comparisons. Beyond **2^53**, two different values could incorrectly compare as equal, reverse ordering, or make nested lists equal. Python's reference comparisons preserve exact integer value.
+- **Change:** The JavaScript engine now uses exact BigInt/Number relational semantics and BigInt equality for integral decimals. The native VM calls a new finite-int64-versus-binary64 comparison helper that handles `±2^63` conversion boundaries safely; all existing Twi syntax is unchanged.
+- **Regression coverage added:** 18 shared Kasa programs consumed by browser JavaScript, Python pytest, and native direct/KBC1 conformance tests, plus a standalone C++20 numeric-comparison smoke target.
+- **Independent verification:** **107/107 direct JS checks passed** (including 18 new numeric cases and 89 existing checks). **18/18 exact GitHub-blob-matched C++20 smoke checks passed** with strict GNU 14.2 compiler flags and again with ASan/UBSan. **3,000/3,000** deterministic mixed numeric comparisons matched Python reference numerical comparisons using the same C++ helper.
+- **What remains unverified:** The full native CMake/VM build with the updated VM source, the complete Python parser/pytest suite, and compiled KBC1 execution of the new 18 cases. No hosted CI jobs were requested.
+- **Evidence:** [Precision-bug report, source identities, commands, results and limitations](./verification/2026-11-18-mixed-numeric-comparison.md).
+- **Next gate:** Run local quick/full profiles on the exact revision; if native tests pass, merge as an alpha compatibility fix, and retain the broader 58-case parity gate.
+
 ## Hosted CI execution policy — 2026-11-18
 
 **Decision:** GitHub-hosted workflows (`tests.yml`, `native.yml`, `wasm.yml`) are preserved but changed to **`workflow_dispatch` only**. They do not run automatically on new pushes or pull requests during the budget-sensitive independent development phase. The user can manually trigger each workflow for final release verification once billing and runner availability have been reviewed.
@@ -146,6 +157,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 | R-06 | Lack of explicit open-source license | Medium | Owner chooses license and adds `LICENSE`; do not claim legal open-source status | Open |
 | R-07 | No classroom pilot validating proposed accessibility advantage | Medium | Small documented, ethically designed learner/teacher pilot | Open |
 | R-08 | Full native-vs-Python/JavaScript semantic conformance and cross-platform release checks incomplete | **High for 1.0** | Run all shared fixtures and complete local verification profile against the same commit; track numeric limits and OS results | Open |
+| R-09 | Large integer/decimal comparisons previously rounded integer values; mixed arithmetic may still round | Medium for alpha; high for financial correctness | Exact comparison patch and 18-case shared fixture; keep monetary examples in integer pesewas and investigate mixed arithmetic semantics | Comparison fix in review |
 
 ## Useful independent commands
 
