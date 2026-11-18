@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Close the remaining native decimal literal underflow gap
+
+- **Reproduced independently:** C++ `std::stod` throws `std::out_of_range` for `0.` followed by 400 zeroes and `1` (valid decimal rounding to zero), and for `0.` followed by 309 zeroes and `1` (finite positive subnormal). `std::strtod` returns finite values with the full input consumed on the same host. This remained after the earlier `nɔma` text-conversion patch because `native/src/parser.cpp` still used `std::stod` on `DECIMAL`.
+- **Fix:** Native parser uses `std::strtod`, checks full consumption, and rejects non-finite overflow as `ResourceError`; tiny valid decimals and subnormals are no longer rejected only because of host `ERANGE`. Added four fixture cases to the existing shared decimal corpus; registrations automatically exercise Python, JS, native source and KBC1 test suites.
+- **Executed:** **98/98** direct JS regression cases passed (19 decimal display, 10 arbitrary integer, 5 int64 boundary, 20 numeric text, 8 output budget, 12 core contract, 24 legacy). The isolated C++ conversion policy assertions passed **3/3 with GCC and 3/3 with Clang**, each under ASan+UBSan. The C++ test is *isolated*: it is not the linked Kasa parser/VM.
+- **Open verification:** Python pytest, full Node test runner, linked native parser/VM and KBC1 serialized source tests on this exact branch. No authenticated full parity report; platform locale differences and native bigint are unresolved. Progress estimates unchanged.
+
+
+
 ### 2026-11-18 — Strengthened parity-report audit integrity (verification tooling)
 
 - **Discovered weakness:** The previous report auditor checked stage names, success counts, clean state and a 40-digit SHA, but **did not check that stage commands were the actual intended tests**. Ten reported `python -V` checks could be labeled as successful parity stages and accepted.
