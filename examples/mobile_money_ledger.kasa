@@ -1,0 +1,18 @@
+# Simple mobile-money balance from receipts and payments.
+# Illustrative arithmetic only; this does not connect to a payment provider.
+ma opening_balance = 150000
+ma credits = [25000, 40000, 15000]
+ma debits = [10000, 30000, 5000]
+ma index = 0
+ma balance = opening_balance
+bere_a index < tentɛn(credits)
+    ma balance = balance + credits[index]
+    ma index = index + 1
+awiei
+ma index = 0
+bere_a index < tentɛn(debits)
+    ma balance = balance - debits[index]
+    ma index = index + 1
+awiei
+ka "Mobile money balance (pesewas):"
+ka balance
