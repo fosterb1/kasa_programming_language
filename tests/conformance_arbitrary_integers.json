@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "contract": "candidate-arbitrary-precision-integers",
+  "description": "Target Kasa semantics: exact integers across literals, arithmetic, remainder, conversion, nested equality and display. Native C++ currently supports only int64; these cases are future native acceptance criteria, not native CI conformance tests yet.",
+  "cases": [
+    {
+      "name": "promote_at_int64_max",
+      "source": "ka 9223372036854775807 + 1",
+      "expected_stdout": "9223372036854775808\n"
+    },
+    {
+      "name": "promote_below_int64_min",
+      "source": "ka -9223372036854775808 - 1",
+      "expected_stdout": "-9223372036854775809\n"
+    },
+    {
+      "name": "power_of_two_129",
+      "source": "ma x = 2\nmpɛn 128\nma x = x * 2\nawiei\nka x",
+      "expected_stdout": "680564733841876926926749214863536422912\n"
+    },
+    {
+      "name": "big_int_multiply",
+      "source": "ka 18446744073709551616 * 18446744073709551616",
+      "expected_stdout": "340282366920938463463374607431768211456\n"
+    },
+    {
+      "name": "negative_floor_remainder",
+      "source": "ka -18446744073709551617 % 7",
+      "expected_stdout": "4\n"
+    },
+    {
+      "name": "big_int_literal",
+      "source": "ka 340282366920938463463374607431768211456",
+      "expected_stdout": "340282366920938463463374607431768211456\n"
+    },
+    {
+      "name": "big_int_text_conversion",
+      "source": "ka nɔma(\"18446744073709551616\")",
+      "expected_stdout": "18446744073709551616\n"
+    },
+    {
+      "name": "large_int_exact_vs_float",
+      "source": "ka 9007199254740993 > 9007199254740992.0",
+      "expected_stdout": "nokware\n"
+    },
+    {
+      "name": "nested_list_bigint_equality",
+      "source": "ka [18446744073709551616] == [18446744073709551616]",
+      "expected_stdout": "nokware\n"
+    },
+    {
+      "name": "big_int_to_text_roundtrip",
+      "source": "ka nsɛm(nɔma(\"340282366920938463463374607431768211456\"))",
+      "expected_stdout": "340282366920938463463374607431768211456\n"
+    }
+  ]
+}

@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Arbitrary-precision integer direction and release gate
+
+- **Decision:** Adopt exact arbitrary-precision integers (bounded by explicit resource controls) as the *intended language semantics*, keeping native signed 64-bit support explicitly experimental pending upgrade. Do not restrict Python/JavaScript integers to int64 as a short-term parity workaround.
+- **New specification:** [RFC-0008](./RFC-0008-arbitrary-precision-integers.md) defines target mathematical behavior, signed remainders, conversion, precision, a small-integer fast-path option, memory/DoS safeguards and a mandatory versioned KBC1 evolution. It distinguishes candidate 16,384-bit and 1,000-literal-digit limits from certified standards.
+- **New fixtures:** 10 shared exact integer source cases in `tests/conformance_arbitrary_integers.json`, registered with Python pytest and the Node browser suite; Python included in independent parity profile. Native/KBC1 expected-success runs must wait for implementation rather than fabricate a passing result.
+- **Evidence actually executed:** All **94/94** direct V8 shared JavaScript cases passed, including the 10 new arbitrary-integer cases plus 84 existing cases. Python pytest, the complete Node test runner, native C++/KBC1 and full local parity/full profiles have not been run on this revision. A green direct interpreter result is not full release certification.
+- **Next:** Obtain an intact local checkout or equivalent controlled execution for the baseline 10-stage parity/18-stage full verification, then implement the native big-integer representation and versioned serialization behind conformance tests.
+
+
+
 ### 2026-11-18 — Native signed int64 minimum source parsing
 
 - **Defect:** Native parse rejected `ka -9223372036854775808` while Python/JavaScript accepted it, because `std::stoll` parsed an out-of-range positive magnitude before unary minus.
