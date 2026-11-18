@@ -1,27 +1,27 @@
 # Kasa programming language — Progress scorecard
 
 **As of:** 2026-11-18  
-**Reference:** `main` at the previous baseline, including merged [PR #25](https://github.com/fosterb1/kasa_programming_language/pull/25) (`f2071538ab360deb133327b315b2c8af14c54710`).  
+**Reference:** Linux full-suite verified on merged `main` commit [`cbce6a6`](https://github.com/fosterb1/kasa_programming_language/commit/cbce6a6c6c20b9e994086fddbbeac12d42a45f71) (PR #48).  
 **How to interpret:** These percentages are *planning indicators*, not measured engineering-hours completed, automated test coverage, product-market fit, or a guaranteed release date.
 
-## Kasa 0.4 alpha engineering progress: 80% (8 of 10 defined implementation checkpoints)
+## Kasa 0.4 alpha engineering progress: 90% (9 of 10 defined implementation checkpoints)
 
 Each checkpoint below is scored as one implemented capability, regardless of its difficulty. A checkmark means the feature exists with at least **targeted** evidence, not that the feature is fully production-certified.
 
 | # | Checkpoint | Status | Evidence or outstanding question |
 |---:|---|---|---|
 | 1 | Python reference interpreter and CLI | Implemented | Parser, runtime, command-line entry point, tests |
-| 2 | JavaScript browser runtime | Implemented | 107/107 direct runtime regression checks on 2026-11-18 |
-| 3 | C++20 native compiler and in-memory VM | Implemented in alpha | Independently compiled native VM; full latest-revision regression still required |
+| 2 | JavaScript browser runtime | Implemented | 227/227 Node semantic checks passed on merged `main` via parity suite (2026-11-18) |
+| 3 | C++20 native compiler and in-memory VM | Implemented in alpha | Linked native VM built and passed full-profile Linux conformance on merged PR #48 commit |
 | 4 | KBC1 versioned disk bytecode | Implemented in alpha | Native round-trip, loader and adversarial tests; unsigned, not a sandbox |
 | 5 | Shared numeric correctness work | Implemented with targeted tests | Exact signed remainder and large int/decimal comparison; further mixed arithmetic differences remain |
 | 6 | Unicode source locations and diagnostics | Implemented with targeted tests | Shared fixture corpus, supplementary-letter lexer handling |
 | 7 | Ghana-focused offline programs | Implemented | Twenty-six root exercises including accounting, inventory, school fees and savings |
 | 8 | Independent tests and documentation | Implemented | Local quick/parity/full profiles, progress journal, verification reports |
-| 9 | Full cross-runtime parity on exact release revision | **Open** | Execute the 58 Python/KBC1 fixture cases, 18 numeric cases, all Python and Node tests with full native binary |
+| 9 | Linux cross-runtime parity for the implemented 0.4 portable subset on exact merged revision | **Verified for Linux alpha subset** | Merged `main` commit `cbce6a6`: 10/10 audited parity + 18/18 full-profile stages; 243/243 pytest and 227/227 Node semantic; native/KBC1 tested. **Not** RFC-0008 native big integers, macOS/Windows or stable 1.0 parity |
 | 10 | Cross-platform/real-browser WASM and alpha packaging validation | **Open** | Windows/macOS, actual WASM browser run, installation and resource limits |
 
-**Arithmetic:** 8 / 10 checkpoints = **80%** of this *implementation checklist*. The remaining two checkpoints are substantial and may require multiple release cycles.
+**Arithmetic:** 9 / 10 checkpoints = **90%** of this *experimental-alpha implementation checklist*, scoped to the existing Linux-supported language subset. Cross-platform/real-browser packaging is still open, as are native arbitrary-precision integers and KBC1 big-int semantics; this is **not** 90% of a stable language release.
 
 ## Kasa 1.0 stable maturity: ~35% (illustrative planning estimate)
 
@@ -32,7 +32,7 @@ This estimate uses a separate ten-area *readiness* rubric: 1 point for broadly i
 | Language core and Python implementation | 1.0 | Working interpreter with tests |
 | Browser interpreter | 1.0 | Working engine with focused conformance checks |
 | Native compiler and stable portable bytecode | 0.5 | Alpha KBC1 works; backward compatibility and security posture unfinished |
-| Cross-runtime semantic standard and parity | 0.5 | Shared corpora exist; full merged-revision pass pending |
+| Cross-runtime semantic standard and parity | 0.5 | Merged Linux alpha subset parity is now green, but RFC-0008 native big integers, other platforms and future-language semantics remain incomplete |
 | Offline practical education materials | 0.5 | Twenty-six programs (minimum met); teacher curriculum and measured classroom outcomes pending |
 | Production-grade data/financial standard library | 0 | Fixed-point/currency, CSV, safe files, structured data still to build |
 | Professional tools and developer ecosystem | 0 | Editor/debugging/package-manager suite remains unverified or experimental |
@@ -93,3 +93,5 @@ Review this scorecard after every substantive pull request. Add or reweight chec
 **2026-11-18 native Windows stdin parity:** `bisa()` now drops terminal CR remaining from C++ `getline` on CRLF input, matching Python/JS terminal line-end normalization while preserving internal carriage returns. Eight shared fixtures added for Python, Node, native source and KBC1, including local parity profile. **106/106** direct JS fixtures and **6/6** isolated C++ checks on each GCC/Clang with sanitizers passed; full linked VM/KBC1 remains unrun. The score stays **80% / ~35%**.
 
 **2026-11-18 complete-checkout verification breakthrough:** Successfully cloned and built Kasa in a disposable Linux environment without GitHub Actions. On clean candidate branch commit `974f9d0d2b73804fcdc4f297716169cddcd9ef64`, **243/243** Python tests, **227/227** Node semantic tests, **10/10** parity stages with SHA-pinned audit, and **18/18** full-profile stages passed. This required fixing a stale full-profile stage-count assertion (16 → 18), ensuring native source/KBC1 conformance uses raw-byte capture so an internal `\\r` is not converted by Python universal-newline mode, and ignoring local generated artifacts. **Checkpoint 9 must not be marked complete for the final merged revision until the same parity/full checks pass against that exact commit**. Current native portable subset excludes not-yet-implemented arbitrary-precision integer targets. macOS/Windows and real-browser WASM remain open. Planning estimates stay at 80% / ~35% until the exact merged revision is verified.
+
+**2026-11-18 verified Linux merged-main milestone:** **243/243** Python tests, **227/227** JS semantic cases, **10/10** source/Python/JS/native/KBC1 parity stages with `--expected-commit` audit and matching clean before/after revision, and **18/18** full-profile stages passed on merged `main` commit `cbce6a6c6c20b9e994086fddbbeac12d42a45f71` in an independent temporary Linux sandbox. [Verification record](./verification/2026-11-18-linux-full-parity.md). This completes checkpoint 9 *for the currently implemented Linux-portable Kasa 0.4 subset*, increasing the 0.4 implementation checklist to **9/10 = 90%**. It does **not** mean full language feature or cross-platform parity: arbitrary-precision native/KBC1, macOS/Windows and real-browser WASM remain unverified or unimplemented. The **Kasa 1.0 readiness estimate remains ~35%**.
