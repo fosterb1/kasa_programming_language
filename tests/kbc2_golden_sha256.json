@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "format": "KBC2",
+  "provenance": "Linux GNU C++ 15 release opt-in bigint VM, 2026-11-18; cross-platform verification pending",
+  "cases": {
+    "promote_at_int64_max": {
+      "sha256": "6ac7efcb517e41a9a40e699526f5831588be5f2beb006c85b40e9d7ac57ffc35",
+      "bytes": 112
+    },
+    "promote_below_int64_min": {
+      "sha256": "9f6c141307eee0673d5578b05808da7a0fac3f8d6096d940ce013d362333c136",
+      "bytes": 134
+    },
+    "power_of_two_129": {
+      "sha256": "b7994ce48db38120a8df7f9c74c1f3eaaa6513cbf756bec8c106590214bc7ef4",
+      "bytes": 472
+    },
+    "big_int_multiply": {
+      "sha256": "6593b2e87ed1839e4d1456199c1292b2a5594a829e6a906e692837ee9c63e9a8",
+      "bytes": 120
+    },
+    "negative_floor_remainder": {
+      "sha256": "b8f8b055182af2a9519aa6f4fe41bb5f299444d62708965f31c7087099d902a8",
+      "bytes": 135
+    },
+    "big_int_literal": {
+      "sha256": "e49f1ea52bf7ac55ee12056d3180509d98f40eb3b8e08babb5d40697cd2ce50e",
+      "bytes": 78
+    },
+    "big_int_text_conversion": {
+      "sha256": "5d675bf8a9823b58490db6e1de201e7fe27be56206dbc9c0028e0292d6dba47c",
+      "bytes": 125
+    },
+    "large_int_exact_vs_float": {
+      "sha256": "7315159a18d24494a8674b3393802ed4467f5eaac4ff06b81176fe9ed7ecb404",
+      "bytes": 112
+    },
+    "nested_list_bigint_equality": {
+      "sha256": "a86eb2af9909cef38bb8e85e835e9a6d11af953fb4b95f814fec6636e74d83e0",
+      "bytes": 158
+    },
+    "big_int_to_text_roundtrip": {
+      "sha256": "a900d35d2bb907d2dda554020e1049c7c51451394a99861292d8d4b98ed2080f",
+      "bytes": 187
+    }
+  }
+}
