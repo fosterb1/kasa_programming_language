@@ -82,9 +82,9 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
         ])
         if profile == "full":
             tests.extend([
-            ("Native lexer smoke", [str(ROOT / build / ("Release/kasa-lexer-smoke.exe" if os.name == "nt" else "kasa-lexer-smoke"))], 60),
-            ("Native KBC1 serializer smoke", [str(ROOT / build / ("Release/kasa-kbc1-smoke.exe" if os.name == "nt" else "kasa-kbc1-smoke"))], 60),
-            ("Native KBC1 mutation smoke", [str(ROOT / build / ("Release/kasa-kbc1-mutation-smoke.exe" if os.name == "nt" else "kasa-kbc1-mutation-smoke"))], 90),
+                ("Native lexer smoke", [str(ROOT / build / ("Release/kasa-lexer-smoke.exe" if os.name == "nt" else "kasa-lexer-smoke"))], 60),
+                ("Native KBC1 serializer smoke", [str(ROOT / build / ("Release/kasa-kbc1-smoke.exe" if os.name == "nt" else "kasa-kbc1-smoke"))], 60),
+                ("Native KBC1 mutation smoke", [str(ROOT / build / ("Release/kasa-kbc1-mutation-smoke.exe" if os.name == "nt" else "kasa-kbc1-mutation-smoke"))], 90),
             ])
         tests.extend([
             ("Native mixed-number precision smoke", [str(ROOT / build / ("Release/kasa-numeric-comparison-smoke.exe" if os.name == "nt" else "kasa-numeric-comparison-smoke"))], 60),
@@ -114,7 +114,7 @@ def source_revision() -> dict[str, object]:
         if len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit.lower()):
             return {"commit": None, "working_tree_clean": None}
         status = subprocess.run(
-            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT,
+            ["git", "status", "--porcelain", "--untracked-files=normal"], cwd=ROOT,
             capture_output=True, text=True, timeout=5, check=False,
         )
         return {
