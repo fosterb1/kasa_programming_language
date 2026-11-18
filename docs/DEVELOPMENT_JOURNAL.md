@@ -43,7 +43,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ### 2026-11-18 — Browser Unicode output-budget precision fix
 
-- **Status:** Targeted independent JavaScript runtime behavior fix implemented on `fix/unicode-output-budget-20261118`. Full current-commit Node runner, Python, native C++ and KBC1 integration are not claimed.
+- **Status:** **Merged into `main`** via [PR #36](https://github.com/fosterb1/kasa_programming_language/pull/36), squash commit `90f2b0f015ed6a0491b8dce9de886b218527b059`. Full current-commit Node runner, Python, native C++ and KBC1 integration are not claimed; follow-up standardization tracked in [issue #35](https://github.com/fosterb1/kasa_programming_language/issues/35).
 - **Reproduced defect:** A program building 32,768 emoji code points and printing them was incorrectly rejected as over 64,000 characters because JS checked UTF-16 `.length` (65,537 code units including newline) rather than Unicode code points (32,769). `bisa` prompts shared this bug.
 - **Changed:** Added a single `appendOutput` path tracking Unicode code-point count for both `ka` and `bisa`. Five test cases added for below/above-cap Unicode output and prompt behavior plus ASCII compatibility. No Twi words or grammar changed.
 - **Actually verified:** **5/5** focused direct interpreter checks on the updated source; **51/51** shared browser regression fixtures (15 decimal, 12 core-contract, 24 historical conformance) passed in direct V8 execution.
