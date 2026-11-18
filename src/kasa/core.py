@@ -21,6 +21,7 @@ BINDING_POWER = {"OR": 10, "AND": 20, "==": 30, "!=": 30, "<": 40, "<=": 40, ">"
 COMPARISONS = {"<", "<=", ">", ">=", "==", "!="}
 # Auditable vocabulary: see docs/keyword_evidence.json before adding Twi built-ins.
 BUILTIN_NAMES = frozenset({"bisa", "tentɛn", "nɔma", "nsɛm"})
+MAX_OUTPUT_CHARACTERS = 64_000
 MAX_CONTAINER_SIZE = 10_000
 MAX_STRING_SIZE = 1_000_000
 
@@ -425,6 +426,7 @@ class Interpreter:
         self.max_steps = max_steps
         self.max_call_depth = max_call_depth
         self.steps = 0
+        self.output_characters = 0
         self.call_depth = 0
         self.loop_depth = 0
 
@@ -440,7 +442,19 @@ class Interpreter:
         if filename is not None:
             self.filename = filename
         self.steps = 0
+        self.output_characters = 0
         self.execute_block(program, self.globals)
+
+    def write_output(self, text: str, token: Token, *, flush: bool = False) -> None:
+        # Kasa output limits are Unicode code points, including newlines.
+        # Check before writing, so a failed operation emits no partial text.
+        length = len(text)
+        if length > MAX_OUTPUT_CHARACTERS - self.output_characters:
+            self.error(token, "ResourceError", "Output exceeded the 64,000-character limit")
+        self.stdout.write(text)
+        self.output_characters += length
+        if flush:
+            self.stdout.flush()
 
     def execute_block(self, body: list[Node], env: Environment) -> None:
         for stmt in body:
@@ -469,7 +483,7 @@ class Interpreter:
         self.tick(stmt.token)
         kind = stmt.kind
         if kind == "print":
-            print(display(self.evaluate(stmt.children[0], env)), file=self.stdout)
+            self.write_output(display(self.evaluate(stmt.children[0], env)) + "\n", stmt.token)
         elif kind == "assign":
             target, expr = stmt.children
             value = self.evaluate(expr, env)
@@ -635,8 +649,7 @@ class Interpreter:
                 if not isinstance(args[0], str):
                     self.error(token, "TypeError", "'bisa' prompt must be text")
                 self.check_allocation(args[0], token)
-                self.stdout.write(args[0])
-                self.stdout.flush()
+                self.write_output(args[0], token, flush=True)
             line = self.stdin.readline()
             if line == "":
                 self.error(token, "InputError", "No more input is available")
