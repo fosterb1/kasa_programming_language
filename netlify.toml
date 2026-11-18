@@ -19,6 +19,6 @@
   [headers.values]
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    # Embedding is permitted for the academy, which is a different origin.
-    # After the final academy domain is known, restrict this directive to it.
-    Content-Security-Policy = "frame-ancestors https:"
+    # Allow the Academy's current HTTPS origin to embed the playground.
+    # Add any future custom academy domains explicitly before switching hosts.
+    Content-Security-Policy = "frame-ancestors https://kasa-learning-academy.vercel.app"
