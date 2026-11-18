@@ -1,3 +1,5 @@
+> **Historical design notes (2026-11-17).** For the currently maintained language-contract candidate, see [RFC-0007](./RFC-0007-core-language-contract.md). Examples and limits in this earlier note may predate the modern native/runtime fixes; do not treat this as the normative stable 1.0 specification.
+
 # Kasa language semantics — shared conformance subset (draft)
 
 The Python tree-walker, browser JavaScript interpreter, and C++ bytecode VM
