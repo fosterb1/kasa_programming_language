@@ -295,6 +295,7 @@
     constructor(inputText) {
       this.globals = new Environment(); this.steps = 0; this.callDepth = 0; this.loopDepth = 0;
       this.output = "";
+      this.outputCharacters = 0;
       this.inputs = inputText.match(/[^\n]*\n|[^\n]+$/g) || [];
       this.inputCursor = 0;
     }
@@ -306,10 +307,16 @@
       if (value instanceof FloatValue && !Number.isFinite(value.value)) this.error(tok, "ResourceError", "Numeric result exceeds supported range");
       return value;
     }
+    appendOutput(text) {
+      // Kasa text length is measured in Unicode code points, not UTF-16 units.
+      // Track it incrementally for output emitted by both ka and bisa prompts.
+      const characters = length(text);
+      if (this.outputCharacters + characters > OUTPUT_LIMIT) throw new OutputLimitError();
+      this.output += text;
+      this.outputCharacters += characters;
+    }
     outputLine(value) {
-      const line = display(value) + "\n";
-      if (this.output.length + line.length > OUTPUT_LIMIT) throw new OutputLimitError();
-      this.output += line;
+      this.appendOutput(display(value) + "\n");
     }
     boolean(value, tok) { if (typeof value !== "boolean") this.error(tok, "TypeError", "Condition must be 'nokware' or 'atoro'"); return value; }
     number(value, tok) { if (!isNumber(value)) this.error(tok, "TypeError", "Expected a number (not text or a Boolean)"); return value; }
@@ -473,8 +480,7 @@
         if (args.length) {
           if (typeof args[0] !== "string") this.error(tok, "TypeError", "'bisa' prompt must be text");
           this.check(args[0], tok);
-          if (this.output.length + args[0].length > OUTPUT_LIMIT) throw new OutputLimitError();
-          this.output += args[0];
+          this.appendOutput(args[0]);
         }
         if (this.inputCursor >= this.inputs.length) this.error(tok, "InputError", "No more input is available");
         return this.check(this.inputs[this.inputCursor++].replace(/[\r\n]+$/g, ""), tok);
