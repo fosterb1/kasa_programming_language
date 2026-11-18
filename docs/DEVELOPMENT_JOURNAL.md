@@ -4,7 +4,7 @@
 
 **Last reviewed:** 2026-11-18  
 **Reference branch:** `main`  
-**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16). **Latest test milestone:** [PR #22 — Python-to-KBC1 conformance harness](https://github.com/fosterb1/kasa_programming_language/pull/22), merged 2026-11-18. **Next risk:** the 58 new native/Python/KBC1 parity fixtures are not yet independently executed; cross-platform validation remains pending.  
+**Latest merged compiler milestone:** [PR #16 — experimental KBC1 portable bytecode](https://github.com/fosterb1/kasa_programming_language/pull/16). **Latest test milestone:** [PR #23 — exact mixed integer/decimal comparisons](https://github.com/fosterb1/kasa_programming_language/pull/23), merged 2026-11-18. **Next risks:** full native VM integration of this precision fix, 58 Python/KBC1 parity fixtures, and cross-platform verification remain pending.  
 **Blocked external CI:** [Issue #12 — GitHub Actions jobs terminate before recorded steps](https://github.com/fosterb1/kasa_programming_language/issues/12)
 
 ## How to record future milestones
@@ -42,7 +42,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ### 2026-11-18 — Mixed integer/decimal comparison precision defect
 
-- **Status:** **Fixed on a dedicated review branch**; standalone native comparator and browser runtime verified independently. This entry does not claim full native VM or Python/KBC1 parity until those tests execute.
+- **Status:** **Merged into main** as an experimental Kasa 0.4 compatibility fix in [PR #23](https://github.com/fosterb1/kasa_programming_language/pull/23), commit `d0adbda82180ea7e1f88c3390adb1b6c7b459464`. Focused native comparator and browser engine verified independently; full native VM/Python/KBC1 integration for this change still needs execution.
 - **Discovery:** The browser converted `BigInt` to JavaScript `Number`, while the C++ VM converted signed 64-bit integers to `double` during mixed integer/decimal comparisons. Beyond **2^53**, two different values could incorrectly compare as equal, reverse ordering, or make nested lists equal. Python's reference comparisons preserve exact integer value.
 - **Change:** The JavaScript engine now uses exact BigInt/Number relational semantics and BigInt equality for integral decimals. The native VM calls a new finite-int64-versus-binary64 comparison helper that handles `±2^63` conversion boundaries safely; all existing Twi syntax is unchanged.
 - **Regression coverage added:** 18 shared Kasa programs consumed by browser JavaScript, Python pytest, and native direct/KBC1 conformance tests, plus a standalone C++20 numeric-comparison smoke target.
@@ -157,7 +157,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 | R-06 | Lack of explicit open-source license | Medium | Owner chooses license and adds `LICENSE`; do not claim legal open-source status | Open |
 | R-07 | No classroom pilot validating proposed accessibility advantage | Medium | Small documented, ethically designed learner/teacher pilot | Open |
 | R-08 | Full native-vs-Python/JavaScript semantic conformance and cross-platform release checks incomplete | **High for 1.0** | Run all shared fixtures and complete local verification profile against the same commit; track numeric limits and OS results | Open |
-| R-09 | Large integer/decimal comparisons previously rounded integer values; mixed arithmetic may still round | Medium for alpha; high for financial correctness | Exact comparison patch and 18-case shared fixture; keep monetary examples in integer pesewas and investigate mixed arithmetic semantics | Comparison fix in review |
+| R-09 | Previously imprecise large integer/decimal comparisons are fixed in main; mixed arithmetic may still round | Medium for alpha; high for financial correctness | 18 shared fixtures; 18/18 C++ helper and 107/107 direct JS checks; complete native/Python/KBC1 integration pending | Comparison fix merged; follow-up open |
 
 ## Useful independent commands
 
