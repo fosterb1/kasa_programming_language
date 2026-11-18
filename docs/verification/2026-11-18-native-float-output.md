@@ -20,6 +20,7 @@ Native `vm.cpp` previously serialized double values with `ostringstream << setpr
 - Clang 17: **18/18** of the same cases passed with the same strict switches.
 - GCC 14.2.0 with ASan/UBSan: **18/18** focused cases passed.
 - GCC 14.2.0 compiled batch formatter versus Python 3.13.5: **9,999/9,999** finite seeded binary64 cases matched, out of 10,000 bit patterns (one non-finite sample was intentionally excluded).
+- GCC 14.2.0 ASan/UBSan compiled batch probe versus Python 3.13.5: **9,999/9,999** finite seeded patterns passed again.
 - JavaScript runtime on branch content: **15/15** shared decimal-display cases passed in direct V8 execution, including the new `1/7` case.
 - The existing parity report audit's eight locally reconstructed unit scenarios passed after updating stage identity/count. These verify report-audit behavior, **not** real Kasa native integration.
 
