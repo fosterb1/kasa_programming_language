@@ -188,6 +188,26 @@ class Conformance(unittest.TestCase):
                 self.assertEqual(executed.returncode, 0, executed.stderr)
                 self.assertEqual(executed.stdout, expected)
 
+    def test_decimal_display_source_and_kbc1_against_python(self):
+        fixtures = json.loads(
+            (ROOT / "tests" / "conformance_decimal_display.json").read_text(encoding="utf-8")
+        )["cases"]
+        for fixture in fixtures:
+            with self.subTest(name=fixture["name"]):
+                source = fixture["source"]
+                expected = fixture["expected_stdout"]
+                self.assertEqual(run_python(source), expected)
+                direct = run_native(source)
+                self.assertEqual(direct.returncode, 0, direct.stderr)
+                self.assertEqual(direct.stdout, expected)
+                compiled, checked, executed = run_native_serialized(source)
+                self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+                self.assertIsNotNone(executed)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(executed.stdout, expected)
+
     def test_kbc1_runtime_error_categories(self):
         # Syntax errors must be rejected at compilation, rather than being
         # serialized. Runtime errors should survive safe KBC1 round-tripping.

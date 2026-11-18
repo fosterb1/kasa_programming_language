@@ -259,3 +259,10 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - Real WASM artifact/browser verification, if advertising native WebAssembly.
 - Clear learner-facing tutorials, error messages, and language/cultural review.
 - License choice, versioning and release checklist; no stable release until these are met.
+
+### 2026-11-18 — Conflict resolution for open native precision PR #31
+
+- **Status:** Native precision files reconciled with the newer RFC-0007 language contract on a dedicated integration branch. The original PR branch had merge conflicts; newer `main` test registrations and documentation were retained.
+- **Changed:** Imported the C++20 binary64 formatting helper, native formatter smoke/differential probes, shared 15-case decimal fixture, CMake registration, Python/native/KBC1 conformance registrations, report auditor updates and 10-stage parity / 18-stage full verification plan. Preserved the merged 12-case core language contract tests.
+- **Evidence:** JavaScript interpreter executed the integrated **15 decimal + 12 contract cases, 27/27 passing**. Previous native component testing under GCC, Clang and sanitizers passed 18/18 and 9,999 seeded finite differential values matched Python. **No full native VM/KBC1 test on this integration branch was executed.**
+- **Caveat:** Merge is a repository integration step, **not** release acceptance. Step 1 remains open pending full clean-checkout parity/full profile and audited reports. No new Twi keywords or license decision.
