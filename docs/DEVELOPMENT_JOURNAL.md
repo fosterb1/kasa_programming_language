@@ -42,7 +42,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ### 2026-11-18 — Verified JavaScript decimal text-formatting mismatch
 
-- **Status:** Targeted JavaScript interpreter fix on `fix/js-decimal-display-parity-20261118`, proposed for merge. **Not** full Kasa 0.4 parity certification.
+- **Status:** **Merged into `main`** through [PR #30](https://github.com/fosterb1/kasa_programming_language/pull/30), squash commit `d44cc0971e50bddfbf97072609276a6e9d25617c`. **Not** full Kasa 0.4 parity certification.
 - **Reproduced defect:** Browser output used JavaScript's binary64 exponent formatting. For example `ka 1 / 10000000` returned `1e-7` instead of the Python reference's `1e-07`; large `1e16` values used fixed notation and negative zero lost its sign.
 - **Changed:** `playground/kasa-runtime.js` decimal display thresholds, signed zero and exponent width; shared 12-case fixture and browser test registration. No new syntax, keywords, arithmetic APIs, Python/C++ runtime modifications, packages or licensing.
 - **Verification:** Exact files read through the connected GitHub repository, executed directly in V8: **129/129 checks passed**: 12 new display fixtures, 16 root examples, 48 other shared semantic fixtures and 53 positive/negative interpreter scenarios. Python 3.13.5 `repr(float)` checked independently for 11 scalar reference values. [Detailed test record](./verification/2026-11-18-browser-decimal-display.md).
