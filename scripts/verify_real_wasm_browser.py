@@ -103,9 +103,9 @@ def run():
                 # Both engines must agree for the supported shared subset.
                 shared_programs = [
                     'ka "Ɛyɛ Kasa!"',
-                    'dwumadie fa_bi(a, b)\\n    sanma a + b\\nawiei\\nka fa_bi(25, 15)',
-                    'ma aba = [10, 20, 30]\\nka aba[1]',
-                    'mpɛn 3\\n    ka "Meda wo ase"\\nawiei',
+                    'dwumadie fa_bi(a, b)\n    sanma a + b\nawiei\nka fa_bi(25, 15)',
+                    'ma aba = [10, 20, 30]\nka aba[1]',
+                    'mpɛn 3\n    ka "Meda wo ase"\nawiei',
                 ]
                 for program in shared_programs:
                     outputs = {}
