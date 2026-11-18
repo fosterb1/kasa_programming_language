@@ -74,7 +74,8 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
                 "tests/test_source_locations.py", "tests/test_decimal_display.py",
                 "tests/test_reconciliation_conformance.py",
                 "tests/test_output_budget_conformance.py",
-                "tests/test_numeric_conversion_conformance.py"], 180),
+                "tests/test_numeric_conversion_conformance.py",
+                "tests/test_int64_boundary_conformance.py"], 180),
             ("JavaScript semantic conformance", [node, "--test",
                 "tests/test_kasa_browser.cjs"], 120),
         ]
