@@ -23,6 +23,17 @@ for (const fixture of sourceLocationConformance.cases) {
   });
 }
 
+const numericComparisonConformance = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_numeric_comparisons.json'), 'utf8')
+);
+for (const fixture of numericComparisonConformance.cases) {
+  test(`exact mixed numeric comparison: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source);
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.output, fixture.expected_stdout);
+  });
+}
+
 const remainderConformance = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'tests/conformance_remainder.json'), 'utf8')
 );
