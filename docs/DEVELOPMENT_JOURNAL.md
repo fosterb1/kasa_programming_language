@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Concurrent decimal literal fix reconciled; signed subnormal regression
+
+- **Integration discovery:** PR #44 landed the native decimal-literal underflow fix on `main` while a second equivalent PR #45 was being developed. PR #45 was **closed without merging** after GitHub reported conflicts, rather than replacing newer `main` source and documentation.
+- **Additional retained work:** One previously absent **negative finite subnormal literal** fixture added to `tests/conformance_decimal_display.json`; it is automatically picked up by the existing Python, JavaScript, native-source and KBC1 source conformance suites. The existing C++ parser fix from PR #44 remains untouched.
+- **Executed:** **98/98** direct JavaScript shared source cases pass with the consolidated 19-case decimal corpus. Previously executed isolated GCC and Clang C++ `std::strtod` conversion probes passed; **no linked native VM/KBC1 or full Python suite on this consolidated branch**.
+- **Gate:** A clean-checkout parity profile and audited report are still required. Do not double-count duplicate PRs or increase readiness estimates.
+
+
+
 ### 2026-11-18 — Native parser decimal-literal underflow
 
 - **Reproduced gap:** The earlier `nɔma("...")` patch switched native conversion to `std::strtod`, but the native *source parser* still used `std::stod` for `DECIMAL` literals. GCC 14.2 and Clang 17 sanitizer probes confirmed that `std::stod` throws `std::out_of_range` for extremely small, valid decimal spellings that `std::strtod` correctly rounds to zero or a finite subnormal value. Python/JS source parsers already accept the corresponding decimal literals.
