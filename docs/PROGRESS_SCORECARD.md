@@ -69,3 +69,5 @@ A [candidate core-language contract](./RFC-0007-core-language-contract.md) and [
 5. Choose and publish an actual open-source license; a public GitHub repository alone is not a grant of reuse rights.
 
 Review this scorecard after every substantive pull request. Add or reweight checkpoints when requirements change; **do not increase the percentage merely because new code was committed**.
+
+**Integration caveat (2026-11-18):** The native decimal formatting candidate has been reconciled with the current source and direct JavaScript tests passed 27/27 (15 decimal + 12 core contract cases). Component-level C++ results remain in the verification report. **Full cross-runtime integration is still unverified; checkpoint 9 remains open and the 80% / ~35% indicators are unchanged.**
