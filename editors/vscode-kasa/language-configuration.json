@@ -1,0 +1,11 @@
+{
+  "comments": {"lineComment":"#"},
+  "brackets": [["(",")"],["[","]"]],
+  "autoClosingPairs": [{"open":"(","close":")"},{"open":"[","close":"]"},{"open":"\"","close":"\"","notIn":["string"]}],
+  "surroundingPairs": [["(",")"],["[","]"],["\"","\""]],
+  "wordPattern":"[\\p{L}\\p{N}_]+",
+  "indentationRules": {
+    "increaseIndentPattern":"^\\s*(?:sɛ\\b.*\\ba\\s*|mpɛn\\b.*|bere_a\\b.*|dwumadie\\b.*|anyɛ_saa_a\\s*)(?:#.*)?$",
+    "decreaseIndentPattern":"^\\s*(?:awiei|anyɛ_saa_a)\\b"
+  }
+}

@@ -1,0 +1,13 @@
+# Mini market revenue analysis
+ma nneɛma = ["Rice", "Oil", "Beans"]
+ma price = [45, 30, 20]
+ma quantity = [5, 7, 9]
+ma total = 0
+ma i = 0
+bere_a i < tentɛn(nneɛma)
+    ma revenue = price[i] * quantity[i]
+    ka nneɛma[i] + ": GHS " + nsɛm(revenue)
+    ma total = total + revenue
+    ma i = i + 1
+awiei
+ka "Total: GHS " + nsɛm(total)
