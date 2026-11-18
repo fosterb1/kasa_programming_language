@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Native parser decimal-literal underflow
+
+- **Reproduced gap:** The earlier `nɔma("...")` patch switched native conversion to `std::strtod`, but the native *source parser* still used `std::stod` for `DECIMAL` literals. GCC 14.2 and Clang 17 sanitizer probes confirmed that `std::stod` throws `std::out_of_range` for extremely small, valid decimal spellings that `std::strtod` correctly rounds to zero or a finite subnormal value. Python/JS source parsers already accept the corresponding decimal literals.
+- **Changed:** Native `parser.cpp` now uses `std::strtod` for lexer-validated decimal tokens, checks that the whole input was consumed and rejects nonfinite values. The common decimal display fixture gains three source-level cases (positive and negative values rounding to zero, one positive subnormal). These existing fixture registrations already cover Python, Node, native source and KBC1 pathways; no grammar change.
+- **Evidence:** **97/97 direct JavaScript shared source cases** passed (including three new tests). Isolated C++ comparison probe succeeded under **GCC 14.2 and Clang 17 with ASan/UBSan** (2 underflow magnitudes per toolchain). Native linked parser/VM, KBC1 execution, Python pytest, Node test runner and the 10-stage parity profile were **not executed** on this revision.
+- **Open risks:** Actual linked native/KBC1 conformance; locale-sensitive C decimal parsing, platform behavior and other numeric corner cases. Progress rubric remains at 80% / ~35%. No new Twi vocabulary or modules.
+
+
+
 ### 2026-11-18 — Strengthened parity-report audit integrity (verification tooling)
 
 - **Discovered weakness:** The previous report auditor checked stage names, success counts, clean state and a 40-digit SHA, but **did not check that stage commands were the actual intended tests**. Ten reported `python -V` checks could be labeled as successful parity stages and accepted.
