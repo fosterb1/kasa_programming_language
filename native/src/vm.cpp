@@ -1,5 +1,6 @@
 #include "kasa/native.hpp"
 #include "kasa/numeric_compare.hpp"
+#include "kasa/float_display.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -36,9 +37,7 @@ static string display(const Value &v,int depth=0){
     if(holds_alternative<monostate>(v.data))return "hwee";
     if(holds_alternative<int64_t>(v.data))return to_string(get<int64_t>(v.data));
     if(holds_alternative<double>(v.data)){
-        double d=get<double>(v.data);ostringstream ss;ss<<setprecision(15)<<d;string a=ss.str();
-        if(a.find_first_of(".eE")==string::npos)a+=".0";
-        return a;
+        return numbers::displayFloat(get<double>(v.data));
     }
     if(holds_alternative<bool>(v.data))return get<bool>(v.data)?"nokware":"atoro";
     if(holds_alternative<string>(v.data))return get<string>(v.data);
