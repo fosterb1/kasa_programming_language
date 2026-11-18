@@ -52,17 +52,15 @@ for (const fixture of remainderConformance.errors) {
   });
 }
 
-const examples = {
-  'hello.kasa': 'Maakye, Ghana!\n',
-  'conditions.kasa': 'Maakye, Ama\n',
-  'functions.kasa': '10\n',
-  'loops.kasa': '1\n2\n3\nMeda wo ase\nMeda wo ase\n',
-  'lists.kasa': '99\n3\n',
-  'remainder.kasa': '1\n2\n-2\n-1\n',
-  'market_cashbook.kasa': "Closing cash in pesewas:\n268250\nCash position is non-negative\n",
-  'stock_reorder.kasa': "Remaining stock units:\n13\nReorder needed\n",
-  'school_fees.kasa': "Outstanding fees (pesewas):\n45000\n",
-};
+const examples = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_practical_examples.json'), 'utf8')
+).expected_stdout_by_file;
+const exampleFiles = fs.readdirSync(path.join(ROOT, 'examples'))
+  .filter(name => name.endsWith('.kasa')).sort();
+test('every root example has a golden output', () => {
+  assert.deepEqual(exampleFiles, Object.keys(examples).sort());
+  assert.ok(exampleFiles.length >= 15);
+});
 for (const [filename, expected] of Object.entries(examples)) {
   test(`execute example ${filename}`, () => {
     const src = fs.readFileSync(path.join(ROOT, 'examples', filename), 'utf8');

@@ -1,0 +1,15 @@
+# Plan six monthly deposits toward a target, using integer pesewas.
+ma target = 300000
+ma monthly_deposit = 45000
+ma saved = 0
+mpɛn 6
+    ma saved = saved + monthly_deposit
+awiei
+ka "Total saved (pesewas):"
+ka saved
+sɛ saved >= target a
+    ka "Target reached"
+anyɛ_saa_a
+    ka "Still needed (pesewas):"
+    ka target - saved
+awiei

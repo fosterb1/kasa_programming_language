@@ -40,6 +40,18 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Fifteen practical Ghana-focused teaching programs
+
+- **Status:** Implemented on `feature/practical-examples-15-20261118`; proposed for merge. No new Kasa syntax or built-in names.
+- **Changed:** Added six root examples (daily sales, cash reconciliation, mobile-money ledger, student grades, savings target, inventory valuation), bringing the root corpus from nine to fifteen. Both Python and JavaScript test suites now share a single golden-output JSON file, check every tracked root `.kasa` example and require at least fifteen.
+- **Independent verification performed:** Fetched the actual `playground/kasa-runtime.js`, fifteen `.kasa` source files and shared JSON fixture from GitHub, executed the runtime code in a V8 JavaScript isolate and compared exact output strings: **15/15 passed** (zero errors). This is a direct JavaScript interpreter check, **not** Node's full test runner, Python pytest, real browser execution or C++ KBC1 parity.
+- **Discovery:** Index-based loops and lists already support useful offline business and classroom arithmetic; no additional language grammar was necessary. Amounts are integer pesewas, so these exercises avoid decimal rounding but do not offer a production-grade currency type or audited reconciliation engine.
+- **Challenges/risks:** Full repository checkout and native/Python integration remained unavailable in the isolated environment. The new shared-fixture Python and Node test-runner code is committed but has not been executed as a complete suite. Mobile-money data is illustrative, without provider integration.
+- **Next gate:** Run the full clean checkout `python scripts/verify_local.py --profile parity`; inspect any cross-runtime mismatches in the new examples. Seek fluent Twi educational review and design guided lesson explanations.
+- **Progress:** No increase to the existing 80% Kasa 0.4 checklist or ~35% 1.0 maturity estimate. The previously open 15-example minimum is met, but it was not one of the ten alpha checkpoint categories.
+
+
+
 ### 2026-11-18 — Mixed integer/decimal comparison precision defect
 
 - **Status:** **Merged into main** as an experimental Kasa 0.4 compatibility fix in [PR #23](https://github.com/fosterb1/kasa_programming_language/pull/23), commit `d0adbda82180ea7e1f88c3390adb1b6c7b459464`. Focused native comparator and browser engine verified independently; full native VM/Python/KBC1 integration for this change still needs execution.

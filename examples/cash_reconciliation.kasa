@@ -1,0 +1,22 @@
+# Compare physical cash with the shop cashbook in pesewas.
+# A negative difference represents a cash shortage.
+ma book_balance = 124500
+ma cash_counts = [50000, 50000, 20000, 4000]
+ma actual_cash = 0
+ma index = 0
+bere_a index < tentɛn(cash_counts)
+    ma actual_cash = actual_cash + cash_counts[index]
+    ma index = index + 1
+awiei
+ma difference = actual_cash - book_balance
+ka "Cash difference (pesewas):"
+ka difference
+sɛ difference < 0 a
+    ka "Shortage: investigate"
+anyɛ_saa_a
+    sɛ difference > 0 a
+        ka "Overage: investigate"
+    anyɛ_saa_a
+        ka "Cash reconciled"
+    awiei
+awiei

@@ -1,0 +1,12 @@
+# Sum individual sales at a local shop; every amount is an integer pesewa.
+ma sales = [12500, 8500, 19900, 5000]
+ma index = 0
+ma total = 0
+bere_a index < tentɛn(sales)
+    ma total = total + sales[index]
+    ma index = index + 1
+awiei
+ka "Transactions:"
+ka tentɛn(sales)
+ka "Sales total (pesewas):"
+ka total

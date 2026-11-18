@@ -1,0 +1,18 @@
+# Count students scoring at least 50 in a classroom.
+ma scores = [75, 62, 88, 49, 91]
+ma index = 0
+ma passes = 0
+ma sum_scores = 0
+bere_a index < tentɛn(scores)
+    ma sum_scores = sum_scores + scores[index]
+    sɛ scores[index] >= 50 a
+        ma passes = passes + 1
+    awiei
+    ma index = index + 1
+awiei
+ka "Students passed:"
+ka passes
+ka "Students not passed:"
+ka tentɛn(scores) - passes
+ka "Total marks:"
+ka sum_scores
