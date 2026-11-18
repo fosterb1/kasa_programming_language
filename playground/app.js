@@ -28,7 +28,22 @@ let startupTimeout = null;
 let sequence = 0;
 let nativeAvailable = false;
 
-source.value = EXAMPLES.hello;
+// Keep only source code in local storage. Never persist program input.
+const DRAFT_KEY = "kasa.playground.source.v1";
+const MAX_SOURCE_BYTES = 50_000;
+function saveDraft() {
+  try { localStorage.setItem(DRAFT_KEY, source.value); }
+  catch (_) { /* Private browsing or storage disabled: editor still works. */ }
+}
+function restoreDraft() {
+  try {
+    const saved = localStorage.getItem(DRAFT_KEY);
+    if (saved !== null && new TextEncoder().encode(saved).length <= MAX_SOURCE_BYTES) return saved;
+  } catch (_) { /* Local storage unavailable. */ }
+  return EXAMPLES.hello;
+}
+source.value = restoreDraft();
+source.addEventListener("input", saveDraft);
 
 function setStatus(label, state = "pending") {
   status.textContent = label;
@@ -147,7 +162,38 @@ retryButton.addEventListener("click", prepareWorker);
 runButton.addEventListener("click", () => execute("run"));
 checkButton.addEventListener("click", () => execute("check"));
 $("clear").addEventListener("click", () => { output.textContent = ""; });
-exampleSelect.addEventListener("change", () => { source.value = EXAMPLES[exampleSelect.value] || EXAMPLES.hello; });
+exampleSelect.addEventListener("change", () => {
+  source.value = EXAMPLES[exampleSelect.value] || EXAMPLES.hello;
+  saveDraft();
+});
+$("reset").addEventListener("click", () => {
+  source.value = EXAMPLES.hello;
+  input.value = "";
+  exampleSelect.value = "hello";
+  output.textContent = "Draft reset. Press Run code to begin.";
+  try { localStorage.removeItem(DRAFT_KEY); }
+  catch (_) { /* Storage may be disabled. */ }
+  source.focus();
+});
+$("upload").addEventListener("change", async (event) => {
+  const selected = event.target.files?.[0];
+  if (!selected) return;
+  try {
+    if (selected.size > MAX_SOURCE_BYTES) throw new Error("This .kasa file is too large (50 KB maximum).");
+    const text = await selected.text();
+    if (new TextEncoder().encode(text).length > MAX_SOURCE_BYTES) {
+      throw new Error("This .kasa file exceeds the 50 KB source limit.");
+    }
+    source.value = text;
+    saveDraft();
+    source.focus();
+    output.textContent = "Opened " + selected.name + ". Press Run code to execute it.";
+  } catch (error) {
+    output.textContent = String(error?.message || error);
+  } finally {
+    event.target.value = "";
+  }
+});
 $("download").addEventListener("click", () => {
   const url = URL.createObjectURL(new Blob([source.value], { type: "text/plain;charset=utf-8" }));
   const link = document.createElement("a");
