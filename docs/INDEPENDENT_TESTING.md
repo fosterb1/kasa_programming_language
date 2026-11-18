@@ -9,7 +9,7 @@ python -m pip install -e ".[dev]"
 python scripts/verify_local.py --profile parity --report build/parity-report.json
 ```
 
-This executes **eight verification stages**, rather than the full profile's **16**. The extra step runs **10,080 deterministic Python-versus-native int64/binary64 comparisons** (including 80 precision boundaries) against a separately built C++ probe. The profile includes signed-remainder, Unicode, native/KBC1 and numeric checks, while omitting unrelated full-profile smoke and WASM protocol checks. A missing compiler or failing command produces a nonzero exit and an explicit failure/`not_run` record; a dry-run never counts as a pass.
+This executes **ten verification stages**, rather than the full profile's **18**. The extra step runs **10,080 deterministic Python-versus-native int64/binary64 comparisons** (including 80 precision boundaries) against a separately built C++ probe. The profile includes signed-remainder, Unicode, native/KBC1 and numeric checks, while omitting unrelated full-profile smoke and WASM protocol checks. A missing compiler or failing command produces a nonzero exit and an explicit failure/`not_run` record; a dry-run never counts as a pass.
 
 Each JSON report now records `source_revision.commit` and `source_revision.working_tree_clean` (null when Git metadata is unavailable). The [numeric differential report](./verification/2026-11-18-numeric-differential.md) independently verifies **10,080/10,080 C++/Python comparator pairs under each of GCC and Clang**. This is a component check and **not** a completed full native parity gate. The [original seven-stage plan record](./verification/2026-11-18-parity-profile.md) describes the version before this new step was added.
 
@@ -37,7 +37,7 @@ python scripts/audit_parity_report.py build/parity-report.json
 python -m unittest discover -s tests -p test_audit_parity_report.py -v
 ```
 
-The report auditor requires exactly eight named parity stages in order, zero failed or
+The report auditor requires exactly ten named parity stages in order, zero failed or
 not-run stages, successful exit codes, a real (non-dry-run) result, a 40-character
 Git revision and a clean working tree. A missing JSON file or inconsistent report
 fails closed. The optional `--allow-dirty` switch is strictly for local diagnosis;
@@ -196,3 +196,7 @@ If a test fails, preserve the JSON report with the commit SHA and environment de
 - This does not certify Twi vocabulary. All newly proposed words remain subject to [the linguistic evidence policy](./LANGUAGE_RESEARCH_POLICY.md).
 
 This script is a foundation for reproducible Kasa 0.4 testing; it is not a substitute for release sign-off or human linguistic review.
+
+### Native binary64 display verification (candidate)
+
+Native float output now uses a dedicated C++20 shortest-round-trip formatter. The parity profile requires **10 stages**: the original eight plus a standalone 18-case native formatter smoke and a seeded 10,000-bit-pattern Python/C++ differential (9,999 finite values in the fixed seed). The full profile requires **18 stages**, not 16. See [the evidence report](./verification/2026-11-18-native-float-output.md). Focused GCC, Clang and sanitizer tests passed, but a complete VM/KBC1 parity run is **not yet verified**; do not use the report auditor on dry-run evidence.
