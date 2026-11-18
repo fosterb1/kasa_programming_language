@@ -16,7 +16,7 @@ Each checkpoint below is scored as one implemented capability, regardless of its
 | 4 | KBC1 versioned disk bytecode | Implemented in alpha | Native round-trip, loader and adversarial tests; unsigned, not a sandbox |
 | 5 | Shared numeric correctness work | Implemented with targeted tests | Exact signed remainder and large int/decimal comparison; further mixed arithmetic differences remain |
 | 6 | Unicode source locations and diagnostics | Implemented with targeted tests | Shared fixture corpus, supplementary-letter lexer handling |
-| 7 | Ghana-focused offline programs | Implemented | Sixteen root exercises including accounting, inventory, school fees and savings |
+| 7 | Ghana-focused offline programs | Implemented | Twenty-six root exercises including accounting, inventory, school fees and savings |
 | 8 | Independent tests and documentation | Implemented | Local quick/parity/full profiles, progress journal, verification reports |
 | 9 | Full cross-runtime parity on exact release revision | **Open** | Execute the 58 Python/KBC1 fixture cases, 18 numeric cases, all Python and Node tests with full native binary |
 | 10 | Cross-platform/real-browser WASM and alpha packaging validation | **Open** | Windows/macOS, actual WASM browser run, installation and resource limits |
@@ -33,7 +33,7 @@ This estimate uses a separate ten-area *readiness* rubric: 1 point for broadly i
 | Browser interpreter | 1.0 | Working engine with focused conformance checks |
 | Native compiler and stable portable bytecode | 0.5 | Alpha KBC1 works; backward compatibility and security posture unfinished |
 | Cross-runtime semantic standard and parity | 0.5 | Shared corpora exist; full merged-revision pass pending |
-| Offline practical education materials | 0.5 | Sixteen programs (minimum met); teacher curriculum and measured classroom outcomes pending |
+| Offline practical education materials | 0.5 | Twenty-six programs (minimum met); teacher curriculum and measured classroom outcomes pending |
 | Production-grade data/financial standard library | 0 | Fixed-point/currency, CSV, safe files, structured data still to build |
 | Professional tools and developer ecosystem | 0 | Editor/debugging/package-manager suite remains unverified or experimental |
 | Cross-platform and real WASM/browser reliability | 0 | Packaging and actual-browser WASM tests incomplete |
@@ -71,3 +71,5 @@ A [candidate core-language contract](./RFC-0007-core-language-contract.md) and [
 Review this scorecard after every substantive pull request. Add or reweight checkpoints when requirements change; **do not increase the percentage merely because new code was committed**.
 
 **Integration caveat (2026-11-18):** The native decimal formatting candidate has been reconciled with the current source and direct JavaScript tests passed 27/27 (15 decimal + 12 core contract cases). Component-level C++ results remain in the verification report. **Full cross-runtime integration is still unverified; checkpoint 9 remains open and the 80% / ~35% indicators are unchanged.**
+
+**Platform integration evidence:** Ten more root Kasa examples passed exact expected output checks in the JavaScript interpreter; combined root corpus **26/26** passed. An earlier 24-case shared Python/JS corpus passed **24/24** in direct JavaScript execution and 11 structural checks of the experimental offline/VS Code assets passed. This is **not** full Python, native, browser, WASM, or editor integration certification. The alpha/1.0 planning percentages remain 80% / ~35%.
