@@ -287,6 +287,34 @@ class Conformance(unittest.TestCase):
                 self.assertIn(location, actual.stderr)
 
 
+    def test_native_int64_minimum_source_and_kbc1(self):
+        """The signed 64-bit minimum must survive source parsing and KBC1."""
+        cases = json.loads(
+            (ROOT / "tests" / "conformance_int64_boundary.json").read_text(encoding="utf-8")
+        )["cases"]
+        for case in cases:
+            with self.subTest(name=case["name"]):
+                source, expected = case["source"], case["expected_stdout"]
+                self.assertEqual(run_python(source), expected)
+                direct = run_native(source)
+                self.assertEqual(direct.returncode, 0, direct.stderr)
+                self.assertEqual(direct.stdout, expected)
+                compiled, checked, executed = run_native_serialized(source)
+                self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                self.assertIsNotNone(checked)
+                self.assertEqual(checked.returncode, 0, checked.stderr)
+                self.assertIsNotNone(executed)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(executed.stdout, expected)
+
+    def test_native_int64_minimum_overflow_stays_guarded(self):
+        """An integer lower than int64_min still cannot be represented natively."""
+        for source in ('ka -9223372036854775809', 'ka -9223372036854775808 - 1'):
+            with self.subTest(source=source):
+                direct = run_native(source)
+                self.assertNotEqual(direct.returncode, 0)
+                self.assertIn(": ResourceError:", direct.stderr)
+
     def test_numeric_text_conversion_source_and_kbc1(self):
         """Numeric text must use Kasa's ASCII grammar on all runtimes."""
         cases = json.loads(
