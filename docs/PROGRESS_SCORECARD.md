@@ -16,7 +16,7 @@ Each checkpoint below is scored as one implemented capability, regardless of its
 | 4 | KBC1 versioned disk bytecode | Implemented in alpha | Native round-trip, loader and adversarial tests; unsigned, not a sandbox |
 | 5 | Shared numeric correctness work | Implemented with targeted tests | Exact signed remainder and large int/decimal comparison; further mixed arithmetic differences remain |
 | 6 | Unicode source locations and diagnostics | Implemented with targeted tests | Shared fixture corpus, supplementary-letter lexer handling |
-| 7 | Ghana-focused offline programs | Implemented | Fifteen root exercises including accounting, inventory, school fees and savings |
+| 7 | Ghana-focused offline programs | Implemented | Sixteen root exercises including accounting, inventory, school fees and savings |
 | 8 | Independent tests and documentation | Implemented | Local quick/parity/full profiles, progress journal, verification reports |
 | 9 | Full cross-runtime parity on exact release revision | **Open** | Execute the 58 Python/KBC1 fixture cases, 18 numeric cases, all Python and Node tests with full native binary |
 | 10 | Cross-platform/real-browser WASM and alpha packaging validation | **Open** | Windows/macOS, actual WASM browser run, installation and resource limits |
@@ -33,7 +33,7 @@ This estimate uses a separate ten-area *readiness* rubric: 1 point for broadly i
 | Browser interpreter | 1.0 | Working engine with focused conformance checks |
 | Native compiler and stable portable bytecode | 0.5 | Alpha KBC1 works; backward compatibility and security posture unfinished |
 | Cross-runtime semantic standard and parity | 0.5 | Shared corpora exist; full merged-revision pass pending |
-| Offline practical education materials | 0.5 | Fifteen programs (minimum met); teacher curriculum and measured classroom outcomes pending |
+| Offline practical education materials | 0.5 | Sixteen programs (minimum met); teacher curriculum and measured classroom outcomes pending |
 | Production-grade data/financial standard library | 0 | Fixed-point/currency, CSV, safe files, structured data still to build |
 | Professional tools and developer ecosystem | 0 | Editor/debugging/package-manager suite remains unverified or experimental |
 | Cross-platform and real WASM/browser reliability | 0 | Packaging and actual-browser WASM tests incomplete |
@@ -50,7 +50,10 @@ This estimate uses a separate ten-area *readiness* rubric: 1 point for broadly i
 | 14/14 KBC1 integration groups (prior milestone) | Native GCC/Clang and sanitizer alpha integration | Latest merged Python/JS/native test suite or hostile-bytecode safety |
 | 18/18 C++ numeric smoke, GCC and Clang | Exact integer/decimal comparison helper | Native VM fully integrated with every language case |
 | 10,080/10,080 deterministic numeric pairs, **each GCC and Clang** | Python mathematical ordering matches compiled C++ comparator | Full Kasa source/parser/KBC1 conformance |
-| 15/15 root example outputs directly executed in JavaScript V8 (2026-11-18) | Existing and six new financial/education lessons match the golden output corpus | Does not establish Python/native/KBC1 or actual-browser execution |\n| 58 KBC1 reference fixture cases | Added to native conformance harness | **Not yet run end-to-end on the current main revision** |
+| 15/15 previous root example outputs directly executed in JavaScript V8 (2026-11-18) | Existing and six new financial/education lessons match the golden output corpus | Does not establish Python/native/KBC1 or actual-browser execution |
+| 58 KBC1 reference fixture cases | Added to native conformance harness | **Not yet run end-to-end on the current main revision** |
+
+| 4/4 amount-reconciliation edge cases directly executed in JavaScript V8 (2026-11-18) | Duplicate-safe one-to-one amount matching behavior | Does not establish Python/native/KBC1 parity or production financial reconciliation |
 
 The numeric regression result above is in the merged [independent evidence report](./verification/2026-11-18-numeric-differential.md), not a claim that Kasa as a language has 10,080 passing conformance programs.
 
