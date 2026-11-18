@@ -18,6 +18,7 @@ STAGES = (
     "Native C++ build",
     "Native mixed-number precision smoke",
     "Native decimal display smoke",
+    "Native/Python decimal display differential",
     "Native/Python numeric differential",
     "Native Python conformance",
     "Native KBC1 round-trip and rejection tests",
@@ -47,7 +48,7 @@ def audit(report: object, *, require_clean: bool = True) -> list[str]:
         return errors + ["Missing checks array"]
     names = [item.get("name") if isinstance(item, dict) else None for item in checks]
     if names != list(STAGES):
-        errors.append("Expected exactly 9 parity stages in canonical order")
+        errors.append("Expected exactly 10 parity stages in canonical order")
     for index, item in enumerate(checks):
         if not isinstance(item, dict):
             errors.append(f"Stage {index + 1} is not an object")
@@ -63,7 +64,7 @@ def audit(report: object, *, require_clean: bool = True) -> list[str]:
     else:
         actual = {k: sum(isinstance(c, dict) and c.get("status") == k for c in checks)
                   for k in ("passed", "failed", "not_run")}
-        if counts != actual or counts != {"passed": 9, "failed": 0, "not_run": 0}:
+        if counts != actual or counts != {"passed": 10, "failed": 0, "not_run": 0}:
             errors.append("Status counts inconsistent or incomplete")
     return errors
 
@@ -84,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
         for problem in problems:
             print(f"FAIL: {problem}", file=sys.stderr)
         return 1
-    print("PASS: report records 9 successful parity stages at a known source revision")
+    print("PASS: report records 10 successful parity stages at a known source revision")
     print("CAUTION: report auditing does not independently execute or attest those tests")
     return 0
 
