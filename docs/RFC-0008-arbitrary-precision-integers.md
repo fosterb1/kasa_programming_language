@@ -45,3 +45,15 @@ The first 10 target fixtures cover signed 64-bit crossing in both directions, re
 ## Explicit non-goals
 
 This decision does not introduce classes, imports, tensors, graphing, crypto, arbitrary-precision *decimal* arithmetic, or production-quality accounting/currency types. These require separate specifications. It also does not mean native Kasa is now feature-complete.
+
+## First native arithmetic experiment (2026-11-18)
+
+An optional, independent `native/include/kasa/big_integer.hpp` prototype now uses **Boost.Multiprecision cpp_int** for exact integer parsing, add, subtract, multiply and Python-style floor remainder under candidate result/digit caps. Its `kasa-bigint-smoke` CTest target is enabled **only** with `-DKASA_BUILD_BIGINT_EXPERIMENT=ON` and requires Boost headers; the default native/KBC1 build remains dependency-free. Run from the repository root on a machine with Boost headers:
+
+```sh
+cmake -S native -B build/kasa-bigint -DKASA_BUILD_BIGINT_EXPERIMENT=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build/kasa-bigint --target kasa-bigint-smoke
+ctest --test-dir build/kasa-bigint -R kasa_bigint_rfc0008_experiment --output-on-failure
+```
+
+**Actually verified on Linux:** 1/1 experimental Release-mode CTest passed; the existing VM/KBC1 alpha still passed 10/10 parity and 18/18 full-profile stages. This does **not** mean native `.kasa` code can already use large integers. Integration of the `Value` variant, VM operators, exact mixed-float comparisons, parser, numeric builtins, runtime caps, and **version-gated KBC2** remains required. Boost header packaging/licensing and MSVC support are still to be reviewed and tested.
