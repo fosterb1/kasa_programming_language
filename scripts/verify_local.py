@@ -89,6 +89,7 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
         tests.extend([
             ("Native mixed-number precision smoke", [str(ROOT / build / ("Release/kasa-numeric-comparison-smoke.exe" if os.name == "nt" else "kasa-numeric-comparison-smoke"))], 60),
             ("Native decimal display smoke", [str(ROOT / build / ("Release/kasa-float-display-smoke.exe" if os.name == "nt" else "kasa-float-display-smoke"))], 60),
+            ("Native/Python decimal display differential", [python, "native/tests/float_display_differential.py", str(ROOT / build / ("Release/kasa-float-display-probe.exe" if os.name == "nt" else "kasa-float-display-probe"))], 60),
             ("Native/Python numeric differential", [python, "native/tests/numeric_differential.py", str(ROOT / build / ("Release/kasa-numeric-compare-probe.exe" if os.name == "nt" else "kasa-numeric-compare-probe"))], 90),
             ("Native Python conformance", [python, "native/tests/conformance.py", str(exe)], 180),
             ("Native KBC1 round-trip and rejection tests", [python, "native/tests/test_bytecode.py", str(exe)], 180),
