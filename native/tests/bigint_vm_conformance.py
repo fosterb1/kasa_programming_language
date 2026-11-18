@@ -97,7 +97,7 @@ class BigIntegerNativeExperiment(unittest.TestCase):
             # KBC1 and KBC2 share a 16-byte header and CRC32 payload checksum.
             # Bigint tag 5 follows the instruction header, location, numeric
             # operand, empty name and is followed by sign and BE length.
-            tag = bytes((5, 1, 0, 9, 1))
+            tag = bytes((5, 1, 9, 0, 1))
             location = base.find(tag, 16)
             self.assertGreaterEqual(location, 16)
             def rejected(modify):
@@ -111,7 +111,7 @@ class BigIntegerNativeExperiment(unittest.TestCase):
 
             rejected(lambda data: data.__setitem__(location+1, 0))  # sign 0
             rejected(lambda data: data.__setitem__(location+4, 0))  # leading zero
-            rejected(lambda data: data.__setitem__(location+3, 0))  # length 0
+            rejected(lambda data: data.__setitem__(location+2, 0))  # length 0
             rejected(lambda data: data.__setitem__(location, 255)) # unknown value tag
             rejected(lambda data: data.__setitem__(4, 1))         # wrong header version
             rejected(lambda data: data.__setitem__(3, ord('1')))  # KBC1 magic / v2 mismatch
