@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "description": "64,000 Unicode code points across ka output and bisa prompts, including newlines",
+  "cases": [
+    {
+      "name": "unicode_emoji_below_cap",
+      "source": "ma s = \"😀\"\nmpɛn 15\n ma s = s + s\nawiei\nka s",
+      "stdin": "",
+      "expected_ok": true,
+      "expected_stdout_characters": 32769
+    },
+    {
+      "name": "unicode_emoji_over_cap",
+      "source": "ma s = \"😀\"\nmpɛn 16\n ma s = s + s\nawiei\nka s",
+      "stdin": "",
+      "expected_ok": false,
+      "expected_stdout_characters": 0,
+      "error_category": "ResourceError"
+    },
+    {
+      "name": "twi_multibyte_below_cap",
+      "source": "ma s = \"ɔ\"\nmpɛn 15\n ma s = s + s\nawiei\nka s",
+      "stdin": "",
+      "expected_ok": true,
+      "expected_stdout_characters": 32769
+    },
+    {
+      "name": "unicode_prompt_below_cap",
+      "source": "ma s = \"😀\"\nmpɛn 15\n ma s = s + s\nawiei\nma x = bisa(s)\nka x",
+      "stdin": "ok\n",
+      "expected_ok": true,
+      "expected_stdout_characters": 32771
+    },
+    {
+      "name": "unicode_prompt_over_cap",
+      "source": "ma s = \"😀\"\nmpɛn 16\n ma s = s + s\nawiei\nma x = bisa(s)",
+      "stdin": "ok\n",
+      "expected_ok": false,
+      "expected_stdout_characters": 0,
+      "error_category": "ResourceError"
+    },
+    {
+      "name": "prompt_and_print_cumulative_cap",
+      "source": "ma s = \"😀\"\nmpɛn 15\n ma s = s + s\nawiei\nma x = bisa(s)\nka s",
+      "stdin": "ok\n",
+      "expected_ok": false,
+      "expected_stdout_characters": 32768,
+      "error_category": "ResourceError"
+    },
+    {
+      "name": "ascii_exactly_64000",
+      "source": "ma s = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\nmpɛn 1000\n ka s\nawiei",
+      "stdin": "",
+      "expected_ok": true,
+      "expected_stdout_characters": 64000
+    },
+    {
+      "name": "ascii_over_64000",
+      "source": "ma s = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\nmpɛn 1001\n ka s\nawiei",
+      "stdin": "",
+      "expected_ok": false,
+      "expected_stdout_characters": 64000,
+      "error_category": "ResourceError"
+    }
+  ]
+}
