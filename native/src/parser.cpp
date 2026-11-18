@@ -53,16 +53,27 @@ class Parser{
                 const string& digits=cur().text;
                 const size_t first=digits.find_first_not_of('0');
                 const string magnitude=first==string::npos?"0":digits.substr(first);
+#ifndef KASA_ENABLE_BIGINT_VM
                 if(magnitude=="9223372036854775808"){
                     ++i;
                     return expr("literal",x,"",Value(numeric_limits<int64_t>::min()));
                 }
+#endif
             }
             return expr("unary",x,"-",{}, {expression(70)});
         }
         if(match("NOT"))return expr("unary",x,"NOT",{}, {expression(70)});
         if(match("INTEGER")){
+#ifdef KASA_ENABLE_BIGINT_VM
+            try {
+                const auto number=bigint::decimal(x.text);
+                if(number>=numeric_limits<int64_t>::min()&&number<=numeric_limits<int64_t>::max())
+                    return expr("literal",x,"",Value(number.convert_to<int64_t>()));
+                return expr("literal",x,"",Value(number));
+            }catch(const bigint::SizeLimit&){throw Failure(x,"ResourceError","Integer literal exceeds size limit",file);}
+#else
             try{return expr("literal",x,"",Value(static_cast<int64_t>(stoll(x.text))));}catch(...){throw Failure(x,"ResourceError","Integer literal exceeds 64-bit native range",file);}
+#endif
         }
         if(match("DECIMAL")){
             // stod throws out_of_range on valid binary64 subnormals and
