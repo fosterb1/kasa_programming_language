@@ -40,6 +40,17 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+
+### 2026-11-18 — Resolving legacy PR #7 without reverting modern runtimes
+
+- **Status:** Reconciled platform expansion on `merge/platform-legacy-reconciled-20261118`. The original PR #7 had genuine conflicts with newer Kasa compiler, JavaScript interpreter and KBC1 code; all current implementations were retained instead of replacing them with older copies.
+- **Changed:** Imported the 10 runnable historical exercises, VS Code extension prototype, offline service worker/manifest/icons, web distribution packaging support, optional Python CLI `--explain` diagnostics, shared 24-case Python/JS conformance corpus and earlier tutorial/release guidance. Added all root examples to the unified 26-case golden-output corpus. Kept RFC-0007 and RFC-0005 as the current contract and bytecode design references.
+- **Independent verification:** The actual repository JavaScript interpreter ran all **26/26** root examples successfully, the 16 success + 8 failure legacy conformance scenarios passed **24/24**, and **11/11** static VS Code/offline wiring checks passed. These are direct JavaScript execution plus source/JSON checks, **not** a full Node test runner or real-browser offline PWA run.
+- **Risk:** Python pytest, native C++/KBC1 and actual browser offline/WASM integration for this merged source remain unverified on a full checkout. Imported Python/Node tests are executable checks but not claimed green. VS Code extension remains unpublished. No payment or licensing action.
+- **Next gate:** Run complete parity/full local profiles, exercise actual offline installation in browsers, and validate editor runtime before stable release. Do not close Step 1 merely because the old PR merges.
+
+
+
 ### 2026-11-18 — Kasa 0.5 language-contract preparation (Step 1 remains open)
 
 - **Status:** **Merged to `main`** in [PR #32](https://github.com/fosterb1/kasa_programming_language/pull/32), squash commit `86e4aa441931ab544c4f376ff70d62ccc16253f5`; not a stable language-standard announcement.
