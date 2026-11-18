@@ -80,12 +80,30 @@ ERROR_CASES = {
 }
 
 
+def capture_native(
+    argv: list[str], input_text: str = ""
+) -> subprocess.CompletedProcess[str]:
+    """Decode UTF-8 explicitly; text=True would turn embedded CR into LF.
+
+    Kasa's input conformance includes internal carriage-return bytes that
+    must survive round trips through the native source and KBC1 runners.
+    """
+    result = subprocess.run(
+        argv, input=input_text.encode("utf-8"),
+        capture_output=True, timeout=5, check=False,
+    )
+    return subprocess.CompletedProcess(
+        result.args, result.returncode,
+        stdout=result.stdout.decode("utf-8", errors="replace"),
+        stderr=result.stderr.decode("utf-8", errors="replace"),
+    )
+
+
 def run_native(source: str, input_text: str = "", mode: str = "run") -> subprocess.CompletedProcess[str]:
     with tempfile.TemporaryDirectory() as folder:
         name = pathlib.Path(folder) / "test.kasa"
         name.write_text(source, encoding="utf-8")
-        return subprocess.run([str(BINARY), mode, str(name)], input=input_text, text=True,
-                              capture_output=True, timeout=5, check=False)
+        return capture_native([str(BINARY), mode, str(name)], input_text)
 
 
 
@@ -115,9 +133,8 @@ def run_native_serialized(source: str, input_text: str = "") -> tuple[
         )
         if checked.returncode != 0:
             return compiled, checked, None
-        executed = subprocess.run(
-            [str(BINARY), "run-bytecode", str(bytecode_path)],
-            input=input_text, text=True, capture_output=True, timeout=5, check=False,
+        executed = capture_native(
+            [str(BINARY), "run-bytecode", str(bytecode_path)], input_text,
         )
         return compiled, checked, executed
 
