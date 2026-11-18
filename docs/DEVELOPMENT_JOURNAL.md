@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-18 — Output-limit semantics standardized in candidate runtime source
+
+- **Design decision:** 64,000 Unicode **code points** per Kasa program execution, shared between printed lines (`ka`, including newline) and text prompts (`bisa`). Exceeding the cap raises `ResourceError` **before** emitting the overflowing operation; already emitted text remains available. Native UTF-8 string validation on hostile input remains a distinct issue.
+- **Implemented on** `fix/output-budget-parity-20261118`: Python output writer with counter/reset, JavaScript output quota error normalized to `ResourceError`, and native C++ text/prompt sink using UTF-8 code-point counting. Added 8 source-level shared fixtures and registered them in Python pytest, JavaScript Node tests and native source/KBC1 conformance; included Python fixtures in local parity profile. Twi grammar and vocabulary unchanged.
+- **Verification actually executed:** **8/8** shared output-budget fixtures in the exact repository JavaScript interpreter; isolated native byte/code-point/output quota helper **7/7** assertions compiled and run using GCC 14.2 and Clang 17 with ASan/UBSan. No complete Python interpreter pytest, linked native VM/KBC1 or Node test runner executed on this branch in this environment.
+- **Outstanding acceptance gate:** Run full local 10-stage parity and 18-stage full verification on the exact merged revision, resolve any mismatch, and verify UTF-8 input validity policies. Do not mark full Kasa 0.4 cross-runtime parity or production sandbox safety complete.
+
+
+
 
 ### 2026-11-18 — Browser Unicode output-budget precision fix
 

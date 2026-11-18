@@ -72,7 +72,8 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
             ("Python semantic conformance", [python, "-m", "pytest", "-q",
                 "tests/test_kasa.py", "tests/test_remainder_conformance.py",
                 "tests/test_source_locations.py", "tests/test_decimal_display.py",
-                "tests/test_reconciliation_conformance.py"], 180),
+                "tests/test_reconciliation_conformance.py",
+                "tests/test_output_budget_conformance.py"], 180),
             ("JavaScript semantic conformance", [node, "--test",
                 "tests/test_kasa_browser.cjs"], 120),
         ]

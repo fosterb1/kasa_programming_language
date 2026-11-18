@@ -77,6 +77,19 @@ static bool equal(const Value&a,const Value&b,int depth=0){
 class VM{
     ostream &out;istream &in;string filename;size_t steps=0,printed=0;int depth=0;
     const size_t maxSteps=100000,maxOutput=64000,maxList=10000,maxText=1000000;
+    static size_t countUnicodeCodepoints(const string& text) {
+        size_t count=0;
+        for(unsigned char byte:text) if((byte&0xc0)!=0x80) ++count;
+        return count;
+    }
+    void emit(const string& text,const Token& token,bool flushOutput=false) {
+        const size_t characters=countUnicodeCodepoints(text);
+        if(characters>maxOutput-printed)
+            error(token,"ResourceError","Output exceeded the 64,000-character limit");
+        out<<text;
+        printed+=characters;
+        if(flushOutput)out<<flush;
+    }
     // Functions capture environments using shared ownership. Recursive and nested
     // definitions can therefore produce cycles (environment -> function -> environment).
     // Track environments weakly and break cycles only when the entire VM finishes,
@@ -147,9 +160,7 @@ class VM{
             if(!args.empty()){
                 if(!holds_alternative<string>(args[0].data))error(t,"TypeError","bisa prompt must be text");
                 const string&prompt=get<string>(args[0].data);
-                if(prompt.size()>maxOutput-printed)error(t,"ResourceError","Output limit exceeded");
-                printed+=prompt.size();
-                out<<prompt<<flush;
+                emit(prompt,t,true);
             }
             string line;if(!getline(in,line))error(t,"InputError","No more input is available");
             if(line.size()>maxText)error(t,"ResourceError","Input is too long");
@@ -188,9 +199,8 @@ class VM{
                 case Op::Constant:stack.push_back(i.value);break;
                 case Op::Load:stack.push_back(env->get(i.name,i.loc,filename));break;
                 case Op::Store:env->values[i.name]=pop(stack);break;
-                case Op::Print:{string text=display(pop(stack))+"\n";printed+=text.size();
-                    if(printed>maxOutput)error(i.loc,"ResourceError","Output limit exceeded");
-                    out<<text;break;}
+                case Op::Print:{string text=display(pop(stack))+"\n";
+                    emit(text,i.loc);break;}
                 case Op::Pop:pop(stack);break;
                 case Op::Neg:{Value x=pop(stack);if(integer(x))stack.push_back(safeSub(0,get<int64_t>(x.data),i.loc));
                     else stack.push_back(checkedDouble(-number(x,i.loc),i.loc));

@@ -301,3 +301,17 @@ test('ASCII output budget behavior is unchanged', () => {
   assert.equal(result.ok, true, result.error);
   assert.equal(result.output, 'Ghana\n');
 });
+
+const outputBudgetFixtures = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'tests/conformance_output_budget.json'), 'utf8')
+);
+for (const fixture of outputBudgetFixtures.cases) {
+  test(`Unicode output-budget contract: ${fixture.name}`, () => {
+    const result = executeKasa(fixture.source, fixture.stdin);
+    assert.equal(result.ok, fixture.expected_ok, result.error);
+    assert.equal([...result.output].length, fixture.expected_stdout_characters);
+    if (!fixture.expected_ok) {
+      assert.ok(result.error.includes(`: ${fixture.error_category}:`), result.error);
+    }
+  });
+}
