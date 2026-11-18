@@ -1,3 +1,5 @@
+> **Historical milestone snapshot.** Current progress estimates and unresolved release gates are maintained in [PROGRESS_SCORECARD.md](./PROGRESS_SCORECARD.md).
+
 # Kasa expansion: implementation tracker
 
 These are development milestones, not five completed major releases.
