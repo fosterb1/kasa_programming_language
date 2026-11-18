@@ -42,6 +42,7 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ### 2026-11-18 — Arbitrary-precision integer direction and release gate
 
+- **Merged into `main`:** [PR #42](https://github.com/fosterb1/kasa_programming_language/pull/42), squash commit `cee26f5b0b945a0bbc119237548eaf2544802721`.
 - **Decision:** Adopt exact arbitrary-precision integers (bounded by explicit resource controls) as the *intended language semantics*, keeping native signed 64-bit support explicitly experimental pending upgrade. Do not restrict Python/JavaScript integers to int64 as a short-term parity workaround.
 - **New specification:** [RFC-0008](./RFC-0008-arbitrary-precision-integers.md) defines target mathematical behavior, signed remainders, conversion, precision, a small-integer fast-path option, memory/DoS safeguards and a mandatory versioned KBC1 evolution. It distinguishes candidate 16,384-bit and 1,000-literal-digit limits from certified standards.
 - **New fixtures:** 10 shared exact integer source cases in `tests/conformance_arbitrary_integers.json`, registered with Python pytest and the Node browser suite; Python included in independent parity profile. Native/KBC1 expected-success runs must wait for implementation rather than fabricate a passing result.
