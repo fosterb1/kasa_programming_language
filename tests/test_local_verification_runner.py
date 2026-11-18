@@ -156,7 +156,7 @@ def test_revision_reports_no_commit_when_git_is_unavailable(monkeypatch):
     assert runner.source_revision() == {"commit": None, "working_tree_clean": None}
 
 
-def test_full_and_quick_counts_unchanged():
+def test_full_and_quick_counts_include_numeric_differential():
     runner = load_tool()
     assert len(runner.plan("quick", False)) == 7
     assert len(runner.plan("full", False)) == 16
