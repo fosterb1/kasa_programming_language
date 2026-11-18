@@ -176,7 +176,7 @@ Kasa's `%` operator uses **floor-based integer remainder** consistently in Pytho
 
 The three engines retain other documented differences, notably the native 64-bit integer range; this is **not** a declaration of full language parity.
 
-**Numeric precision work in progress:** Mixed integer/decimal comparison must not round large integers through binary64. An independent 2026-11-18 engineering milestone adds exact comparison logic and 18 shared cases for the browser and native engines. [Verification and known limitations](./docs/verification/2026-11-18-mixed-numeric-comparison.md). This work does not claim that mixed-type arithmetic or every financial computation is exact.
+**Numeric precision improvement (Kasa 0.4 alpha):** [PR #23](https://github.com/fosterb1/kasa_programming_language/pull/23) corrected mixed integer/decimal comparison logic to avoid rounding large integers through binary64, with 18 shared regression cases. Focused JavaScript/C++ checks passed; full native VM and Python/KBC1 integration verification of this change remains outstanding. [Verification and known limitations](./docs/verification/2026-11-18-mixed-numeric-comparison.md). This work does not claim that mixed-type arithmetic or every financial computation is exact.
 
 ## Unicode diagnostic coordinates (Kasa 0.4 proposal)
 
