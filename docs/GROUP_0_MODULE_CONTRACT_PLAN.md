@@ -139,3 +139,10 @@ python scripts/plan_kasa_modules.py --use math:m --use collections:c
 ```
 
 Container cloning for independent testing was attempted but failed to resolve github.com. The new suite has **no claimed pass yet**. Next implement a catalog-verified binder and carefully reviewed grammar/member resolution, without accepting arbitrary module paths.
+
+
+## G0.3 Mac binder checkpoint — 2026-11-20
+
+User Mac verification at commit `0f62645` passed all 7 `mac_dev.sh quick` stages and 40/40 selected Python namespace/catalog/preflight tests. The source-only binder `scripts/bind_kasa_catalog.py` was present on that checkout, but its **own tests were not yet available**.
+
+Now added `tests/test_bind_kasa_catalog.py` covering calls to real catalog-pinned math/collections functions in private environments, explicit public export access, read-only exports, valid catalog copy, source tampering, and undeclared exports. These new tests are **pending actual Mac execution** and should not be treated as passing solely because the file is committed. The binder remains a development API, not a Kasa import statement or compiler/VM module loader.
