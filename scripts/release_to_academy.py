@@ -143,6 +143,19 @@ def publish(payload: dict[str, bytes], manifest: dict, repo: str, branch: str, t
     return next_commit["sha"]
 
 
+def run_local_gates() -> None:
+    """No release publication until local language and native artifact checks pass."""
+    checks = [
+        ["node", "native/wasm/validate_artifacts.mjs"],
+        ["node", "--test", "tests/test_kasa_wasm.cjs", "tests/test_kasa_browser.cjs"],
+        [sys.executable, "playground/build_site.py", "--require-wasm"],
+        [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_release_to_academy.py"],
+    ]
+    for command in checks:
+        print("Checking:", " ".join(command), flush=True)
+        subprocess.run(command, cwd=ROOT, check=True)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--academy", type=Path, help="Local Academy checkout for file comparison")
@@ -163,6 +176,7 @@ def main() -> int:
         return 0
     if not args.yes_reviewed:
         parser.error("Use --yes-reviewed after completing local tests and native browser verification")
+    run_local_gates()
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
         parser.error("GITHUB_TOKEN is required to publish; do not commit credentials")
