@@ -35,7 +35,7 @@ def main(argv: list[str]) -> int:
                 stderr=result.stderr.decode("utf-8",errors="replace")
                 category=c["error_category"]
                 valid=result.returncode != 0 and re.search(
-                    r":\\d+:\\d+: "+re.escape(category)+r":",stderr
+                    r":\d+:\d+: "+re.escape(category)+r":",stderr
                 ) is not None
                 if not valid:
                     failed.append((c["name"],result.returncode,stderr[-500:]))
