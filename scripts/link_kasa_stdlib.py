@@ -38,11 +38,11 @@ def _regular_file(path: Path, base: Path) -> bool:
     if not path.is_relative_to(base):
         return False
     current = base
-    if current.is_symlink():
+    if current.is_symlink() or (hasattr(current, "is_junction") and current.is_junction()):
         return False
     for part in path.relative_to(base).parts:
         current = current / part
-        if current.is_symlink():
+        if current.is_symlink() or (hasattr(current, "is_junction") and current.is_junction()):
             return False
     return path.is_file()
 
@@ -95,7 +95,9 @@ def link(application: Path, modules: list[str], output: Path) -> Path:
         raise LinkError("Output must be a .kasa file directly inside build/stdlib-linked")
     if output.exists() or output.is_symlink():
         raise LinkError("Output already exists; refusing overwrite")
-    if root.exists() and (root.is_symlink() or not root.is_dir()):
+    if root.parent.is_symlink() or (hasattr(root.parent, "is_junction") and root.parent.is_junction()):
+        raise LinkError("Build directory is a linked location")
+    if root.exists() and (root.is_symlink() or (hasattr(root, "is_junction") and root.is_junction()) or not root.is_dir()):
         raise LinkError("Output directory is not a regular directory")
     # Verify input before creating any output.
     source = prepare_source(application.absolute(), modules)
