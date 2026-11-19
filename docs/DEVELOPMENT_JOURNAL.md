@@ -39,6 +39,13 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-19 — Group 0.2 Windows catalog validation accepted
+
+- **User Windows evidence** after checkout `d7aa810`: `python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_link_kasa_stdlib.py` → **36 passed, 3 skipped in 1.28s**.
+- `python scripts/validate_kasa_catalog.py` → `PASS: catalog schema, source identities, declared exports and dependency graph`; reported modules: `collections` with `kasa_count_equal`, `kasa_contains`, and `math` with `kasa_abs`, `kasa_clamp`, `kasa_sum`.
+- **Classification:** G0.2 manifest validation accepted for tested Windows scope. The three skipped tests were not executed; their protections are not thereby independently verified.
+- **Next stage:** G0.3 namespace/import design and incremental implementation, keeping approved Kasa language vocabulary stable, preserving native/KBC1 parity and requiring explicit shared conformance evidence. No runtime language-level import is implemented by this milestone.
+
 
 ### 2026-11-19 — Group 0.2 implemented: Kasa library manifest and validation
 
