@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "modules": [
+    {
+      "id": "math",
+      "source": "stdlib/experimental/math.kasa",
+      "exports": [
+        "kasa_abs",
+        "kasa_clamp",
+        "kasa_sum"
+      ],
+      "dependencies": [],
+      "content_identity": "sha256:bea853aff3a4c5ad1fa3ffa12de567b39a360d02c46d79bb6f4c3dbef7a3c3fa"
+    },
+    {
+      "id": "collections",
+      "source": "stdlib/experimental/collections.kasa",
+      "exports": [
+        "kasa_count_equal",
+        "kasa_contains"
+      ],
+      "dependencies": [],
+      "content_identity": "sha256:b21c4eb7eb91547b63ca3f13e1adecc7d35ed8cce3513b3b4d90be1ef1622ced"
+    }
+  ]
+}
