@@ -47,8 +47,9 @@ def read_verified_archive(source: Path) -> tuple[dict[str, bytes], dict]:
         if archive.testzip() is not None:
             raise ValueError("ZIP CRC check failed")
         expected = {f"{source.stem}/{name}" for name in PAYLOAD}
-        if set(archive.namelist()) != expected:
-            raise ValueError("Legacy ZIP has unknown or missing entries")
+        members = archive.namelist()
+        if len(members) != len(expected) or set(members) != expected:
+            raise ValueError("Legacy ZIP has unknown, duplicate or missing entries")
         if any(info.file_size > MAX_PAYLOAD for info in archive.infolist()):
             raise ValueError("Oversized package member")
         files = {name: archive.read(f"{source.stem}/{name}") for name in PAYLOAD}
@@ -94,9 +95,9 @@ def package(source: Path, output: Path, build: int) -> Path:
             for key, payload in sorted(files.items()):
                 archive.writestr(f"{name}/{key}", payload)
         with zipfile.ZipFile(dest) as archive:
-            if archive.testzip() is not None or set(archive.namelist()) != {
-                f"{name}/{key}" for key in files
-            }:
+            if (archive.testzip() is not None or
+                    len(archive.namelist()) != len(files) or
+                    set(archive.namelist()) != {f"{name}/{key}" for key in files}):
                 raise ValueError("Versioned ZIP verification failed")
         archive_sha = sha256(dest.read_bytes())
         # Local BUILD receipt, not an installation receipt or cryptographic signature.
