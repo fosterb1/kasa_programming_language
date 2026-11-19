@@ -27,8 +27,8 @@
       "title":"Kasa",
       "properties": {
         "kasa.executablePath": {
-          "type":"string", "default":"kasa-native",
-          "description":"Path to the installed Kasa CLI executable (native or Python)."
+          "type":"string", "default":"kasa",
+          "description":"Path to the installed Kasa executable (default: kasa). Set an absolute path if Kasa is not on VS Code\u0027s PATH."
         }
       }
     }
