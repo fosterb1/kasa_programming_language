@@ -88,3 +88,11 @@ def test_inno_does_not_erase_user_data_or_silently_install():
     assert "[Registry]" not in script
     assert "PrivilegesRequired=lowest" in script
     assert "OutputBaseFilename=kasa-0.4.0-alpha-windows-x64-UNSIGNED-Setup-guarded" in script
+
+
+def test_inno_pascal_code_uses_valid_comment_prefixes():
+    script=(FILE.parent/"kasa_windows_preview.iss").read_text()
+    code=script.split("[Code]", 1)[1]
+    # Section syntax accepts semicolon comments; Pascal Script [Code] does not.
+    assert not any(line.lstrip().startswith(";") for line in code.splitlines())
+    assert "// Phase 6E:" in code
