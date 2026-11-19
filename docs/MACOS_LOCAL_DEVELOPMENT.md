@@ -141,3 +141,15 @@ bash scripts/mac_dev.sh parity
 The verifier's `Native decimal display smoke` and `Native/Python decimal display differential` stages will test the **actual newly built Apple fallback**, including thousands of binary64 values. Do not bypass or delete these checks if the outputs differ.
 
 The warnings about unused `version` parameters in `native/src/bytecode.cpp` were not the build-stopping issue. A new build should not require changing the Xcode/Command Line Tools or OS for this formatter.
+
+### Follow-up: macOS subnormal values (verified user feedback)
+
+The first Apple fallback **compiled successfully** and progressed to **9/11 parity stages**, but the native smoke and Python differential correctly failed: seven extremely small values were printed as `ERROR` and `Could not format Kasa number`. The original `std::istringstream >> double` round-trip checker set its failure state on correctly rounded *subnormal* binary64 values on Apple's older libc++. This was a defect in the fallback, not in the Python reference.
+
+The fallback now round-trips through **C-locale `strtod_l`** (or Windows `_strtod_l` when forced); the decimal must consume the whole candidate and decode to *identical binary64 bits*. Underflow is not mistaken for invalid syntax. Apple documents both `strtod_l` and the possibility of `ERANGE` on valid subnormal conversion:
+- https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/strtod_l.3.html
+- https://man.freebsd.org/cgi/man.cgi?query=strtod&sektion=3&manpath=macOS+26.7
+
+The C++ fallback algorithm was re-tested independently using GCC 14.2 on **10,007 finite binary64 values** including subnormals, signed subnormals, the smallest normal values and the largest finite values, matching Python `repr` in all 10,007 outputs. This does **not** constitute a pass on Apple Clang 14; the user's next real macOS parity run is the deciding test. Seven concrete failed Mac samples were added to the native float smoke suite so future regressions fail loudly.
+
+Run `git -c http.proxy=http://192.168.49.1:8282 pull --ff-only` followed by `bash scripts/mac_dev.sh parity`. Keep all eleven stages enabled.
