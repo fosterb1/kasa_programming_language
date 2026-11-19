@@ -38,3 +38,9 @@ Begin only after the core semantics gate. Specify **integer pesewas** as the beg
 ## Phase 9 delivery requirements
 
 The existing playground and Academy have a partially implemented path; the Netlify deploy guide is `docs/NETLIFY_DEPLOYMENT.md`. The production URL entered via **CMS → Website Settings → Playground Settings → Netlify Playground URL** must be verified live. Do not claim hosted deployment, real WebAssembly availability or CMS persistence merely because source code and build tests pass.
+
+## Phase 8 strategy selection — balanced standard library (2026-11-19)
+
+The owner selected the **balanced standard library** direction. Phase 8 therefore alternates foundational general-purpose functionality (math, collections, text, statistics, data formats, safe files and tests) with carefully specified money, validation, inventory and reconciliation capabilities. Avoid optimizing solely for finance or claiming Kasa is an accounting-specific language.
+
+Initial source-level implementation: `stdlib/experimental/math.kasa`, `stdlib/experimental/collections.kasa`, shared Python/JavaScript/native/KBC1 fixture runners. These are not true importable modules. Refer to [Phase 8 balanced library roadmap](./PHASE_8_BALANCED_STDLIB.md).
