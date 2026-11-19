@@ -106,28 +106,28 @@ Use a different output filename if an archive already exists; do not delete or o
 
 ## Phase 6F.4 — Isolated reconstruction simulation (source implemented; Windows verification pending)
 
-A new developer-only \`scripts/simulate_windows_recovery.py\` reconstructs the **five known snapshot payload files** into a **new dedicated workspace** inside \`build/recovery-simulations\`. It reuses Phase 6F.3 ZIP verification before writing anything, checks each written file's SHA-256 against the snapshot index, validates the reconstructed package, and records \`simulation-report.json\`. It **never restores to an installed directory, executes Kasa, edits PATH/registry, authorizes upgrades or deletes user programs**.
+A new developer-only `scripts/simulate_windows_recovery.py` reconstructs the **five known snapshot payload files** into a **new dedicated workspace** inside `build/recovery-simulations`. It reuses Phase 6F.3 ZIP verification before writing anything, checks each written file's SHA-256 against the snapshot index, validates the reconstructed package, and records `simulation-report.json`. It **never restores to an installed directory, executes Kasa, edits PATH/registry, authorizes upgrades or deletes user programs**.
 
-The tool fails closed if the workspace already exists. Fault injection (\`--inject-failure-after N\`, N=1..5) deliberately stops after writing N files and **retains the partial workspace and report**. This is a test of recovery reconstruction and failure evidence, not an actual interrupted Windows Installer rollback or a complete recovery protocol.
+The tool fails closed if the workspace already exists. Fault injection (`--inject-failure-after N`, N=1..5) deliberately stops after writing N files and **retains the partial workspace and report**. This is a test of recovery reconstruction and failure evidence, not an actual interrupted Windows Installer rollback or a complete recovery protocol.
 
 On the Windows development machine, run separately:
 
-\`\`\`bat
+```bat
 git pull --ff-only
 python -m pytest -q tests/test_simulate_windows_recovery.py tests/test_windows_recovery_snapshot.py
 python scripts/simulate_windows_recovery.py --snapshot build/recovery-snapshots/kasa-stage-baseline.zip --workspace build/recovery-simulations/baseline-001
 type build/recovery-simulations/baseline-001/simulation-report.json
-\`\`\`
+```
 
-Expected report: \`"passed": true\`, \`"restore_authorized": false\`, \`"installed_files_touched": false\`. The snapshot and its \`.sha256\` sidecar must already exist, as verified by Phase 6F.3. If a previous workspace exists, **choose a new run ID**; never delete an existing user folder to satisfy the test.
+Expected report: `"passed": true`, `"restore_authorized": false`, `"installed_files_touched": false`. The snapshot and its `.sha256` sidecar must already exist, as verified by Phase 6F.3. If a previous workspace exists, **choose a new run ID**; never delete an existing user folder to satisfy the test.
 
 Optional failure injection into a **different new workspace** (not the successful simulation):
 
-\`\`\`bat
+```bat
 python scripts/simulate_windows_recovery.py --snapshot build/recovery-snapshots/kasa-stage-baseline.zip --workspace build/recovery-simulations/interruption-001 --inject-failure-after 3
 type build/recovery-simulations/interruption-001/simulation-report.json
-\`\`\`
+```
 
-The injected simulation is **supposed to return a nonzero exit code**. It should leave three reconstructed payload files with a \`passed: false\` report, for inspection. This never touches a real installation.
+The injected simulation is **supposed to return a nonzero exit code**. It should leave three reconstructed payload files with a `passed: false` report, for inspection. This never touches a real installation.
 
 Current evidence: the Phase 6F.4 source and regression tests were committed; independent remote test execution was **blocked by a temporary runner job limit**, so no Phase 6F.4 passing-test claim is made here. Windows execution is required to verify this implementation. Real installation lifecycle, upgrade and rollback remain **disabled and unverified**.
