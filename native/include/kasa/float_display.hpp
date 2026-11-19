@@ -1,6 +1,13 @@
 #pragma once
 // Kasa native binary64 display: Python-reference notation and shortest round-trip.
 #include <charconv>
+#include <cstdlib>
+#include <clocale>
+#if defined(__APPLE__)
+#include <xlocale.h>
+#elif !defined(_WIN32)
+#include <locale.h>
+#endif
 #include <bit>
 #include <cstdint>
 #include <iomanip>
@@ -25,17 +32,37 @@ inline std::string displayFloat(double number) {
     //
     // The differential test compares this branch with Python's repr over
     // thousands of deterministic IEEE-754 bit patterns on a real Mac.
+    // C-locale parsing must accept finite subnormals. In particular, errno
+    // may be ERANGE for a correctly rounded subnormal; that is not failure.
+    // C++ iostream extraction can set failbit for those values on libc++.
+    // strtod_l avoids changing the process-global locale (and is thread-safe).
+#if defined(_WIN32)
+    struct NumericLocale {
+        _locale_t handle = _create_locale(LC_NUMERIC, "C");
+        NumericLocale() { if (!handle) throw std::runtime_error("C numeric locale unavailable"); }
+        ~NumericLocale() { _free_locale(handle); }
+    };
+#else
+    struct NumericLocale {
+        locale_t handle = newlocale(LC_NUMERIC_MASK, "C", nullptr);
+        NumericLocale() { if (!handle) throw std::runtime_error("C numeric locale unavailable"); }
+        ~NumericLocale() { freelocale(handle); }
+    };
+#endif
+    static const NumericLocale cLocale;
     bool found = false;
     for (int digits = 1; digits <= 17; ++digits) {
         std::ostringstream out;
         out.imbue(std::locale::classic());
         out << std::scientific << std::setprecision(digits - 1) << number;
         const std::string candidate = out.str();
-        std::istringstream in(candidate);
-        in.imbue(std::locale::classic());
-        double decoded = 0.0;
-        in >> decoded;
-        if (in && in.peek() == std::char_traits<char>::eof() &&
+        char* end = nullptr;
+#if defined(_WIN32)
+        const double decoded = _strtod_l(candidate.c_str(), &end, cLocale.handle);
+#else
+        const double decoded = strtod_l(candidate.c_str(), &end, cLocale.handle);
+#endif
+        if (end == candidate.c_str() + candidate.size() &&
             std::bit_cast<std::uint64_t>(decoded) ==
                 std::bit_cast<std::uint64_t>(number)) {
             encoded = candidate;
