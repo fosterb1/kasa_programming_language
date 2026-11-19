@@ -66,15 +66,13 @@ def test_inno_script_per_user_and_no_path_mutation():
     assert "[Run]" not in script
 
 
-def test_inno_guards_final_custom_and_silent_install_directory():
+def test_inno_guards_any_existing_custom_and_silent_install_destination():
     script=(FILE.parent/"kasa_windows_preview.iss").read_text()
     code=script.split("[Code]", 1)[1]
     assert "function PrepareToInstall(var NeedsRestart: Boolean): String;" in code
-    assert "IsEmptyInstallDirectory(WizardDirValue)" in code
-    assert "FindFirst(AddBackslash(Directory) + '*', FindRec)" in code
-    assert "FindClose(FindRec)" in code
-    assert "FindRec.Name <> '.'" in code
-    assert "FindRec.Name <> '..'" in code
+    assert "if DirExists(WizardDirValue) or FileExists(WizardDirValue) then" in code
+    assert "FindFirst(" not in code
+    assert "IsEmptyInstallDirectory" not in code
     assert "Upgrades are not supported" in code
     assert "function InitializeSetup()" not in code
     assert "UsePreviousAppDir=no" in script
@@ -96,3 +94,12 @@ def test_inno_pascal_code_uses_valid_comment_prefixes():
     # Section syntax accepts semicolon comments; Pascal Script [Code] does not.
     assert not any(line.lstrip().startswith(";") for line in code.splitlines())
     assert "// Phase 6E:" in code
+
+
+def test_inno_fail_closed_no_existing_empty_directory_exception():
+    script=(FILE.parent/"kasa_windows_preview.iss").read_text()
+    code=script.split("[Code]", 1)[1]
+    assert "existing destination" in code
+    assert "new folder that does not already exist" in code
+    assert "DirExists(WizardDirValue) or FileExists(WizardDirValue)" in code
+    assert "UsePreviousAppDir=no" in script
