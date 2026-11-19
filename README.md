@@ -445,3 +445,5 @@ Connect the existing Netlify playground site to this GitHub repository, or uploa
 ## Forward development order (updated 2026-11-19)
 
 **Phase 7:** cross-runtime language correctness → **Phase 8:** practical Kasa financial/data libraries → **Phase 9:** browser playground, Netlify and Academy integration → **Phase 10:** curriculum/developer tooling → **Phase 11:** public alpha → **Phase 12:** Kasa 1.0 stable. This is a forward development priority plan; historical phase identifiers remain unchanged. See [the approved forward development sequence](./docs/FORWARD_DEVELOPMENT_SEQUENCE.md). The next action is `python scripts/verify_local.py --profile parity` to measure the current implementation before starting Phase 8.
+
+**Phase 8A kickoff (2026-11-19):** Following a clean 11/11 Windows parity report on commit `5067c5b`, Kasa now includes six shared integer-pesewa finance teaching fixtures and Python/JS/native-KBC1 test drivers. Initial independent Python and Node checks both passed 6/6; native Phase 8A driver still needs a compiled run. This is not yet a production finance library. See [Phase 8A scope and evidence](./docs/PHASE_8A_FINANCE_SUBUNITS.md).
