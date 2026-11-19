@@ -36,6 +36,17 @@ bash scripts/mac_dev.sh package
 
 The archive and SHA-256 checksum appear under `build/dist/`. The archive includes a `kasa` launcher and a standalone `kasa-native` executable; users of that binary do not need Python, Node or CMake. No external service, automatic installation or system-wide changes are involved. **This is not a signed/notarized public installer or evidence of Apple Silicon compatibility.** See [Phase 5A packaging and safe extraction guide](./docs/PHASE_5A_MACOS_PREVIEW_PACKAGING.md).
 
+## Phase 5B — unsigned macOS installer and future upgrades
+
+An existing Kasa installation does **not** update when developers change source code. A changed interpreter must be rebuilt, fully tested, packaged with a newer build version, and explicitly installed by the user. The `pkgbuild`-based preview targets `/usr/local/lib/kasa-preview` and an optional `/usr/local/bin/kasa` command, with a collision-checking preinstall script. Build locally with:
+
+```bash
+bash scripts/mac_dev.sh full
+bash scripts/mac_dev.sh installer
+```
+
+This creates an **unsigned `.pkg` without installing it**; inspect it and test on a real Mac before using it. No automatic updates, signing, notarization, public distributions or system changes happen during packaging. See [Phase 5B installer, upgrade and safety guide](./docs/PHASE_5B_INSTALLERS_AND_UPGRADES.md).
+
 ## See Kasa in action
 
 A first program, saved as `hello.kasa`:
