@@ -69,3 +69,41 @@ def test_command_records_nonzero_without_inventing_pass(monkeypatch):
     result = tool.command(["setup.exe", "/VERYSILENT"])
     assert result["exit_code"] == 5
     assert "refused" in result["stderr_tail"]
+
+
+def test_lifecycle_rejects_second_install_before_uninstall(tmp_path, monkeypatch):
+    """Simulation checks call order and guards; no real Setup executable runs."""
+    fake_setup = tmp_path / "setup.exe"
+    fake_setup.write_bytes(b"MZ-mock")
+    calls = []
+    def simulated_command(argv, timeout=120):
+        calls.append(list(argv))
+        target_arg = next((a for a in argv if a.startswith("/DIR=")), None)
+        if target_arg and target_arg.endswith("occupied"):
+            return {"exit_code": 2, "stdout_tail": "", "stderr_tail": "occupied"}
+        if target_arg and target_arg.endswith("fresh-install"):
+            dest = Path(target_arg[5:])
+            if dest.exists():
+                return {"exit_code": 2, "stdout_tail": "", "stderr_tail": "already installed"}
+            dest.mkdir()
+            for name in ("kasa-native.exe", "kasa.cmd", "manifest.json",
+                         "README.txt", "kasa-install-identity.txt"):
+                (dest/name).write_bytes(b"mock-file")
+            return {"exit_code": 0, "stdout_tail": "", "stderr_tail": ""}
+        if argv[-1] == "--version":
+            return {"exit_code": 0, "stdout_tail": "Kasa Native 0.4.0-alpha", "stderr_tail": ""}
+        if "run" in argv:
+            return {"exit_code": 0, "stdout_tail": "Akwaaba Ghana!", "stderr_tail": ""}
+        if "unins000.exe" in str(argv[0]):
+            return {"exit_code": 0, "stdout_tail": "", "stderr_tail": ""}
+        raise AssertionError(f"Unexpected command: {argv}")
+    monkeypatch.setattr(tool, "command", simulated_command)
+    report = tool.run_lifecycle(fake_setup, tmp_path / "workspace")
+    names = [e["name"] for e in report["events"]]
+    assert names[:3] == ["reject occupied custom destination",
+                         "fresh per-user installation",
+                         "reject second installation"]
+    assert all(e["passed"] for e in report["events"][:3])
+    assert report["passed"] is False  # Mock setup creates no real uninstaller.
+    assert sum(any("/DIR=" in part and part.endswith("fresh-install") for part in cmd)
+               for cmd in calls) == 2
