@@ -34,10 +34,10 @@ Source: "{#KasaStage}\kasa-install-identity.txt"; DestDir: "{app}"; Flags: ignor
 [Icons]
 Name: "{group}\Uninstall Kasa Preview"; Filename: "{uninstallexe}"
 [Code]
-; Phase 6E: deliberately first-install-only. Never overwrite a folder that
-; contains any file or subdirectory, even if it contains our identity marker.
-; Run at PrepareToInstall, *after* any custom /DIR and wizard selection.
-; This also covers /SILENT installs, unlike a default-path-only startup test.
+// Phase 6E: deliberately first-install-only. Never overwrite a folder that
+// contains any file or subdirectory, even if it contains our identity marker.
+// Run at PrepareToInstall, *after* any custom /DIR and wizard selection.
+// This also covers /SILENT installs, unlike a default-path-only startup test.
 function IsEmptyInstallDirectory(const Directory: String): Boolean;
 var
   FindRec: TFindRec;
