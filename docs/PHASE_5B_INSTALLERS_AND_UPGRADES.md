@@ -1,6 +1,6 @@
 # Phase 5B — macOS Installer preview and Kasa upgrade lifecycle
 
-**Status:** unsigned, unnotarized macOS `.pkg` source tooling; **not yet verified with real Apple `pkgbuild` or installed on a Mac**. Do not publish as a trusted public release.
+**Status (19 November 2026):** Intel macOS Ventura successfully built, inspected and installed unsigned preview `0.4.0.194`, and ran `kasa` from a home directory without the Python virtual environment. Reported full local verification: 19/19. Apple Silicon, clean-machine compatibility, upgrades and uninstall are not yet verified; do not publish as a trusted public release.
 
 ## What happens when Kasa changes?
 
@@ -69,3 +69,21 @@ macOS package receipts do not automatically include a one-click uninstaller. For
 - Apple Silicon build and actual on-device conformance.
 - Security review for root-executed scripts, signing, notarization and Gatekeeper behavior.
 - Tested Windows/Linux packages and maintained release notes.
+
+## Phase 5C — safe upgrade inspection and uninstall planning (new)
+
+The first Intel preview was installed successfully under package identifier `org.kasalang.kasa.preview`, with receipt `0.4.0.194` and a functioning standalone native command. Phase 5C adds two **read-only** tools:
+
+```bash
+cd ~/Projects/kasa/kasa_programming_language
+source .venv/bin/activate
+git -c http.proxy=http://192.168.49.1:8282 pull --ff-only
+bash scripts/mac_dev.sh upgrade-audit
+bash scripts/mac_dev.sh uninstall-plan
+```
+
+The upgrade audit refuses to certify the installation when the receipt and `build-info.txt` disagree, a Kasa-owned executable is missing, or `/usr/local/bin/kasa` points to an unrelated application. A candidate version can be checked with `bash scripts/mac_dev.sh upgrade-audit --candidate-version 0.4.0.195`; this is only a version sanity check, **not** a real binary compatibility or signed-package verification. The candidate number is illustrative, not a release.
+
+The uninstall planner lists only four package-owned paths and the package receipt. It refuses unexpected files in Kasa's installation directory and unexpected links. **It cannot remove anything**: `--execute` is disabled even for direct Python callers. It does not delete your source programs, `~/hello.kasa`, Academy materials, or any home-directory files.
+
+Upgrades and uninstall still require on-device safe testing and further engineering before any automated system changes will be enabled. Do not execute speculative `sudo rm` commands to emulate this workflow.
