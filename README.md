@@ -99,6 +99,8 @@ This does not install, uninstall, overwrite or recover Kasa. See [Phase 6F Windo
 
 **Phase 6F.3:** `python scripts/windows_recovery_snapshot.py --create-from build/windows-installer-stage --output build/recovery-snapshots/kasa-stage-baseline.zip` creates a verified, **non-restoring** payload snapshot, and `--verify build/recovery-snapshots/kasa-stage-baseline.zip` checks its integrity. Existing installations and installers are untouched; upgrades/rollback remain disabled. See the [Phase 6F recovery documentation](./docs/PHASE_6F_WINDOWS_UPGRADES_AND_RECOVERY.md).
 
+**Phase 6F.5:** `python scripts/audit_windows_reconstruction.py --workspace build/recovery-simulations/baseline-001` independently rechecks the reconstructed payload and its original snapshot without installing, restoring or running Kasa. Real Windows VM installer lifecycle and rollback remain separate release blockers.
+
 ## Phases 5E, 7, 8 and 9 — active Mac-first development
 
 **Phase 6 (Windows cross-platform validation) is reserved for the office Windows machine.** Meanwhile:
