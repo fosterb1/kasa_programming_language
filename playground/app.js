@@ -46,6 +46,45 @@ const checkButton = $("check");
 const exampleSelect = $("example");
 const exampleExplanation = $("example-explanation");
 const debugGuidance = $("debug-guidance");
+const structuredDiagnostic = $("kasa-diagnostic");
+function showStructuredDiagnostic(error) {
+  structuredDiagnostic.replaceChildren();
+  const diagnostic = globalThis.KasaDiagnostics?.diagnose(source.value, error);
+  if (!diagnostic) { structuredDiagnostic.hidden = true; return; }
+  structuredDiagnostic.hidden = false;
+  const heading = document.createElement("h3");
+  heading.textContent = diagnostic.title + " · " + diagnostic.code;
+  structuredDiagnostic.append(heading);
+  if (diagnostic.line != null) {
+    const location = document.createElement("p");
+    location.className = "diagnostic-location";
+    location.textContent = "Line " + diagnostic.line + ", column " + diagnostic.column + " · " + diagnostic.category;
+    structuredDiagnostic.append(location);
+  }
+  if (diagnostic.excerpt) {
+    const excerpt = document.createElement("pre");
+    excerpt.className = "diagnostic-excerpt";
+    excerpt.textContent = diagnostic.excerpt;
+    structuredDiagnostic.append(excerpt);
+  }
+  const explanation = document.createElement("p");
+  explanation.textContent = diagnostic.explanation;
+  structuredDiagnostic.append(explanation);
+  if (diagnostic.suggestion) {
+    const suggestion = document.createElement("p");
+    suggestion.className = "diagnostic-suggestion";
+    suggestion.textContent = "Try this: " + diagnostic.suggestion;
+    structuredDiagnostic.append(suggestion);
+  }
+  const details = document.createElement("details");
+  const summary = document.createElement("summary");
+  summary.textContent = "Original Kasa engine message";
+  const raw = document.createElement("pre");
+  raw.textContent = diagnostic.raw;
+  details.append(summary, raw);
+  structuredDiagnostic.append(details);
+}
+
 const retryButton = $("retry");
 const engineSelect = $("engine");
 const nativeOption = engineSelect.querySelector('option[value="native"]');
@@ -165,6 +204,7 @@ function prepareWorker() {
       setReady(true);
       if (data.type === "EXECUTION_ERROR") {
         output.textContent = data.message;
+        showStructuredDiagnostic(data.message || "");
         debugGuidance.textContent = explainError(data.message || "");
         debugGuidance.hidden = false;
         setStatus("Unexpected interpreter error", "error");
@@ -172,10 +212,12 @@ function prepareWorker() {
       }
       const result = data.result;
       if (!result.ok) {
+        showStructuredDiagnostic(result.error || "");
         debugGuidance.textContent = explainError(result.error || "");
         debugGuidance.hidden = false;
       } else {
         debugGuidance.hidden = true;
+        structuredDiagnostic.hidden = true;
       }
       output.textContent = result.output + (result.error ? `${result.output ? "\n" : ""}${result.error}` : "") || (mode === "check" ? "Syntax OK. No program code was executed." : "Program finished without output.");
       const engineLabel = data.engine === "native-wasm" ? "Native WebAssembly" : "JavaScript";
@@ -201,6 +243,7 @@ function execute(mode) {
   const requestId = ++sequence;
   active = { requestId, mode };
   setReady(false);
+  structuredDiagnostic.hidden = true;
   setStatus(mode === "check" ? "Checking syntax…" : "Running program…", "pending");
   output.textContent = "";
   debugGuidance.hidden = true;
