@@ -46,6 +46,19 @@
             </label>
           </div>
           <div class="editor-frame"><span class="editor-label">KASA SOURCE CODE</span><label for="source" class="sr-only">Kasa program source code</label><textarea id="source" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Kasa program source code" aria-describedby="editor-help"></textarea></div>
+          <div class="character-toolbar" aria-label="Kasa keyboard helper">
+            <div class="character-toolbar-title"><strong>Missing Twi letters?</strong><span>Click where you want to type in the code above, then tap a key.</span></div>
+            <div class="character-keys">
+              <button type="button" class="character-key" data-insert="ɛ" aria-label="Insert ɛ">ɛ</button>
+              <button type="button" class="character-key" data-insert="Ɛ" aria-label="Insert Ɛ">Ɛ</button>
+              <button type="button" class="character-key" data-insert="ɔ" aria-label="Insert ɔ">ɔ</button>
+              <button type="button" class="character-key" data-insert="Ɔ" aria-label="Insert Ɔ">Ɔ</button>
+              <button type="button" class="character-key" data-insert="sɛ" aria-label="Insert sɛ keyword">sɛ</button>
+              <button type="button" class="character-key" data-insert="mpɛn" aria-label="Insert mpɛn keyword">mpɛn</button>
+              <button type="button" class="character-key" data-insert="ɛnyɛ" aria-label="Insert ɛnyɛ keyword">ɛnyɛ</button>
+            </div>
+            <details class="character-keyboard-tips"><summary>Help for phone and laptop keyboards</summary><p>No special keyboard is required inside this editor. Use the buttons above or a Twi/Akan input layout installed on your own device. Kasa keywords keep their real spelling; English words are not automatically converted into language commands.</p></details>
+          </div>
           <div class="editor-footer">
             <div id="editor-help" class="hint">Ctrl + Enter to run · Saved on this device (source only)</div>
             <div class="editor-actions"><label class="engine-picker" for="engine">Engine <select id="engine" aria-label="Choose Kasa execution engine"><option value="auto">Auto</option><option value="javascript">JavaScript</option><option value="native" disabled>Native WebAssembly</option></select></label><label for="upload" class="button ghost file-action">Open .kasa<input type="file" id="upload" accept=".kasa,text/plain" class="sr-only" /></label><button type="button" id="reset" class="button ghost">Reset draft</button><button type="button" id="download" class="button ghost">Download .kasa</button><button type="button" id="check" class="button secondary" disabled>Check syntax</button><button type="button" id="run" class="button primary" disabled><span aria-hidden="true">▶</span> Run code</button></div>
