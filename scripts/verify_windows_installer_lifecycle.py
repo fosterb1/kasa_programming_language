@@ -83,7 +83,7 @@ def run_lifecycle(setup: Path, workspace: Path) -> dict:
     foreign = occupied / "keep-me.txt"
     foreign.write_text("protect this file", encoding="utf-8")
     foreign_digest = sha256(foreign)
-    env_path_before = os.environ.get("PATH", "")
+    env_path_before = os.environ.get("PATH", "")  # Process-only; not a registry PATH audit.
     # An existing occupied target must not be touched by the guarded installer.
     blocked = command([str(setup), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART",
                        "/DIR=" + str(occupied), "/LOG=" + str(workspace / "blocked.log")])
@@ -106,13 +106,27 @@ def run_lifecycle(setup: Path, workspace: Path) -> dict:
                    "process": installed})
     if not files_ok:
         return {"events": events, "passed": False, "workspace": str(workspace)}
+    # A second installation must not overwrite an existing Kasa preview.
+    installed_digest = sha256(target / "kasa-native.exe")
+    reinstall = command([str(setup), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART",
+                         "/DIR=" + str(target), "/LOG=" + str(workspace / "reinstall.log")])
+    reinstall_ok = (reinstall["exit_code"] is not None and reinstall["exit_code"] != 0
+                    and (target / "kasa-native.exe").is_file()
+                    and sha256(target / "kasa-native.exe") == installed_digest)
+    events.append({"name": "reject second installation", "passed": reinstall_ok,
+                   "process": reinstall})
+    if not reinstall_ok:
+        return {"events": events, "passed": False, "workspace": str(workspace)}
     exe = target / "kasa-native.exe"
     version = command([str(exe), "--version"], timeout=20)
     run = command([str(exe), "run", str(sentinel)], timeout=20)
+    # Check both direct native VM execution and the installed user-facing CMD launcher.
+    launcher = command(["cmd.exe", "/d", "/c", str(target / "kasa.cmd"), "--version"], timeout=20)
     execution_ok = (version["exit_code"] == 0 and "Kasa Native 0.4.0-alpha" in version["stdout_tail"]
-                    and run["exit_code"] == 0 and "Akwaaba Ghana!" in run["stdout_tail"])
+                    and run["exit_code"] == 0 and "Akwaaba Ghana!" in run["stdout_tail"]
+                    and launcher["exit_code"] == 0 and "Kasa Native 0.4.0-alpha" in launcher["stdout_tail"])
     events.append({"name": "installed native execution", "passed": execution_ok,
-                   "version": version, "program": run})
+                   "version": version, "program": run, "launcher": launcher})
     if not execution_ok:
         return {"events": events, "passed": False, "workspace": str(workspace)}
     uninstaller = target / "unins000.exe"
@@ -128,7 +142,7 @@ def run_lifecycle(setup: Path, workspace: Path) -> dict:
     events.append({"name": "uninstall preserves external files", "passed": safe,
                    "process": removed})
     return {"events": events, "passed": all(e["passed"] for e in events),
-            "workspace": str(workspace), "note": "Requires VM reset; no automatic cleanup"}
+            "workspace": str(workspace), "note": "Test workspace is removed after execution; reset VM snapshot for full recovery"}
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -146,7 +160,8 @@ def main(argv: list[str] | None = None) -> int:
     result["planned_checks"] = [
         "Reject occupied custom directory and preserve sentinel",
         "Install into previously nonexistent directory",
-        "Execute native Kasa version and a Twi program",
+        "Reject second installation into existing Kasa preview",
+        "Execute native Kasa version, CMD launcher and a Twi program",
         "Uninstall and preserve both external sentinel files",
     ]
     if args.execute_in_disposable_vm:
