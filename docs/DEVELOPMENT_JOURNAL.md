@@ -629,3 +629,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Verification:** Code and test cases have been pushed, but `python -m pytest -q tests/test_module_syntax_study.py tests/test_bind_kasa_catalog.py` has **not yet been observed running on this commit**.
 - **Known limits:** Does not implement user-facing imports, production AST, Python runtime alias binding, JavaScript parity, native compiler/KBC1 support, or a package registry.
 - **Next gate:** Mac focused pytest plus quick profile; after success, proceed with reviewed AST design and a fail-closed Python import implementation.
+
+
+## 2026-11-20 — Module-member AST execution foundation (Python experiment)
+
+- **Previous user Mac evidence:** `tests/test_module_syntax_study.py tests/test_bind_kasa_catalog.py` — **23 passed in 0.77s**. `bash scripts/mac_dev.sh quick` — **7 passed, 0 failed, 0 not run**, checked out at `6b4a6af`. The earlier blank command output was not a hang; terminal subsequently returned to the prompt.
+- **New code:** `src/kasa/module_execution.py` provides opt-in `ModuleAwareInterpreter`, evaluates trusted `module_member` AST nodes through explicitly exported module functions, prevents obvious alias shadowing and preserves existing call/step budgets. `tests/test_module_member_execution.py` covers public/private access, alias safety, deterministic independent scopes and loops.
+- **Verification for this new code:** **Not run yet** on Mac or other independently observed runtime; pending focused pytest and quick profile.
+- **Ghanaian language policy:** No new Twi word, English import keyword, dot syntax, browser language surface or officially approved vocabulary added. This remains a Python AST experiment, not a working Kasa source import implementation.
+- **Risks/limits:** Future runtime integration must combine catalog-pinned loading, alias ownership, parser AST and bytecode contracts without resetting execution budgets on module initialization. Runtime API is not a sandbox or proof against malicious crafted ASTs.
+- **Next gate:** `python -m pytest -q tests/test_module_member_execution.py tests/test_module_namespace_isolation.py tests/test_bind_kasa_catalog.py tests/test_module_syntax_study.py` then `bash scripts/mac_dev.sh quick` on the updated Mac checkout. Record exact outputs before proceeding with syntax.
