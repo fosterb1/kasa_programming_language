@@ -1,0 +1,4 @@
+# Group 0 source-linker demonstration; library functions are supplied by linker.
+ka kasa_sum([100, 250, -50])
+ka kasa_count_equal([5, 9, 5], 5)
+ka kasa_contains([3, 4, 5], 4)
