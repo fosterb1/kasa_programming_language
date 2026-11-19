@@ -1,5 +1,8 @@
 """Group 0 safe source linker tests; never invokes a compiler or installer."""
 import importlib.util
+import io
+
+from kasa import Interpreter, parse
 from pathlib import Path
 
 import pytest
@@ -33,6 +36,9 @@ def test_two_pinned_libraries_link_to_new_source(setup):
     assert "dwumadie kasa_contains(values, needle)" in text
     assert "ka kasa_sum([1, 2, 3])" in text
     assert app.read_text(encoding="utf-8") == "ka kasa_sum([1, 2, 3])\nka kasa_contains([1, 2], 2)\n"
+    output = io.StringIO()
+    Interpreter(stdout=output).run(parse(text))
+    assert output.getvalue() == "6\nnokware\n"
 
 
 def test_existing_output_never_overwritten(setup):
@@ -122,3 +128,11 @@ def test_output_directory_symlink_refused(setup):
     with pytest.raises(linker.LinkError, match="Output directory"):
         linker.link(app, ["math"], root / "build/stdlib-linked/no.kasa")
     assert not list(other.iterdir())
+
+
+def test_windows_crlf_checkout_is_canonicalized(setup):
+    root, app = setup
+    library = root / "stdlib/experimental/math.kasa"
+    library.write_bytes(library.read_bytes().replace(b"\n", b"\r\n"))
+    linked = linker.link(app, ["math"], root / "build/stdlib-linked/windows.kasa")
+    assert "dwumadie kasa_sum(values)" in linked.read_text(encoding="utf-8")
