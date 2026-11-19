@@ -2,7 +2,7 @@
 import importlib.util
 import json
 from pathlib import Path
-import stat
+import subprocess
 import zipfile
 
 SOURCE = Path(__file__).resolve().parents[1] / "scripts/package_windows_preview.py"
@@ -12,15 +12,22 @@ spec.loader.exec_module(tool)
 
 
 def fake_binary(tmp_path):
-    """Portable stand-in for the version-check subprocess on non-Windows CI."""
+    """Synthetic executable; subprocess validation is mocked on Windows and POSIX."""
     exe = tmp_path / "kasa-native.exe"
-    exe.write_text("#!/bin/sh\necho 'Kasa Native 0.4.0-alpha (mock)'\n" + "#padding\n" * 200)
-    exe.chmod(exe.stat().st_mode | stat.S_IXUSR)
+    exe.write_bytes(b"MZ" + b"x" * 2000)
     return exe
 
 
-def test_zip_has_expected_files_manifest_and_checksum(tmp_path, monkeypatch):
+def mock_version(monkeypatch, *, output="Kasa Native 0.4.0-alpha (mock)\n"):
+    def run(argv, **kwargs):
+        assert argv[-1] == "--version"
+        return subprocess.CompletedProcess(argv, 0, output, "")
+    monkeypatch.setattr(tool.subprocess, "run", run)
     monkeypatch.setattr(tool, "git_revision", lambda: "a" * 40)
+
+
+def test_zip_has_expected_files_manifest_and_checksum(tmp_path, monkeypatch):
+    mock_version(monkeypatch)
     dest = tool.create_package(fake_binary(tmp_path), tmp_path / "dist",
                                host="Windows", machine="AMD64")
     assert dest.exists()
@@ -62,10 +69,9 @@ def test_reject_wrong_cpu_arch(tmp_path):
         raise AssertionError("Must refuse untested Windows ARM architecture")
 
 
-def test_reject_wrong_executable_version(tmp_path):
-    exe = tmp_path / "kasa-native.exe"
-    exe.write_text("#!/bin/sh\necho 'Not Kasa'\n" + "#padding\n" * 200)
-    exe.chmod(exe.stat().st_mode | stat.S_IXUSR)
+def test_reject_wrong_executable_version(tmp_path, monkeypatch):
+    exe = fake_binary(tmp_path)
+    mock_version(monkeypatch, output="Not Kasa\n")
     try:
         tool.create_package(exe, tmp_path / "dist", host="Windows", machine="AMD64")
     except ValueError as exc:
@@ -74,7 +80,8 @@ def test_reject_wrong_executable_version(tmp_path):
         raise AssertionError("Foreign binary must not be packaged")
 
 
-def test_reject_existing_archive_without_overwrite(tmp_path):
+def test_reject_existing_archive_without_overwrite(tmp_path, monkeypatch):
+    mock_version(monkeypatch)
     exe = fake_binary(tmp_path)
     dest = tool.create_package(exe, tmp_path / "dist", host="Windows", machine="AMD64")
     previous = dest.read_bytes()
