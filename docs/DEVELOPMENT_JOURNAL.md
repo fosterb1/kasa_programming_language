@@ -562,3 +562,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Changed:** Imported the C++20 binary64 formatting helper, native formatter smoke/differential probes, shared 15-case decimal fixture, CMake registration, Python/native/KBC1 conformance registrations, report auditor updates and 10-stage parity / 18-stage full verification plan. Preserved the merged 12-case core language contract tests.
 - **Evidence:** JavaScript interpreter executed the integrated **15 decimal + 12 contract cases, 27/27 passing**. Previous native component testing under GCC, Clang and sanitizers passed 18/18 and 9,999 seeded finite differential values matched Python. **No full native VM/KBC1 test on this integration branch was executed.**
 - **Caveat:** Merge is a repository integration step, **not** release acceptance. Step 1 remains open pending full clean-checkout parity/full profile and audited reports. No new Twi keywords or license decision.
+
+
+## 2026-11-20 — G0.3 read-only namespace planning checkpoint
+
+- **Status:** New source and tests committed to `main`; user Windows execution pending.
+- **Changed:** `scripts/plan_kasa_modules.py`, `tests/test_plan_kasa_modules.py`. Command-line `--use module:alias` validation builds a deterministic, non-executing dependency and export plan from the pinned catalog.
+- **Verification:** GitHub source was inspected before editing. A fresh container checkout was attempted but blocked by DNS failure resolving github.com; **no pytest execution of these additions is claimed**.
+- **Decision:** Keep unapproved Twi import vocabulary and dot-member syntax out of the parser until reviewed; no global linker injection is treated as real module isolation.
+- **Limits:** No runtime namespace binding, JS/browser parity, native compiler/VM or bytecode module semantics. No security sandbox asserted.
+- **Next gate:** Windows `python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_plan_kasa_modules.py`, then `python scripts/plan_kasa_modules.py --use math:m --use collections:c`. Record actual output and any failures before implementing grammar.
