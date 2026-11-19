@@ -40,6 +40,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-19 — Phase 7 Windows parity checkpoint and Phase 8A initial financial examples
+
+- **Windows evidence:** User supplied full `build/kasa-local-verification.json` after non-dry-run parity verification on clean commit `5067c5b4d7326d11c7f230dc9d03f059d798afca`: **11/11 stages passed**, Python 191/191, Node 237/237, native 24 conformance + 14 KBC1 cases, 9,999/9,999 decimal and 10,080/10,080 numeric differential. WASM not requested; does not establish universal parity.
+- **New Phase 8A:** Six cross-runtime fixtures in `tests/conformance_finance_subunits.json`, Python/Node direct test runners, and native source/KBC1 command-line comparison driver. No syntax additions or actual standard finance library API. Integer pesewas only, within current portable numeric limits.
+- **Independent execution:** 6/6 Python and 6/6 Node cases passed on commit `8c6ad5c`. Native Phase 8A fixture run still requires explicit compiled verification. No financial-data file I/O introduced.
+- **Follow-up:** Validate native/KBC1 on Windows, then design currency-tagged amounts, scale, overflow and CSV schemas before implementing Phase 8 finance APIs. Keep Phase 9 playground/Academy after Phase 8 according to the approved roadmap.
+
+
 ### 2026-11-18 — Prepare real-WASM Netlify publishing and Academy CMS embedding
 
 - **New:** `netlify.toml` and `scripts/netlify_build.sh` build genuine Emscripten native WASM and fail closed if unavailable; static deploy contents extracted to `dist/netlify`. The Netlify iframe policy is restricted to the academy's current HTTPS domain.
