@@ -121,3 +121,23 @@ Exact English error strings are **not** considered the language contract. All th
 Paste the **last error output**, macOS version (`sw_vers`) and architecture (`uname -m`). Do not delete the source code, edit language semantics to silence a test, or upgrade tools without checking the failure first.
 
 **Research basis:** Apple Command Line Tools; https://brew.sh/ ; https://docs.brew.sh/Installation ; https://nodejs.org/en/download ; https://docs.python.org/3/library/venv.html .
+
+## Apple Clang 14 floating-point formatter compatibility (Phase 4C.2 discovery)
+
+On an **Intel MacBook running Ventura 13.7.8**, with Apple Clang **14.0.3** and the macOS 13.3 SDK, the initial C++ build failed in `native/include/kasa/float_display.hpp` because Apple's libc++ marked floating-point `std::to_chars(..., std::chars_format::scientific)` unavailable. Installing CMake fixed project configuration but **not** that platform-specific C++ API error.
+
+A guarded compatibility implementation now uses standard C++20 iostreams with the classic C locale on Apple libc++, choosing the first 1–17-significant-digit scientific rendering that parses back into the exact binary64 bit pattern. The previous `std::to_chars` implementation stays in place on other platforms. Negative zero, Python-like exponent thresholds and non-finite rejection remain in the shared display logic. No new Kasa language syntax was introduced.
+
+Before first use on the user's actual Mac, the alternative was independently evaluated on Linux against **9,999 deterministic finite IEEE-754 values**; the simplified reference prototype had **zero output mismatches** with Python `repr`. That is *preliminary evidence*, **not** validation of the compiled production header or of Apple's libc++ implementation.
+
+After updating the repository, rerun with the already activated Python environment:
+
+```bash
+git -c http.proxy=http://192.168.49.1:8282 pull --ff-only
+source .venv/bin/activate
+bash scripts/mac_dev.sh parity
+```
+
+The verifier's `Native decimal display smoke` and `Native/Python decimal display differential` stages will test the **actual newly built Apple fallback**, including thousands of binary64 values. Do not bypass or delete these checks if the outputs differ.
+
+The warnings about unused `version` parameters in `native/src/bytecode.cpp` were not the build-stopping issue. A new build should not require changing the Xcode/Command Line Tools or OS for this formatter.
