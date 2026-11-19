@@ -36,6 +36,16 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def valid_identity_marker(data: bytes) -> bool:
+    """Accept only the canonical marker plus LF or CRLF; preserve raw bytes.
+
+    Windows text-mode writes use CRLF. An arbitrary strip() would wrongly accept
+    trailing spaces or additional lines, weakening the identity check.
+    """
+    marker = IDENTITY.encode("ascii")
+    return data in (marker + b"\\n", marker + b"\\r\\n")
+
+
 def check_manifest(data: bytes, binary: bytes) -> dict:
     try:
         meta = json.loads(data)
@@ -72,7 +82,7 @@ def read_owned_payload(source: Path) -> tuple[dict[str, bytes], dict]:
         raise SnapshotError("Source unreadable; no backup created") from exc
     if sum(map(len, contents.values())) > MAX_ARCHIVE:
         raise SnapshotError("Source payload exceeds snapshot size limit")
-    if contents["kasa-install-identity.txt"] != (IDENTITY + "\n").encode("ascii"):
+    if not valid_identity_marker(contents["kasa-install-identity.txt"]):
         raise SnapshotError("Identity marker mismatch")
     manifest = check_manifest(contents["manifest.json"], contents["kasa-native.exe"])
     return contents, manifest
@@ -165,7 +175,7 @@ def verify(archive_path: Path, *, require_sidecar: bool = True) -> dict:
                 payload[name] = archive.read(PREFIX + name)
                 if digest(payload[name]) != recorded:
                     raise SnapshotError(f"Snapshot payload tampered: {name}")
-            if payload["kasa-install-identity.txt"] != (IDENTITY + "\n").encode("ascii"):
+            if not valid_identity_marker(payload["kasa-install-identity.txt"]):
                 raise SnapshotError("Snapshot identity marker mismatch")
             check_manifest(payload["manifest.json"], payload["kasa-native.exe"])
     except (zipfile.BadZipFile, UnicodeError, json.JSONDecodeError, OSError) as exc:
