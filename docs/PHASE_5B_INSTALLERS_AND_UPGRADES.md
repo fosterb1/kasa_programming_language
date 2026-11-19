@@ -40,7 +40,7 @@ This is a **system-wide** preview, unlike Phase 5A's entirely user-local tar arc
 - Metadata: `/usr/local/lib/kasa-preview/build-info.txt`
 - A bundled root-executed preinstall script refuses to replace a preexisting `/usr/local/bin/kasa` file or a symlink with another destination.
 
-The preinstall script does not delete other installations. On an upgrade, an existing symlink to the expected target is allowed and macOS Installer should replace this package's own payload in place. This is not yet upgrade-tested on real macOS, so avoid sharing the package with others until installed/upgrade tests succeed.
+The preinstall script does not delete other installations. On an upgrade, an existing symlink to the expected target is allowed and macOS Installer should replace this package's own payload in place. A **user-reported real Intel macOS Ventura upgrade from build 0.4.0.194 to 0.4.0.202 succeeded on 19 November 2026**, with the package receipt, installed build-info and existing Twi program verified. This is not a public compatibility certification; other machines, release changes and failure recovery remain untested.
 
 To inspect the package **without installing it**:
 
@@ -64,8 +64,8 @@ macOS package receipts do not automatically include a one-click uninstaller. For
 
 ## Still needed before a public installer
 
-- Real `pkgbuild` build and package contents inspection on Intel macOS.
-- Installation/upgrade/uninstallation regression tests, including ownership collisions.
+- Intel Ventura `pkgbuild`, package inspection and an in-place upgrade have passed on one real Mac (user-supplied logs); independent repetition and clean-machine installation remain.
+- Safe uninstallation, upgrade rollback/failure recovery, and ownership collision scenarios on real macOS remain untested.
 - Apple Silicon build and actual on-device conformance.
 - Security review for root-executed scripts, signing, notarization and Gatekeeper behavior.
 - Tested Windows/Linux packages and maintained release notes.
@@ -87,3 +87,30 @@ The upgrade audit refuses to certify the installation when the receipt and `buil
 The uninstall planner lists only four package-owned paths and the package receipt. It refuses unexpected files in Kasa's installation directory and unexpected links. **It cannot remove anything**: `--execute` is disabled even for direct Python callers. It does not delete your source programs, `~/hello.kasa`, Academy materials, or any home-directory files.
 
 Upgrades and uninstall still require on-device safe testing and further engineering before any automated system changes will be enabled. Do not execute speculative `sudo rm` commands to emulate this workflow.
+
+## Phase 5D — first user-verified in-place upgrade (2026-11-19)
+
+**Platform:** macOS Ventura 13.7.8, Intel `x86_64`; user-provided Terminal output (not independently executed through the repository's automation). **Old receipt:** `org.kasalang.kasa.preview` version `0.4.0.194` at source commit `44c1376de1ae2aa5d9eb5af8c8a12273c4956ee1`. **New receipt:** version `0.4.0.202` at source commit `b3be6c078cc24ef424fc427de2e643a9cec53753`.
+
+The user ran `bash scripts/mac_dev.sh full` with **19 passed / 0 failed / 0 not run**, created `kasa-0.4.0.202-macos-x86_64-UNSIGNED.pkg`, verified its SHA-256 checksum, and inspected the package metadata, shell `preinstall` and file payload. The expected symlink was `/usr/local/bin/kasa -> ../lib/kasa-preview/kasa`. Before installation, the read-only audit reported `valid: true`, `issues: []` and `upgrade_permitted: true` for build `0.4.0.202`.
+
+The user opened the local unsigned package through Apple's Installer and then confirmed:
+
+```text
+pkgutil --pkg-info org.kasalang.kasa.preview
+version: 0.4.0.202
+
+cat /usr/local/lib/kasa-preview/build-info.txt
+Source commit: b3be6c078cc24ef424fc427de2e643a9cec53753
+Installer build version: 0.4.0.202
+Platform: macOS x86_64
+Release: 0.4.0-alpha
+
+kasa --version
+Kasa Native 0.4.0-alpha (C++20 VM; experimental KBC1)
+
+kasa run ~/hello.kasa
+Akwaaba Ghana!
+```
+
+**Verified scope:** installer payload upgrades in place, installed metadata changes, existing Twi source stays runnable. **Not verified:** changing actual compiler/VM behavior across language versions (both builds report `0.4.0-alpha`), uninstall, rollback, recovery from failed install, Apple Silicon, signed/notarized distribution, cross-machine compatibility or public release suitability. The original `~/hello.kasa` remains user-owned and was not packaged.
