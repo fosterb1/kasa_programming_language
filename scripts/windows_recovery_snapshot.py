@@ -43,7 +43,7 @@ def valid_identity_marker(data: bytes) -> bool:
     trailing spaces or additional lines, weakening the identity check.
     """
     marker = IDENTITY.encode("ascii")
-    return data in (marker + b"\\n", marker + b"\\r\\n")
+    return data in (marker + b"\n", marker + b"\r\n")
 
 
 def check_manifest(data: bytes, binary: bytes) -> dict:
