@@ -95,6 +95,8 @@ python scripts/plan_windows_upgrade.py
 
 This does not install, uninstall, overwrite or recover Kasa. See [Phase 6F Windows upgrade and recovery roadmap](./docs/PHASE_6F_WINDOWS_UPGRADES_AND_RECOVERY.md).
 
+**Phase 6F.2:** `python scripts/version_windows_preview.py --build 203` creates a **new** versioned unsigned Windows developer ZIP and build-only receipt from the previously verified portable archive; it never modifies the original installer or grants upgrade permission. See the Phase 6F roadmap for build version assignment and artifact verification.
+
 ## Phases 5E, 7, 8 and 9 — active Mac-first development
 
 **Phase 6 (Windows cross-platform validation) is reserved for the office Windows machine.** Meanwhile:
