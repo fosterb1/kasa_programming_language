@@ -66,3 +66,24 @@ The new ZIP includes `installer_build_version: 0.4.0.203` plus the unchanged nat
 **Critical distinction:** the receipt says `BUILD_ONLY_NOT_INSTALLED`. It is not an installation receipt, provenance signature, trustworthy proof of installed file ownership or permission to upgrade. The package remains **UNSIGNED**, and runtime dependencies are not yet verified on a clean machine.
 
 After packaging, inspect build-only metadata with `type build\\dist\\kasa-0.4.0-alpha-windows-x64-UNSIGNED-dev-build-203.receipt.json`. Do not run an installer, manually overwrite an existing Kasa directory, or label this a signed release. The guarded-v2 installer is **unchanged** and **not built from this new ZIP**. A future versioned installer and real recovery workflow require separate development, Windows compilation and disposable VM testing.
+
+## Phase 6F.3 — Recovery snapshot create/verify (implemented)
+
+`scripts/windows_recovery_snapshot.py` creates a new ZIP snapshot of **exactly five Kasa-owned preview payload files** from a specified input directory and verifies their SHA-256 checksums. It does **not** recover or replace installed files, launch the installer, change the registry or PATH, or claim ownership of a Windows installation. All backup files remain *unsigned*.
+
+The builder refuses unknown files (including user-created `.kasa` source code), symlinks, mismatched identity markers, corrupt native executables, oversized entries, existing destination archives, duplicate ZIP members and unexpected archive paths. Source contents are read, not modified. Snapshots include a version/build value when the input manifest has one; for the original staged guarded-v2 payload, the installer build version is **not present**, so the archive truthfully records `null`.
+
+Use the following on the **development Windows PC** without running the installer. Run each command separately:
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_windows_recovery_snapshot.py
+python scripts/windows_recovery_snapshot.py --create-from build/windows-installer-stage --output build/recovery-snapshots/kasa-stage-baseline.zip
+python scripts/windows_recovery_snapshot.py --verify build/recovery-snapshots/kasa-stage-baseline.zip
+```
+
+Creating the snapshot is a **local file-writing operation limited to the new archive and its `.sha256` sidecar** under `build/recovery-snapshots`. It does not alter the input stage, previous ZIPs, installers or application registration. Repeat creation using a *new output filename*; existing snapshots are never overwritten.
+
+Expected verification output contains `"verified": true`, `"restore_authorized": false`, `"installation_ownership_verified": false`. These guardrails matter: the snapshot is an independently verifiable **payload backup**, not a backup of the Inno Setup uninstall registry or a complete system state. A disposable Windows VM snapshot is still required to safely test installation and recovery. **No restore or upgrade execution path exists.**
+
+The tool's checks detect accidental corruption against the saved SHA-256 sidecar and index. Since neither is signed and both could be replaced by an attacker, this is **not authentication of a trusted distributor** or a guarantee against malicious tampering.
