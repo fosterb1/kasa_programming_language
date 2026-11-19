@@ -1,0 +1,38 @@
+{
+  "description": "Phase 8: pure offline integer-pesewa learning functions; explicitly not an accounting library or currency type",
+  "currency": "GHS",
+  "minor_unit": "pesewa",
+  "units_per_major": 100,
+  "cases": [
+    {
+      "name": "closing_cash_pesewas",
+      "source": "dwumadie ka_akonta(opening, sales, refunds, expenses)\n  sanma opening + sales - refunds - expenses\nawiei\nka ka_akonta(250000, 182500, 12500, 151750)",
+      "expected_stdout": "268250\n"
+    },
+    {
+      "name": "receipts_and_refunds",
+      "source": "dwumadie ka_akonta(opening, received, refunded, paid)\n  sanma opening + received - refunded - paid\nawiei\nka ka_akonta(0, 10000, 2000, 3000)\nka ka_akonta(500, 0, 500, 0)",
+      "expected_stdout": "5000\n0\n"
+    },
+    {
+      "name": "preserve_transfer_total",
+      "source": "ma store = 75000\nma bank = 25000\nma transfer = 12000\nma before = store + bank\nma store = store - transfer\nma bank = bank + transfer\nka store\nka bank\nka before == store + bank",
+      "expected_stdout": "63000\n37000\nnokware\n"
+    },
+    {
+      "name": "no_negative_cash_guard",
+      "source": "dwumadie can_pay(balance, payment)\n  sanma payment >= 0 ne payment <= balance\nawiei\nka can_pay(1200, 1300)\nka can_pay(1200, 1200)\nka can_pay(1200, -2)",
+      "expected_stdout": "atoro\nnokware\natoro\n"
+    },
+    {
+      "name": "currency_tags_do_not_mix",
+      "source": "dwumadie same_currency(left_code, right_code)\n  sanma left_code == right_code\nawiei\nka same_currency(\"GHS\", \"GHS\")\nka same_currency(\"GHS\", \"USD\")",
+      "expected_stdout": "nokware\natoro\n"
+    },
+    {
+      "name": "signed_adjustments_and_zero",
+      "source": "dwumadie final_amount(start, adjustment)\n  sanma start + adjustment\nawiei\nka final_amount(5000, -5000)\nka final_amount(-3000, 3000)\nka final_amount(0, 0)",
+      "expected_stdout": "0\n0\n0\n"
+    }
+  ]
+}
