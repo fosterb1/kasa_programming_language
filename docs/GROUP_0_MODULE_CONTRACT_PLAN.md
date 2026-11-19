@@ -146,3 +146,24 @@ Container cloning for independent testing was attempted but failed to resolve gi
 User Mac verification at commit `0f62645` passed all 7 `mac_dev.sh quick` stages and 40/40 selected Python namespace/catalog/preflight tests. The source-only binder `scripts/bind_kasa_catalog.py` was present on that checkout, but its **own tests were not yet available**.
 
 Now added `tests/test_bind_kasa_catalog.py` covering calls to real catalog-pinned math/collections functions in private environments, explicit public export access, read-only exports, valid catalog copy, source tampering, and undeclared exports. These new tests are **pending actual Mac execution** and should not be treated as passing solely because the file is committed. The binder remains a development API, not a Kasa import statement or compiler/VM module loader.
+
+
+## G0.3 experimental module-member AST interpreter (2026-11-20)
+
+**Implemented, pending Mac verification:** `src/kasa/module_execution.py` introduces an opt-in `ModuleAwareInterpreter`. The host may bind trusted `ModuleNamespace` objects under explicit, validated aliases. A synthetic `Node("module_member", ..., value="kasa_sum", children=(Node("name", ..., value="m"),))` is resolved through the module's explicit exports. Existing `call` evaluation then invokes the underlying Kasa `UserFunction` via standard interpreter recursion/step limits. The alias names are kept outside `runtime.globals`.
+
+**Safety contract:** Reject unrecognized aliases and private members with classified `NameError`; reject use of reserved aliases, aliases colliding with already-defined globals, and assignment/function/parameter redeclaration of aliases before executing program AST. The checked code is a **trusted AST evaluation experiment**, not a sandbox; catalog content identities must be validated separately using `scripts/bind_kasa_catalog.py`.
+
+**Test file:** `tests/test_module_member_execution.py` checks two modules with the same export name, private helpers, missing symbols, alias collision/shadowing (including nested blocks), execution limits, and confirms the ordinary `parse("ka m.calculate(1)")` call still refuses unapproved dotted syntax.
+
+**No new Twi keywords** and no English `module` or `alias` syntax is introduced into `.kasa`. Browser JS, C++ native and KBC1 are untouched. This is narrower than the G0.3 exit criteria and does **not** imply executable source-level imports. Future full integration must settle parser grammar, AST/bundling contracts, catalog-backed binding, source location diagnostics and cross-runtime parity.
+
+**Mac test commands:**
+
+```bash
+git -c http.proxy=http://192.168.49.1:8282 pull --ff-only
+python -m pytest -q tests/test_module_member_execution.py tests/test_module_namespace_isolation.py tests/test_bind_kasa_catalog.py tests/test_module_syntax_study.py
+bash scripts/mac_dev.sh quick
+```
+
+New tests have not been independently run or marked passed.
