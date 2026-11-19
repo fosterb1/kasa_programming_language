@@ -24,6 +24,18 @@ No Vercel, Netlify, Firecrawl or GitHub Actions invocation occurs in these comma
 
 [MacBook setup, Node/Python requirements, Emscripten, Academy tests and release process](./docs/MACOS_LOCAL_DEVELOPMENT.md)
 
+## Phase 5A — local installable macOS developer preview
+
+After a real macOS native parity/full pass, build a **private unsigned developer-preview archive** on that Mac:
+
+```bash
+source .venv/bin/activate
+bash scripts/mac_dev.sh full
+bash scripts/mac_dev.sh package
+```
+
+The archive and SHA-256 checksum appear under `build/dist/`. The archive includes a `kasa` launcher and a standalone `kasa-native` executable; users of that binary do not need Python, Node or CMake. No external service, automatic installation or system-wide changes are involved. **This is not a signed/notarized public installer or evidence of Apple Silicon compatibility.** See [Phase 5A packaging and safe extraction guide](./docs/PHASE_5A_MACOS_PREVIEW_PACKAGING.md).
+
 ## See Kasa in action
 
 A first program, saved as `hello.kasa`:
