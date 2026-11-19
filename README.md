@@ -461,3 +461,15 @@ python -m kasa run build/stdlib-linked/group0-demo-001.kasa
 ```
 
 This newly added test suite needs Windows execution before declaring success. The linker does not alter Kasa's lexer/parser, implement namespaced modules, grant host permissions, or execute arbitrary downloaded dependencies. See [what was built and how to test it](./docs/GROUP_0_MODULE_LINKER_CHECKPOINT.md) and the [nine-group library research roadmap](./docs/LIBRARY_ECOSYSTEM_RESEARCH_2026_11.md).
+
+
+### Group 0.2 — library catalog validator (experimental)
+
+The separate `stdlib/catalog.json` now lists the current Kasa-written `math` and `collections` libraries with declared exports, dependencies, and SHA-256 identities. The **read-only** validation tool checks their declarations, content and dependency graph; it is **not yet used by the G0.1 source linker** and does not add import syntax:
+
+```bat
+python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_link_kasa_stdlib.py
+python scripts/validate_kasa_catalog.py
+```
+
+**Windows verification pending** for these new tests. [Group 0 module-contract plan and limitations](./docs/GROUP_0_MODULE_CONTRACT_PLAN.md).
