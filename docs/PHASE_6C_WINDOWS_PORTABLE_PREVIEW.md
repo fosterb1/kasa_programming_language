@@ -1,6 +1,6 @@
 # Phase 6C — Windows x64 portable Kasa developer preview
 
-**Status:** Tooling implemented, pending first real Windows package creation and extract-and-run verification. Not an installer, signed release, or public download. Phase 6B user reports full Windows verification passed following POSIX-only test isolation; retain the exact report for provenance.
+**Status (2026-11-19):** Windows office PC successfully built the portable ZIP, extracted it, ran `kasa.cmd run` on `examples/hello.kasa`, and matched the SHA-256 archive checksum. Clean-machine dependency tests remain pending. Not an installer, signed release, or public download. Phase 6B user reports full Windows verification passed following POSIX-only test isolation; retain the exact report for provenance.
 
 ## Create the portable package on the office Windows machine
 
@@ -42,3 +42,14 @@ The `kasa.cmd` launcher resolves the adjacent `kasa-native.exe` using `%~dp0`, s
 - This preview is **portable**: it does not register a package or install a PATH command. Removing the extracted directory removes only this preview.
 - Do not run arbitrary untrusted Kasa bytecode or distribute this alpha as a secure sandbox.
 - Phase 6D will design a genuine installer, opt-in install path, signed publishing and safe upgrades/uninstall only after portable ZIP validation.
+
+## User-verified Windows portable preview (2026-11-19)
+
+The user supplied output confirming:
+
+- `python scripts\\package_windows_preview.py` created `kasa-0.4.0-alpha-windows-x64-UNSIGNED-dev.zip` and its `.sha256` file without installing anything.
+- PowerShell `Expand-Archive` extracted the ZIP successfully into `build/portable-windows-test`.
+- From inside the extracted folder, `kasa.cmd run ..\\..\\..\\examples\\hello.kasa` printed `Maakye, Ghana!`.
+- Windows `Get-FileHash` and the generated checksum file agreed at SHA-256 `4526a5bfd64496f66a2a675eb085505c93a6fcd99f7ad55398c145b95581caaf`.
+
+The user did not include a separate `kasa.cmd --version` output from the extracted folder in this submission, so that exact command is not claimed as witnessed here. It was checked earlier by the packaging script against the original native executable. No clean-machine runtime dependency claim is made.
