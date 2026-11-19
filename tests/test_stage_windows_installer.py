@@ -64,3 +64,27 @@ def test_inno_script_per_user_and_no_path_mutation():
     assert "kasa-install-identity.txt" in script
     assert "[Registry]" not in script
     assert "[Run]" not in script
+
+
+def test_inno_guards_final_custom_and_silent_install_directory():
+    script=(FILE.parent/"kasa_windows_preview.iss").read_text()
+    code=script.split("[Code]", 1)[1]
+    assert "function PrepareToInstall(var NeedsRestart: Boolean): String;" in code
+    assert "IsEmptyInstallDirectory(WizardDirValue)" in code
+    assert "FindFirst(AddBackslash(Directory) + '*', FindRec)" in code
+    assert "FindClose(FindRec)" in code
+    assert "FindRec.Name <> '.'" in code
+    assert "FindRec.Name <> '..'" in code
+    assert "Upgrades are not supported" in code
+    assert "function InitializeSetup()" not in code
+    assert "UsePreviousAppDir=no" in script
+
+
+def test_inno_does_not_erase_user_data_or_silently_install():
+    script=(FILE.parent/"kasa_windows_preview.iss").read_text()
+    assert "[UninstallDelete]" not in script
+    assert "[InstallDelete]" not in script
+    assert "[Run]" not in script
+    assert "[Registry]" not in script
+    assert "PrivilegesRequired=lowest" in script
+    assert "OutputBaseFilename=kasa-0.4.0-alpha-windows-x64-UNSIGNED-Setup-guarded" in script
