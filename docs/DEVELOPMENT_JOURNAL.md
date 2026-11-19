@@ -40,6 +40,13 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-19 — Phase 8 balanced stdlib: Windows native compatibility confirmed
+
+- **User-reported Windows tests:** 12/12 Python and 12/12 JavaScript combined finance + experimental stdlib fixtures passed. The existing Phase 8A native source/KBC1 finance driver reported **6/6 passed**. The user subsequently confirmed **PASS** for `python native/tests/stdlib_foundation_conformance.py build/kasa-local/Release/kasa-native.exe`.
+- **Interpretation:** the six portable stdlib scenarios passed in native source and KBC1 according to the user; no raw stdout or exact current Git commit was supplied for that final driver, so retain this as user-reported evidence, not independent same-revision attestation.
+- **Next gate:** reusable module namespace and loading design. No module/import language syntax or executable loader has been shipped yet. Preserve old language behavior and run full parity when introducing new syntax.
+
+
 ### 2026-11-19 — Balanced Phase 8 standard library prototypes
 
 - **Decision:** User selected balanced general-purpose and financial/data library development, not finance-only. Phase 8 roadmap updated; Phase 9 browser/Academy remains after Phase 8.
