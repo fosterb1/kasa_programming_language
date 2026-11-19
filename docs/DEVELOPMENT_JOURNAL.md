@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-19 — Balanced Phase 8 standard library prototypes
+
+- **Decision:** User selected balanced general-purpose and financial/data library development, not finance-only. Phase 8 roadmap updated; Phase 9 browser/Academy remains after Phase 8.
+- **Implemented:** `stdlib/experimental/math.kasa` (`kasa_abs`, `kasa_clamp`, `kasa_sum`), `stdlib/experimental/collections.kasa` (`kasa_count_equal`, `kasa_contains`), six shared fixtures and independent Python/Node + native/KBC1 test drivers. These are source-level reusable definitions assembled by the test runner, **not importable modules** or new built-in keywords.
+- **Independent verification:** 12/12 Python and 12/12 JavaScript direct tests passed (six existing pesewa tests and six new general/finance-integrated scenarios) at commit `c357520`. A later remote native attempt was **not run** because the test environment lacks CMake; the native driver is pending on the Windows developer binary. Do not count that as a pass or failure.
+- **Known limits:** Native minimum int64 absolute value and overflowing sum are not covered by checked arithmetic; clamp requires valid ordered bounds. No currency type, CSV I/O, real module loader, package manager, or production finance contract.
+- **Next:** Windows native source/KBC1 run; then specify safe reusable module loading/import and explicit argument/overflow error contracts before declaring a standard library.
+
+
 ### 2026-11-19 — Phase 7 Windows parity checkpoint and Phase 8A initial financial examples
 
 - **Windows evidence:** User supplied full `build/kasa-local-verification.json` after non-dry-run parity verification on clean commit `5067c5b4d7326d11c7f230dc9d03f059d798afca`: **11/11 stages passed**, Python 191/191, Node 237/237, native 24 conformance + 14 KBC1 cases, 9,999/9,999 decimal and 10,080/10,080 numeric differential. WASM not requested; does not establish universal parity.
