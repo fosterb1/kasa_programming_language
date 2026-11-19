@@ -47,6 +47,17 @@ bash scripts/mac_dev.sh installer
 
 This creates an **unsigned `.pkg` without installing it**; inspect it and test on a real Mac before using it. No automatic updates, signing, notarization, public distributions or system changes happen during packaging. See [Phase 5B installer, upgrade and safety guide](./docs/PHASE_5B_INSTALLERS_AND_UPGRADES.md).
 
+## Phase 5C — installed Kasa upgrade audit and uninstall planning
+
+Following a successful **Intel macOS Ventura** installation of preview build `0.4.0.194`, the project now includes read-only checks for installed package ownership, installed release receipt, build metadata, foreign command symlinks and newer-version eligibility:
+
+```bash
+bash scripts/mac_dev.sh upgrade-audit
+bash scripts/mac_dev.sh uninstall-plan
+```
+
+Neither command upgrades nor removes installed files. The uninstaller is deliberately **plan-only**, with execution disabled until safe on-device testing and review. Source programs in home directories are never targets. [Phase 5C usage and limitations](./docs/PHASE_5B_INSTALLERS_AND_UPGRADES.md#phase-5c--safe-upgrade-inspection-and-uninstall-planning-new).
+
 ## See Kasa in action
 
 A first program, saved as `hello.kasa`:
