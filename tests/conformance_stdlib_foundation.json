@@ -1,0 +1,39 @@
+{
+  "description": "Balanced Phase 8 prototype: concatenate experimental Kasa source fragments; no module/import system or currency API",
+  "libraries": [
+    "stdlib/experimental/math.kasa",
+    "stdlib/experimental/collections.kasa"
+  ],
+  "cases": [
+    {
+      "name": "math_abs_clamp",
+      "source": "ka kasa_abs(-25)\nka kasa_abs(0)\nka kasa_clamp(12, 0, 10)\nka kasa_clamp(-2, 0, 10)",
+      "expected_stdout": "25\n0\n10\n0\n"
+    },
+    {
+      "name": "math_sum_nonempty_empty",
+      "source": "ka kasa_sum([500, -200, 300])\nka kasa_sum([])",
+      "expected_stdout": "600\n0\n"
+    },
+    {
+      "name": "collections_duplicates",
+      "source": "ma items = [7, 4, 7, 9, 7]\nka kasa_count_equal(items, 7)\nka kasa_contains(items, 9)\nka kasa_contains(items, 99)\nka items",
+      "expected_stdout": "3\nnokware\natoro\n[7, 4, 7, 9, 7]\n"
+    },
+    {
+      "name": "collections_empty",
+      "source": "ka kasa_count_equal([], 5)\nka kasa_contains([], 5)",
+      "expected_stdout": "0\natoro\n"
+    },
+    {
+      "name": "cashbook_with_math_helpers",
+      "source": "ma cash = [250000, 182500, -12500, -151750]\nka kasa_sum(cash)\nka kasa_clamp(kasa_sum(cash), 0, 1000000)",
+      "expected_stdout": "268250\n268250\n"
+    },
+    {
+      "name": "mixed_functions",
+      "source": "ma values = [3, -5, 3, 0]\nka kasa_abs(kasa_sum(values))\nka kasa_count_equal(values, 3)\nka kasa_contains(values, -5)",
+      "expected_stdout": "1\n2\nnokware\n"
+    }
+  ]
+}
