@@ -87,3 +87,18 @@ Creating the snapshot is a **local file-writing operation limited to the new arc
 Expected verification output contains `"verified": true`, `"restore_authorized": false`, `"installation_ownership_verified": false`. These guardrails matter: the snapshot is an independently verifiable **payload backup**, not a backup of the Inno Setup uninstall registry or a complete system state. A disposable Windows VM snapshot is still required to safely test installation and recovery. **No restore or upgrade execution path exists.**
 
 The tool's checks detect accidental corruption against the saved SHA-256 sidecar and index. Since neither is signed and both could be replaced by an attacker, this is **not authentication of a trusted distributor** or a guarantee against malicious tampering.
+
+## Windows CRLF regression correction — 2026-11-19
+
+On physical Windows 10, the first Phase 6F.3 test run reported **9 failures, 2 passes, 1 skipped**, all cascading from the install identity marker comparison. Python text-mode `write_text()` writes `CRLF` line endings on Windows, whereas the snapshot validation originally recognized only `LF`. Snapshot creation is now compatible with **either exact ASCII marker + LF or exact marker + CRLF**; other suffixes, extra whitespace and invalid markers remain rejected. The archive retains the original marker bytes and SHA-256.
+
+Added 7 parametrized regression cases for valid LF/CRLF and invalid marker variants. Independent cross-platform targeted suite after the fix: **55 passed**, with two intentionally malformed ZIP test warnings. A Windows rerun is still required before marking the actual Windows snapshot creation/verification as passed.
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_windows_recovery_snapshot.py
+python scripts/windows_recovery_snapshot.py --create-from build/windows-installer-stage --output build/recovery-snapshots/kasa-stage-baseline.zip
+python scripts/windows_recovery_snapshot.py --verify build/recovery-snapshots/kasa-stage-baseline.zip
+```
+
+Use a different output filename if an archive already exists; do not delete or overwrite a verified backup. This procedure does not install, uninstall or restore Kasa.
