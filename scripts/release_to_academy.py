@@ -27,7 +27,7 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = (
-    "index.html", "style.css", "app.js", "worker.js", "kasa-runtime.js",
+    "index.html", "style.css", "app.js", "diagnostics.js", "worker.js", "kasa-runtime.js",
     "sw.js", "manifest.webmanifest",
     "icons/kasa-192.png", "icons/kasa-512.png",
     "native/kasa-native.js", "native/kasa-native.wasm",
@@ -70,7 +70,8 @@ def build_payload() -> tuple[dict[str, bytes], dict]:
     # Content-addressed version invalidates the previous offline cache.
     version = hashlib.sha256(b"".join(name.encode() + inputs[name] for name in FILES)).hexdigest()[:12]
     html = html.replace('href="./style.css"', f'href="./style.css?v={version}"')
-    html = html.replace('src="./app.js?v=0.4.0"', f'src="./app.js?v={version}"')
+    html = html.replace('src="./app.js?v=4c1"', f'src="./app.js?v={version}"')
+    html = html.replace('src="./diagnostics.js?v=4c1"', f'src="./diagnostics.js?v={version}"')
     inputs["index.html"] = html.encode("utf-8")
     sw = inputs["sw.js"].decode("utf-8")
     if sw.count("__KASA_BUILD_HASH__") != 1:
