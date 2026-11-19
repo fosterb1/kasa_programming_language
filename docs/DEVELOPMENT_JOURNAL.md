@@ -590,3 +590,12 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Verification:** Reviewed actual parser, `Environment`, `Interpreter.execute` and `Interpreter.evaluate` implementations. An attempted checkout for independent pytest failed because the container cannot resolve github.com; **these new tests were not run**.
 - **Constraints:** This is an internal Python component, not approved language import syntax; it does not read sources, check hashes itself, or bind alias names into user programs. Caller must prevalidate the G0.2 catalog. Browser, native and bytecode untouched.
 - **Next gate:** Windows regression tests; then catalog-verified binder and scoped member resolution with explicit compiler/bytecode version strategy.
+
+
+## 2026-11-20 — macOS Intel local verification and catalog binder test coverage
+
+- **User-supplied macOS evidence:** Intel Darwin x86_64, Python 3.15.2, Node 26.13.1, CMake 3.31.2 and Clang available; Emscripten not installed. NetShare Git access succeeded using a one-command HTTP proxy at `192.168.49.1:8282`. Working tree clean at `0f62645`.
+- **Actual Mac tests:** `bash scripts/mac_dev.sh quick`: **7 passed, 0 failed, 0 not run**. Focused `python -m pytest -q tests/test_module_namespace_isolation.py tests/test_plan_kasa_modules.py tests/test_validate_kasa_catalog.py`: **40 passed**.
+- **New change after user verification:** `tests/test_bind_kasa_catalog.py` adds catalog-backed namespace execution and negative tests for changed source and invalid exports. **This new binder suite has not yet been run.**
+- **Limitations:** This quick profile does not certify a full macOS native KBC1 pass or actual Kasa import language syntax. Academy checkout not found under `~/Projects`.
+- **Next validation:** `git -c http.proxy=http://192.168.49.1:8282 pull --ff-only` then `python -m pytest -q tests/test_bind_kasa_catalog.py tests/test_module_namespace_isolation.py tests/test_plan_kasa_modules.py tests/test_validate_kasa_catalog.py`.
