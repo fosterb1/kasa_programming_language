@@ -42,3 +42,27 @@ The planner checks basic directory hygiene, a fixed list of files, expected Wind
 6. **Signing and distribution:** Owner selects an open-source license; check Inno Setup licensing before any commercial use; sign distribution binaries and document trust, runtime redistributables and supported Windows versions.
 
 The read-only planning tool is a conservative validation aid—not a working upgrade, a recovery archive or a replacement for tested Windows Installer behavior. The existing VM lifecycle gate remains a prerequisite.
+
+## Phase 6F.2 — Versioned portable build and build-only receipt
+
+A **separate, additive** builder has been implemented: `scripts/version_windows_preview.py`. It uses the verified pre-existing portable ZIP and SHA-256 sidecar as input, verifies archive members, metadata, executable digest and 40-character source commit, then creates **new** files under `build/dist`. It never modifies the existing portable ZIP, the guarded-v2 setup executable, or `build/windows-installer-stage`.
+
+From Windows CMD, where the existing unsigned portable ZIP still exists:
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_version_windows_preview.py tests/test_plan_windows_upgrade.py tests/test_package_windows_preview.py tests/test_stage_windows_installer.py tests/test_verify_windows_installer_lifecycle.py
+python scripts/version_windows_preview.py --build 203
+```
+
+**Build number 203 is a development example**, not an automatically assigned or published release ID. Assign each new build a unique monotonically increasing value (1–65535), with provenance recorded in release notes. Running the command with an already-existing output refuses to overwrite artifacts; select a new reviewed build number if needed. On success it creates:
+
+- `build/dist/kasa-0.4.0-alpha-windows-x64-UNSIGNED-dev-build-203.zip`
+- the corresponding `.zip.sha256` file
+- `build/dist/kasa-0.4.0-alpha-windows-x64-UNSIGNED-dev-build-203.receipt.json`
+
+The new ZIP includes `installer_build_version: 0.4.0.203` plus the unchanged native executable and launcher, its own manifest, and an identity marker. The sidecar checks the new ZIP hash; the JSON **build-only receipt** records old ZIP SHA-256, new ZIP SHA-256, source commit, and each ZIP payload file's SHA-256. The original ZIP remains valid with its original checksum.
+
+**Critical distinction:** the receipt says `BUILD_ONLY_NOT_INSTALLED`. It is not an installation receipt, provenance signature, trustworthy proof of installed file ownership or permission to upgrade. The package remains **UNSIGNED**, and runtime dependencies are not yet verified on a clean machine.
+
+After packaging, inspect build-only metadata with `type build\\dist\\kasa-0.4.0-alpha-windows-x64-UNSIGNED-dev-build-203.receipt.json`. Do not run an installer, manually overwrite an existing Kasa directory, or label this a signed release. The guarded-v2 installer is **unchanged** and **not built from this new ZIP**. A future versioned installer and real recovery workflow require separate development, Windows compilation and disposable VM testing.
