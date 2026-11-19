@@ -131,3 +131,27 @@ type build/recovery-simulations/interruption-001/simulation-report.json
 The injected simulation is **supposed to return a nonzero exit code**. It should leave three reconstructed payload files with a `passed: false` report, for inspection. This never touches a real installation.
 
 Current evidence: after the temporary runner limit cleared, the independent targeted suite passed **65/65 tests**, with two expected warnings from deliberately malformed ZIP negative-test fixtures. **Windows execution is still required** to validate reconstruction against the user's real snapshot. Real installation lifecycle, upgrade and rollback remain **disabled and unverified**. Real installation lifecycle, upgrade and rollback remain **disabled and unverified**.
+
+## Phase 6F.5 — Independent reconstruction audit (2026-11-19)
+
+Implemented `scripts/audit_windows_reconstruction.py`. It **only reads** the isolated simulation directory, its report, and the original independently verified snapshot (including its sidecar SHA-256). It checks every reconstructed payload file against the indexed hashes, verifies the manifest and build identity, rejects incomplete or tampered simulations, and refuses any CLI workspace outside `build/recovery-simulations`. It **does not execute the native executable, install anything, authorize restoration, or modify Kasa files**.
+
+The previous Windows simulation `baseline-001` was reported as successful (five reconstructed files and a matching snapshot hash), while `interruption-001` was expected to fail after three files. Re-audit both after pulling the new code:
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_audit_windows_reconstruction.py tests/test_simulate_windows_recovery.py tests/test_windows_recovery_snapshot.py
+python scripts/audit_windows_reconstruction.py --workspace build/recovery-simulations/baseline-001
+python scripts/audit_windows_reconstruction.py --workspace build/recovery-simulations/interruption-001
+```
+
+Expect **`passed: true`** for `baseline-001` and **`passed: false`** for the intentionally interrupted `interruption-001`; the latter command returns a nonzero exit code by design. Neither operation deletes, edits, or repairs any output. The symlink-related unit test can skip on Windows where symlink creation isn't authorized.
+
+The initial independent targeted suite passed **66/66 checks** across the recovery audit, simulation, snapshot, versioning and installer lifecycle safety tests. This is not proof of installed-app recovery. Only an authorized disposable Windows VM can test actual Inno Setup installation, registered uninstaller behavior, and rollback.
+
+### Verified phases versus outstanding gates
+
+- **Verified from the user's Windows output:** portable native runtime, first-install installer compilation, guarded-v2 SHA-256 preflight (not executed), build-203 ZIP creation and receipt, recovery snapshot creation/verification, simulated five-file reconstruction and three-file interrupted reconstruction.
+- **Awaiting Windows verification:** Phase 6F.5 independent reconstruction audit on the user's existing simulation artifacts.
+- **Awaiting disposable VM execution:** Inno Setup installation/uninstallation, clean-machine dependencies, rollback behavior, actual upgrade eligibility and receipt trust validation.
+- **Not approved for release:** unsigned Windows installers, arbitrary-place recovery, unattended production upgrades. The language's browser/Academy and public alpha gates remain separate work.
