@@ -17,6 +17,7 @@ FILES = {
     "playground/index.html": "index.html",
     "playground/style.css": "style.css",
     "playground/app.js": "app.js",
+    "playground/diagnostics.js": "diagnostics.js",
     "playground/worker.js": "worker.js",
     "playground/kasa-runtime.js": "kasa-runtime.js",
     "playground/sw.js": "sw.js",
