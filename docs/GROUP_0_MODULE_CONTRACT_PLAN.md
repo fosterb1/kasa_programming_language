@@ -91,3 +91,20 @@ python -m kasa run build/stdlib-linked/group0-demo-001.kasa
 The last command runs the **previously generated** source only if it exists on this machine. Existing G0.1 native/KBC1 evidence remains valid and is not evidence that G0.2 has been separately run or approved. The new tests are **pending Windows verification**.
 
 **Next G0.3 decision:** whether to introduce reviewed Kasa syntax for module use and member access or to first integrate the manifest into build-time source linking, always without granting unapproved I/O capabilities.
+
+
+## G0.3 first preflight checkpoint (2026-11-20)
+
+**Implemented, not yet tested on Windows:** `scripts/plan_kasa_modules.py` reads the validated G0.2 catalog and checks explicit command-line module-to-alias requests without interpreting a Kasa program. For example, `python scripts/plan_kasa_modules.py --use math:m --use collections:c` emits deterministic JSON including public exported names, dependency-first load order, and an empty capability-grant list. It rejects duplicate module selections, alias collisions, unsafe/reserved aliases, unknown IDs, missing dependencies and cycles. `tests/test_plan_kasa_modules.py` covers positive and negative paths.
+
+**Critical scope limit:** this is a **read-only namespace plan**; no import grammar, member expression, isolated runtime scope, module execution, JS parity or native/KBC bundling is implemented. Aliases are provisionally ASCII identifiers and are **not** approved Twi syntax. The script does not modify the app or linker. The underlying catalog still checks source hashes.
+
+**Local proof requested (no hosted CI required):**
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_plan_kasa_modules.py
+python scripts/plan_kasa_modules.py --use math:m --use collections:c
+```
+
+An external checkout/test attempt in the assistant container could not run because DNS resolution of github.com failed. No new test pass is claimed. Next: verify preflight on Windows, then review grammar and scope mechanics before shipping actual namespace access.
