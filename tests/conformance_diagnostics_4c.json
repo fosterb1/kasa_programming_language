@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "scope": "Phase 4C.2 — authoritative error categories on the portable alpha subset; exact human-readable text and columns are not normative",
+  "cases": [
+    {
+      "name": "misspelled_keyword",
+      "source": "se nokware a\nka \"ok\"\nawiei",
+      "error_category": "SyntaxError"
+    },
+    {
+      "name": "unknown_name",
+      "source": "ma sika = 5\nka sikaa",
+      "error_category": "NameError"
+    },
+    {
+      "name": "missing_condition_marker",
+      "source": "sɛ nokware\nka 1\nawiei",
+      "error_category": "SyntaxError"
+    },
+    {
+      "name": "unterminated_string",
+      "source": "ka \"Akwaaba",
+      "error_category": "SyntaxError"
+    },
+    {
+      "name": "division_by_zero",
+      "source": "ka 10 / 0",
+      "error_category": "ZeroDivisionError"
+    },
+    {
+      "name": "invalid_list_index",
+      "source": "ma nneɛma = [10, 20]\nka nneɛma[3]",
+      "error_category": "IndexError"
+    },
+    {
+      "name": "condition_requires_boolean",
+      "source": "sɛ 4 a\nka 1\nawiei",
+      "error_category": "TypeError"
+    },
+    {
+      "name": "invalid_operator",
+      "source": "ka 4 & 2",
+      "error_category": "SyntaxError"
+    },
+    {
+      "name": "unknown_function",
+      "source": "ka nni_hɔ(2)",
+      "error_category": "NameError"
+    }
+  ]
+}
