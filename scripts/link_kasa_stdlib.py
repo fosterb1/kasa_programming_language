@@ -68,7 +68,12 @@ def prepare_source(application: Path, modules: list[str]) -> str:
         source = ROOT / rel
         if not _regular_file(source, ROOT):
             raise LinkError("Library source missing or linked outside standard-library root")
+        # Git can check out CRLF on Windows. Hash canonical LF bytes, then
+        # link exactly those verified bytes; refuse lone CR line endings.
         payload = source.read_bytes()
+        if b"\r" in payload.replace(b"\r\n", b""):
+            raise LinkError("Unsupported library line ending")
+        payload = payload.replace(b"\r\n", b"\n")
         if git_blob_id(payload) != pinned:
             raise LinkError("Library content changed; review and re-pin before linking: " + module)
         text = payload.decode("utf-8", "strict")
