@@ -441,3 +441,7 @@ bash scripts/netlify_build.sh
 ```
 
 Connect the existing Netlify playground site to this GitHub repository, or upload the resulting `dist/netlify` directory to the same site. `netlify.toml` supplies the build command, publish path and embedding headers. The Learning Academy's admin dashboard manages the final Netlify URL under **Website Settings → Playground Settings**, so an administrator can change it without modifying or redeploying academy code. See [Netlify deployment instructions](./docs/NETLIFY_DEPLOYMENT.md).
+
+## Forward development order (updated 2026-11-19)
+
+**Phase 7:** cross-runtime language correctness → **Phase 8:** practical Kasa financial/data libraries → **Phase 9:** browser playground, Netlify and Academy integration → **Phase 10:** curriculum/developer tooling → **Phase 11:** public alpha → **Phase 12:** Kasa 1.0 stable. This is a forward development priority plan; historical phase identifiers remain unchanged. See [the approved forward development sequence](./docs/FORWARD_DEVELOPMENT_SEQUENCE.md). The next action is `python scripts/verify_local.py --profile parity` to measure the current implementation before starting Phase 8.
