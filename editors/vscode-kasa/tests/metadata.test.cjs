@@ -18,3 +18,12 @@ test('runner does not use shell command interpolation', () => {
   assert.match(s,/spawn\(executable, \[mode, file\]/);
   assert.doesNotMatch(s,/\bexec\(/);
 });
+
+test('installed Kasa CLI is the default command and missing executable yields guidance', () => {
+  const manifest=json('package.json');
+  assert.equal(manifest.contributes.configuration.properties['kasa.executablePath'].default,'kasa');
+  const source=fs.readFileSync(path.join(base,'src/extension.js'),'utf8');
+  assert.match(source,/get\('executablePath', 'kasa'\)/);
+  assert.match(source,/error\.code === 'ENOENT'/);
+  assert.match(source,/kasa\.executablePath/);
+});
