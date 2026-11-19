@@ -133,6 +133,17 @@ def test_output_directory_symlink_refused(setup):
 def test_windows_crlf_checkout_is_canonicalized(setup):
     root, app = setup
     library = root / "stdlib/experimental/math.kasa"
-    library.write_bytes(library.read_bytes().replace(b"\n", b"\r\n"))
+    # The checkout may already be CRLF on Windows. Canonicalize first so\n    # this test constructs actual CRLF, never accidental CRCRLF.\n    original = library.read_bytes()\n    canonical = original.replace(b"\r\n", b"\n")\n    assert b"\r" not in canonical\n    library.write_bytes(canonical.replace(b"\n", b"\r\n"))
     linked = linker.link(app, ["math"], root / "build/stdlib-linked/windows.kasa")
     assert "dwumadie kasa_sum(values)" in linked.read_text(encoding="utf-8")
+
+
+def test_malformed_crcrlf_library_is_rejected(setup):
+    root, app = setup
+    library = root / "stdlib/experimental/math.kasa"
+    canonical = library.read_bytes().replace(b"\r\n", b"\n")
+    library.write_bytes(canonical.replace(b"\n", b"\r\r\n"))
+    destination = root / "build/stdlib-linked/malformed.kasa"
+    with pytest.raises(linker.LinkError, match="Unsupported library line ending"):
+        linker.link(app, ["math"], destination)
+    assert not destination.exists()
