@@ -146,3 +146,27 @@ def test_cli_create_then_verify(tmp_path, capsys):
     assert tool.main(["--create-from", str(src), "--output", str(out)]) == 0
     assert tool.main(["--verify", str(out)]) == 0
     assert '"verified": true' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("newline", [b"\\n", b"\\r\\n"])
+def test_identity_marker_line_endings_are_portable(tmp_path, newline):
+    src = payload(tmp_path)
+    identity = (tool.IDENTITY.encode("ascii") + newline)
+    (src / "kasa-install-identity.txt").write_bytes(identity)
+    out = tmp_path / "snapshot.zip"
+    created = tool.snapshot(src, out)
+    assert created["verified"]
+    assert tool.verify(out)["verified"]
+    with zipfile.ZipFile(out) as archive:
+        assert archive.read("kasa-payload/kasa-install-identity.txt") == identity
+
+
+@pytest.mark.parametrize("bad", [b"", b"org.kasalang.kasa.windows.preview.v1",
+                                  b"org.kasalang.kasa.windows.preview.v1\\n\\n",
+                                  b"org.kasalang.kasa.windows.preview.v1 \\n",
+                                  b"org.kasalang.kasa.windows.preview.v1\\r"])
+def test_reject_malformed_marker_even_with_whitespace(tmp_path, bad):
+    src = payload(tmp_path)
+    (src / "kasa-install-identity.txt").write_bytes(bad)
+    with pytest.raises(tool.SnapshotError, match="Identity marker"):
+        tool.snapshot(src, tmp_path / "nope.zip")
