@@ -599,3 +599,11 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **New change after user verification:** `tests/test_bind_kasa_catalog.py` adds catalog-backed namespace execution and negative tests for changed source and invalid exports. **This new binder suite has not yet been run.**
 - **Limitations:** This quick profile does not certify a full macOS native KBC1 pass or actual Kasa import language syntax. Academy checkout not found under `~/Projects`.
 - **Next validation:** `git -c http.proxy=http://192.168.49.1:8282 pull --ff-only` then `python -m pytest -q tests/test_bind_kasa_catalog.py tests/test_module_namespace_isolation.py tests/test_plan_kasa_modules.py tests/test_validate_kasa_catalog.py`.
+
+
+## 2026-11-20 — User-reported macOS G0.3 binder acceptance
+
+- **Status:** User reported **"all passed"** after following instructions to run `python -m pytest -q tests/test_bind_kasa_catalog.py tests/test_module_namespace_isolation.py tests/test_plan_kasa_modules.py tests/test_validate_kasa_catalog.py` and `bash scripts/mac_dev.sh quick` on an Intel Mac with NetShare proxy.
+- **Evidence boundary:** Exact pytest pass/skip totals, commit SHA tested and full command output were **not supplied** with this report. This is user-reported success, not independently reproduced CI or an observed complete test log.
+- **Interpretation:** Proceed with the next G0.3 design slice on the basis of this reported local acceptance; do not claim Kasa source-level import syntax is implemented.
+- **Next gate:** Design and review a backwards-compatible import/member syntax, with explicit alias collision, export visibility, missing module and cross-runtime diagnostics tests. Maintain no new unapproved Twi keywords.
