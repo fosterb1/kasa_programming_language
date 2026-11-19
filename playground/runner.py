@@ -9,6 +9,7 @@ from __future__ import annotations
 from io import StringIO
 
 from kasa.core import Interpreter, KasaError, parse
+from kasa.learning_diagnostics import learning_hint
 
 SOURCE_LIMIT = 50_000
 INPUT_LIMIT = 50_000
@@ -40,7 +41,7 @@ class LimitedOutput:
         return "".join(self.parts)
 
 
-def execute_kasa(source: str, input_text: str = "", mode: str = "run") -> dict[str, object]:
+def execute_kasa(source: str, input_text: str = "", mode: str = "run", *, learner_language: str = "en") -> dict[str, object]:
     """Run or syntax-check source and return JSON-serializable information.
 
     Each execution creates a fresh interpreter, so variables never leak from
@@ -48,6 +49,9 @@ def execute_kasa(source: str, input_text: str = "", mode: str = "run") -> dict[s
     string stream. Output and execution are bounded.
     """
     result: dict[str, object] = {"ok": False, "output": "", "error": "", "steps": 0, "mode": mode}
+    if learner_language not in {"en", "tw"}:
+        result["error"] = "Unsupported learner language"
+        return result
     if mode not in {"run", "check"}:
         result["error"] = "Unknown execution mode"
         return result
@@ -76,6 +80,10 @@ def execute_kasa(source: str, input_text: str = "", mode: str = "run") -> dict[s
     except (KasaError, OutputLimitError) as exc:
         result["error"] = str(exc)
         result["output"] = output.getvalue()
+        if isinstance(exc, KasaError) and learner_language == "tw":
+            hint = learning_hint(exc, language="tw")
+            if hint is not None:
+                result["learning_hint"] = hint
     finally:
         if interpreter is not None:
             result["steps"] = interpreter.steps
