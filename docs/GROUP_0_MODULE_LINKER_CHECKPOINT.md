@@ -61,3 +61,16 @@ It offers a deterministic way for a developer to assemble an existing Kasa appli
 5. Cross-runtime, negative-case and adversarial conformance.
 
 Then finish the G0 acceptance gate before making G1 the primary sprint. After **each group** record how it was implemented, what it can do, actual test evidence, known limits and the next group.
+
+## Windows regression found and corrected (2026-11-19)
+
+User executed `python -m pytest -q tests/test_link_kasa_stdlib.py` on Windows 10 / Python 3.15.2 and reported **15 passed, 2 skipped, 1 failed**. The failing test `test_windows_crlf_checkout_is_canonicalized` converted every LF into CRLF without accounting for a checkout that was already CRLF, accidentally generating **CRCRLF**. The production linker correctly refuses lone carriage returns after removing valid CRLF pairs. This failure is in the **test fixture**, not evidence of a production linker defect.
+
+**Correction commit:** `f5b2929` first converts source CRLF to LF and only then constructs valid CRLF. Added an explicit negative test that malformed CRCRLF is refused with no output file created. The line-ending byte transformations passed an isolated Python logic check; **the full corrected pytest suite still needs to run on Windows**. Expected on a Windows workstation without symlink permission: **17 passed, 2 skipped**; actual results take precedence.
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_link_kasa_stdlib.py
+```
+
+Do not delete existing output files just to rerun an example; use a new filename.
