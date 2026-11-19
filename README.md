@@ -82,6 +82,8 @@ python scripts\\stage_windows_installer.py
 
 Read [the Phase 6D installer prototype and Windows validation gates](./docs/PHASE_6D_WINDOWS_INSTALLER_PROTOTYPE.md). Do not distribute an unsigned developer installer as a trusted public release.
 
+For Phase 6E, a Windows installer **read-only SHA-256 preflight** is available: `python scripts/verify_windows_installer_lifecycle.py`. The expected guarded-v2 hash is pinned to the user-built Windows test artifact. Lifecycle execution requires a separate explicit opt-in inside a snapshot-backed disposable Windows VM; **do not run installer tests on your office machine**. [Phase 6E VM-only lifecycle audit instructions](./docs/PHASE_6E_WINDOWS_INSTALLER_VALIDATION.md).
+
 ## Phases 5E, 7, 8 and 9 — active Mac-first development
 
 **Phase 6 (Windows cross-platform validation) is reserved for the office Windows machine.** Meanwhile:
