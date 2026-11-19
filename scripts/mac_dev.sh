@@ -89,6 +89,15 @@ case "$ACTION" in
     fi
     .venv/bin/python scripts/plan_macos_uninstall.py
     ;;
+  recovery-snapshot)
+    if [[ "$(uname -s)" != Darwin ]]; then
+      echo "macOS recovery snapshots require a Mac." >&2; exit 2
+    fi
+    if [[ ! -x .venv/bin/python ]]; then
+      echo "Missing .venv; run setup first." >&2; exit 2
+    fi
+    .venv/bin/python scripts/snapshot_macos_install.py
+    ;;
   mac-release)
     if [[ ! -x .venv/bin/python ]]; then
       echo "Missing .venv; run setup first" >&2; exit 2
@@ -110,7 +119,7 @@ case "$ACTION" in
     python3 scripts/release_to_academy.py
     ;;
   *)
-    echo "Usage: bash scripts/mac_dev.sh {doctor|setup|quick|parity|full|mac-release|package|installer|upgrade-audit|uninstall-plan|wasm|studio-dry-run}" >&2
+    echo "Usage: bash scripts/mac_dev.sh {doctor|setup|quick|parity|full|mac-release|package|installer|upgrade-audit|uninstall-plan|recovery-snapshot|wasm|studio-dry-run}" >&2
     exit 2
     ;;
 esac
