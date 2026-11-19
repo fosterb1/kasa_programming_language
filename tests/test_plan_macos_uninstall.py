@@ -1,4 +1,15 @@
 """Uninstaller must never modify a path, even when directly invoked."""
+import os
+import pytest
+
+# These fixtures model a Unix macOS package with POSIX symlinks.
+# Windows users should not need administrator privileges or Developer Mode
+# to verify the portable Kasa language and native compiler.
+pytestmark = pytest.mark.skipif(
+    os.name == "nt", reason="macOS POSIX-symlink installation fixture is not a Windows release test"
+)
+
+
 import importlib.util
 from pathlib import Path
 import sys
