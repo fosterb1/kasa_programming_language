@@ -74,3 +74,21 @@ python -m pytest -q tests/test_link_kasa_stdlib.py
 ```
 
 Do not delete existing output files just to rerun an example; use a new filename.
+
+## Windows acceptance evidence — 2026-11-19 (user-supplied)
+
+The user checked out `19624e4` and reported the following on a Windows virtual environment:
+
+- `python -m pytest -q tests/test_link_kasa_stdlib.py` — **17 passed, 2 skipped, 0 failed**.
+- `python scripts/link_kasa_stdlib.py --app stdlib/demos/group0_sample.kasa --module math --module collections --output build/stdlib-linked/group0-demo-001.kasa` — new source file created.
+- `python -m kasa run build/stdlib-linked/group0-demo-001.kasa` — `300\n2\nnokware\n`.
+- `build\\kasa-local\\Release\\kasa-native.exe run build\\stdlib-linked\\group0-demo-001.kasa` — matching output.
+- `kasa-native.exe compile ... -o ...kbc` — compiler reported success.
+- `kasa-native.exe check-bytecode ...kbc` — returned to prompt with no diagnostic; the shell exit status was **not separately recorded**.
+- `kasa-native.exe run-bytecode ...kbc` — matching output.
+
+**Milestone classification:** source-linker happy path verified on Python, native, compiled KBC1; targeted unit suite 17 pass and 2 symlink tests skipped. This **does not** certify actual imports, exported namespaces, KBC dependency resolution, adversarial filesystem safety or every Group 0 acceptance requirement.
+
+### Next concrete design requirement
+
+Do not silently promote source-linker globals to permanent language-module names. Instead, design explicit library manifest metadata (module ID, declared exports, dependency IDs, version/content identity) and define namespace binding rules and stable errors. Implement in stages: first reject malformed/ambiguous declarations; then add runtime namespace resolution to Python and JavaScript; finally integrate native compiler/VM with bytecode identity and tests.
