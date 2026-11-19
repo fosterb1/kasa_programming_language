@@ -71,6 +71,17 @@ python scripts\package_windows_preview.py
 
 The package contains `kasa-native.exe`, `kasa.cmd`, a SHA-256 manifest and README. It does not change the registry, PATH, installation folders or system state, and is **not a public installer**. On a fresh Windows PC, the presence of Microsoft Visual C++ runtime dependencies must be verified before broader distribution. See [Phase 6C Windows portable package and verification instructions](./docs/PHASE_6C_WINDOWS_PORTABLE_PREVIEW.md).
 
+## Phase 6D — Windows per-user installer prototype
+
+After the Windows ZIP was created, extracted, executed and verified by SHA-256 on the office PC, an **Inno Setup 6 source** and integrity-checked staging tool were added. These do **not** install Kasa or change PATH, registry or privileged system locations. The proposed installer defaults to a per-user folder and includes Inno Setup uninstall support, but compilation and actual install/uninstall validation are still pending.
+
+```bat
+python -m pytest -q tests\\test_stage_windows_installer.py
+python scripts\\stage_windows_installer.py
+```
+
+Read [the Phase 6D installer prototype and Windows validation gates](./docs/PHASE_6D_WINDOWS_INSTALLER_PROTOTYPE.md). Do not distribute an unsigned developer installer as a trusted public release.
+
 ## Phases 5E, 7, 8 and 9 — active Mac-first development
 
 **Phase 6 (Windows cross-platform validation) is reserved for the office Windows machine.** Meanwhile:
