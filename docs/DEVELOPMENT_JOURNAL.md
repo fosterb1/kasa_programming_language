@@ -40,6 +40,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-19 — Group 0 linker successfully verified on Windows
+
+- **User's Windows 10 validation:** Following fix `bccfeda`, `python -m pytest -q tests/test_link_kasa_stdlib.py` reported **17 passed, 2 skipped in 0.41s**. Skips are platform symlink permissions, not passed security assertions.
+- **Actual linked application:** `python scripts/link_kasa_stdlib.py --app stdlib/demos/group0_sample.kasa --module math --module collections --output build/stdlib-linked/group0-demo-001.kasa` created a new `.kasa` program without overwriting existing files.
+- **Actual runtime:** `python -m kasa run build/stdlib-linked/group0-demo-001.kasa` emitted exactly `300\n2\nnokware\n` on Windows.
+- **Clarification:** An initial pytest invocation accidentally combined two terminal commands and was rejected at CLI argument parsing; subsequent correctly separated commands passed.
+- **Not yet run for this generated file:** Native C++ direct source execution and KBC1 serialization. This milestone is pinned local source linking, **not** true language-level imports, namespace isolation, package manager or sandbox.
+- **Next:** Check generated program with native executable, optionally compile/check/run KBC1; then develop namespace declaration and import contract with shared regressions.
+
+
 ### 2026-11-19 — Group 0 first implementation: pinned library source linker
 
 - **Added:** `scripts/link_kasa_stdlib.py` (strict allowlist `math`/`collections`, Git blob content pins, LF/Windows CRLF canonicalization, no-overwrite output restricted to `build/stdlib-linked`);  `stdlib/demos/group0_sample.kasa`; `tests/test_link_kasa_stdlib.py`; [full milestone rundown](./GROUP_0_MODULE_LINKER_CHECKPOINT.md).
