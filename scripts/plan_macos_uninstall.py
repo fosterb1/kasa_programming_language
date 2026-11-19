@@ -49,15 +49,7 @@ def remove(root: Path, version: str, *, execute: bool) -> None:
         print("Would forget package receipt:", PACKAGE_ID)
         print("Your .kasa files outside /usr/local/lib/kasa-preview are not touched.")
         return
-    if platform.system() != "Darwin" or os.geteuid() != 0 or root != ROOT:
-        raise ValueError("Actual removal requires root on macOS at the system-owned path")
-    # Validate before each unlink and never follow symlink targets.
-    for path in paths:
-        validate_removal(root, version)
-        path.unlink()
-        # After the first removal the complete ownership audit no longer passes:
-        # this is why actual uninstallation is intentionally not implemented yet.
-        raise ValueError("Partial uninstall prevented: execute path is not released")
+    raise ValueError("Actual removal is intentionally disabled until transactional uninstall is tested")
 
 
 def main(argv: list[str] | None = None) -> int:
