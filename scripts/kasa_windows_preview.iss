@@ -34,39 +34,16 @@ Source: "{#KasaStage}\kasa-install-identity.txt"; DestDir: "{app}"; Flags: ignor
 [Icons]
 Name: "{group}\Uninstall Kasa Preview"; Filename: "{uninstallexe}"
 [Code]
-// Phase 6E: deliberately first-install-only. Never overwrite a folder that
-// contains any file or subdirectory, even if it contains our identity marker.
-// Run at PrepareToInstall, *after* any custom /DIR and wizard selection.
-// This also covers /SILENT installs, unlike a default-path-only startup test.
-function IsEmptyInstallDirectory(const Directory: String): Boolean;
-var
-  FindRec: TFindRec;
-begin
-  Result := True;
-  if not DirExists(Directory) then
-    Exit;
-  if FindFirst(AddBackslash(Directory) + '*', FindRec) then
-  begin
-    try
-      repeat
-        if (FindRec.Name <> '.') and (FindRec.Name <> '..') then
-        begin
-          Result := False;
-          Break;
-        end;
-      until not FindNext(FindRec);
-    finally
-      FindClose(FindRec);
-    end;
-  end;
-end;
-
+// Phase 6E: fail closed on ANY pre-existing destination, including an empty
+// folder. This avoids treating an unreadable directory enumeration as empty.
+// The final WizardDirValue also covers custom /DIR and silent-install paths.
+// This is first-install-only; upgrade handling will be a separate flow.
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   Result := '';
-  if not IsEmptyInstallDirectory(WizardDirValue) then
-    Result := 'Kasa preview refuses to install over an existing non-empty folder: ' +
+  if DirExists(WizardDirValue) or FileExists(WizardDirValue) then
+    Result := 'Kasa preview refuses to install over an existing destination: ' +
       WizardDirValue + #13#10 +
-      'No application files were installed. Choose a new empty folder. ' +
+      'No application files were installed. Choose a new folder that does not already exist. ' +
       'Upgrades are not supported in this prototype.';
 end;
