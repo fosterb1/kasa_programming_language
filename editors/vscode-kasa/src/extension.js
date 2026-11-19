@@ -19,7 +19,7 @@ async function invoke(mode, channel) {
     return;
   }
   if (editor.document.isDirty) await editor.document.save();
-  const executable = vscode.workspace.getConfiguration('kasa').get('executablePath', 'kasa-native');
+  const executable = vscode.workspace.getConfiguration('kasa').get('executablePath', 'kasa');
   const file = editor.document.uri.fsPath;
   const cwd = vscode.workspace.getWorkspaceFolder(editor.document.uri)?.uri.fsPath || path.dirname(file);
   channel.clear(); channel.show(true);
@@ -46,7 +46,7 @@ async function invoke(mode, channel) {
     });
   }
   const watchdog = setTimeout(() => child.kill(), 15000);
-  child.on('error', error => channel.appendLine(`Unable to start Kasa: ${error.message}`));
+  child.on('error', error => {\n    channel.appendLine(`Unable to start Kasa: ${error.message}`);\n    if (error.code === 'ENOENT') {\n      channel.appendLine('Install Kasa or set kasa.executablePath to the full path of the installed kasa executable.');\n    }\n  });
   child.on('close', code => {
     clearTimeout(watchdog);
     channel.appendLine(`\nKasa process exited: ${code}`);
