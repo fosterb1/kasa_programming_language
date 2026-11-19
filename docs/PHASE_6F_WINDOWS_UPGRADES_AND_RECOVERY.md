@@ -130,4 +130,4 @@ type build/recovery-simulations/interruption-001/simulation-report.json
 
 The injected simulation is **supposed to return a nonzero exit code**. It should leave three reconstructed payload files with a `passed: false` report, for inspection. This never touches a real installation.
 
-Current evidence: the Phase 6F.4 source and regression tests were committed; independent remote test execution was **blocked by a temporary runner job limit**, so no Phase 6F.4 passing-test claim is made here. Windows execution is required to verify this implementation. Real installation lifecycle, upgrade and rollback remain **disabled and unverified**.
+Current evidence: after the temporary runner limit cleared, the independent targeted suite passed **65/65 tests**, with two expected warnings from deliberately malformed ZIP negative-test fixtures. **Windows execution is still required** to validate reconstruction against the user's real snapshot. Real installation lifecycle, upgrade and rollback remain **disabled and unverified**. Real installation lifecycle, upgrade and rollback remain **disabled and unverified**.
