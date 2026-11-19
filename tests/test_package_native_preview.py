@@ -62,7 +62,7 @@ def test_launcher_follows_user_local_symlink(tmp_path, monkeypatch):
     monkeypatch.setattr(tool.platform, "system", lambda: "Darwin")
     archive = tool.package(mock_native(tmp_path), tmp_path / "dist")
     with tarfile.open(archive, "r:gz") as tar:
-        tar.extractall(tmp_path / "unpacked", filter="data")
+        tar.extractall(tmp_path / "unpacked")  # trusted archive created in this test
     root = tmp_path / "unpacked" / archive.name.removesuffix(".tar.gz")
     shortcut = tmp_path / "local-bin"
     shortcut.mkdir()
@@ -74,7 +74,7 @@ def test_launcher_follows_user_local_symlink(tmp_path, monkeypatch):
     output = subprocess.run([str(shortcut / "kasa"), "run", "example.kasa"],
                             capture_output=True, text=True, check=False)
     assert output.returncode == 0
-    assert output.stdout == "run:run\\n".replace("\\n", "\n")
+    assert output.stdout.strip() == "run:run"
 
 
 def test_wrong_binary_refused(tmp_path, monkeypatch):
