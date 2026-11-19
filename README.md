@@ -8,6 +8,22 @@ Kasa's guiding idea is simple: **learners should focus on solving problems, not 
 
 > **Project status — Experimental alpha (native 0.4).** Kasa includes a Python reference interpreter, a browser JavaScript runtime, and a **C++20 native compiler/VM with an experimental KBC1 `.kbc` file format**. There are twenty-six root example programs and an independent local verification runner. Full native KBC1 integration tests passed on Linux, and a **verified complete-checkout Linux parity baseline for the currently implemented Kasa 0.4 portable subset** ([10/10 parity stages, 18/18 full-profile stages on merged commit `cbce6a6`](./docs/verification/2026-11-18-linux-full-parity.md)). **Native arbitrary-precision integers/KBC1, Windows/macOS validation, real-browser WASM, classroom review and secure untrusted-code execution remain unfinished**. Kasa is not a stable 1.0 release. See the [living development journal](./docs/DEVELOPMENT_JOURNAL.md) and [native integration report](./docs/verification/2026-11-17-kbc1-native-integration.md).
 
+## Develop on a MacBook without hosted CI
+
+This project supports a Mac-first, local-test-first workflow (Intel or Apple Silicon, subject to the installed macOS and toolchain). After cloning, use:
+
+```bash
+bash scripts/mac_dev.sh doctor
+bash scripts/mac_dev.sh setup
+bash scripts/mac_dev.sh quick
+bash scripts/mac_dev.sh parity
+bash scripts/mac_dev.sh full
+```
+
+No Vercel, Netlify, Firecrawl or GitHub Actions invocation occurs in these commands. The scripts write reproducible local reports under `build/`. The 4C.2 shared diagnostics corpus tests matching error categories across JavaScript and Python, then the linked native VM during full verification. **Mac-specific certification requires actually running these commands on macOS**; a successful Linux or browser check is not equivalent.
+
+[MacBook setup, Node/Python requirements, Emscripten, Academy tests and release process](./docs/MACOS_LOCAL_DEVELOPMENT.md)
+
 ## See Kasa in action
 
 A first program, saved as `hello.kasa`:
