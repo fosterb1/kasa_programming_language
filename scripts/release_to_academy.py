@@ -45,7 +45,7 @@ def build_payload() -> tuple[dict[str, bytes], dict]:
     source = ROOT / "playground"
     inputs = {name: (source / name).read_bytes() for name in FILES}
     wasm = inputs["native/kasa-native.wasm"]
-    if len(wasm) < 4096 or wasm[:8] != b"\\x00asm\\x01\\x00\\x00\\x00":
+    if len(wasm) < 4096 or wasm[:8] != b"\x00asm\x01\x00\x00\x00":
         raise ValueError("Refusing to publish missing, invalid or stubbed native WASM")
     if len(inputs["native/kasa-native.js"]) < 1000:
         raise ValueError("Missing native JavaScript loader")
@@ -65,7 +65,7 @@ def build_payload() -> tuple[dict[str, bytes], dict]:
         '<div class="topbar-right"><a class="academy-back-link" href="/learn">← Back to Academy</a>',
     )
     css = inputs["style.css"].decode("utf-8")
-    css += "\\n.academy-back-link{color:#c8efb6;font-weight:750;font-size:13px;border:1px solid #597965;border-radius:9px;padding:9px 12px}.academy-back-link:hover{background:#315344}\\n"
+    css += "\n.academy-back-link{color:#c8efb6;font-weight:750;font-size:13px;border:1px solid #597965;border-radius:9px;padding:9px 12px}.academy-back-link:hover{background:#315344}\n"
     inputs["style.css"] = css.encode("utf-8")
     # Content-addressed version invalidates the previous offline cache.
     version = hashlib.sha256(b"".join(name.encode() + inputs[name] for name in FILES)).hexdigest()[:12]
@@ -84,7 +84,7 @@ def build_payload() -> tuple[dict[str, bytes], dict]:
         "source_repo": "fosterb1/kasa_programming_language",
         "files": {name: {"sha256": digest(inputs[name]), "bytes": len(inputs[name])} for name in FILES},
     }
-    inputs["release-manifest.json"] = (json.dumps(manifest, indent=2, sort_keys=True) + "\\n").encode("utf-8")
+    inputs["release-manifest.json"] = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode("utf-8")
     return inputs, manifest
 
 
