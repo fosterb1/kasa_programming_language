@@ -108,3 +108,17 @@ python scripts/plan_kasa_modules.py --use math:m --use collections:c
 ```
 
 An external checkout/test attempt in the assistant container could not run because DNS resolution of github.com failed. No new test pass is claimed. Next: verify preflight on Windows, then review grammar and scope mechanics before shipping actual namespace access.
+
+
+## G0.3 Windows acceptance evidence — 2026-11-20 (user supplied)
+
+The user fast-forwarded main to `c881578` and ran:
+
+- `python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_link_kasa_stdlib.py` — **36 passed, 3 skipped, 0 failed**, 1.28 seconds (earlier checkout at `d7aa810`).
+- `python scripts/validate_kasa_catalog.py` — **PASS**, both reviewed module IDs and declared exports enumerated.
+- `python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_plan_kasa_modules.py` — **31 passed, 1 skipped, 0 failed**, 0.50 seconds (checkout at `c881578`).
+- `python scripts/plan_kasa_modules.py --use math:m --use collections:c` — JSON with `mode: preflight_only`, separate aliases and exports, load order `collections, math` and empty capabilities.
+
+**Classification:** G0.2 catalog validation and G0.3 read-only alias planner are now Windows-user-verified. Skipped tests are not passes; overlapping test lists must not be represented as 67 distinct cases. **Runtime imports and namespace isolation remain unimplemented.**
+
+**Next:** freeze grammar/bytecode considerations and test alias shadowing/local-vs-global visibility before implementing source-level imports and dedicated module environments in Python.
