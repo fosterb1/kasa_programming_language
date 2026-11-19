@@ -1,0 +1,25 @@
+# Experimental collection helpers. These are source fragments, NOT importable modules.
+# Mutable lists are caller-owned; helpers below never modify them.
+
+dwumadie kasa_count_equal(values, needle)
+    ma count = 0
+    ma i = 0
+    bere_a i < tentɛn(values)
+        sɛ values[i] == needle a
+            ma count = count + 1
+        awiei
+        ma i = i + 1
+    awiei
+    sanma count
+awiei
+
+dwumadie kasa_contains(values, needle)
+    ma i = 0
+    bere_a i < tentɛn(values)
+        sɛ values[i] == needle a
+            sanma nokware
+        awiei
+        ma i = i + 1
+    awiei
+    sanma atoro
+awiei
