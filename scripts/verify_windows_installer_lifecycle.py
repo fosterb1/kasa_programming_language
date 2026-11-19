@@ -70,8 +70,9 @@ def command(argv: list[str], timeout: int = 120) -> dict:
 def run_lifecycle(setup: Path, workspace: Path) -> dict:
     """Run only after checking Windows, opt-in, VM identity and installer digest.
 
-    Every directory chosen for testing belongs to this new workspace. No user
-    directory is removed or overwritten; even workspace cleanup is left to VM reset.
+    Every test destination belongs to this newly created disposable VM workspace.
+    Workspace deletion is intentionally disabled to preserve failure evidence;
+    restore the VM snapshot to recover the machine.
     """
     workspace.mkdir(parents=False, exist_ok=False)
     events = []
@@ -142,7 +143,7 @@ def run_lifecycle(setup: Path, workspace: Path) -> dict:
     events.append({"name": "uninstall preserves external files", "passed": safe,
                    "process": removed})
     return {"events": events, "passed": all(e["passed"] for e in events),
-            "workspace": str(workspace), "note": "Test workspace is removed after execution; reset VM snapshot for full recovery"}
+            "workspace": str(workspace), "note": "VM test workspace and logs retained; reset VM snapshot for recovery"}
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -172,12 +173,21 @@ def main(argv: list[str] | None = None) -> int:
                 args.acknowledge_vm_snapshot == "DISPOSABLE-VM-SNAPSHOT-CONFIRMED"):
             result["error"] = "Execution refused: check SHA-256, VM identity and snapshot acknowledgment"
         else:
-            with tempfile.TemporaryDirectory(prefix="kasa-vm-root-") as tmp:
-                # Keep all test installation targets inside a new VM-only workspace.
-                base = Path(tmp) / "lifecycle"
-                result["executed"] = True
+            # Preserve logs, partial files and test sentinels for failure diagnosis.
+            # Do not delete the VM test tree automatically: only a snapshot reset
+            # should restore the disposable Windows VM to its baseline.
+            vm_root = Path(tempfile.mkdtemp(prefix="kasa-vm-root-"))
+            base = vm_root / "lifecycle"
+            result["executed"] = True
+            result["vm_workspace"] = str(vm_root)
+            try:
                 result["lifecycle"] = run_lifecycle(args.setup.resolve(), base)
-                # tempfile cleans test workspace, but only within VM-generated prefix.
+            except Exception as exc:
+                result["lifecycle"] = {
+                    "passed": False, "workspace": str(base),
+                    "error": f"{type(exc).__name__}: {exc}",
+                    "note": "Partial VM test files retained; inspect and reset VM snapshot",
+                }
     else:
         result["note"] = "READ-ONLY preflight. No setup or uninstaller executed."
     report = args.report.resolve()
