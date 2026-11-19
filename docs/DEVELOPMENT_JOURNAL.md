@@ -40,6 +40,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-19 — Group 0 source-linker native/KBC checkpoint accepted; module contract design opened
+
+- **Windows user verification** on revision `19624e4`: 17 passed, 2 symlink checks skipped; linked source executed in Python and native with exact stdout `300 / 2 / nokware`; native compilation reported success; `check-bytecode` produced no error; compiled KBC1 ran with the same output.
+- **Decision:** G0.1 source-linker happy path accepted. This is not full G0 completion; no true import grammar or namespace implemented.
+- **Next specification:** `docs/GROUP_0_MODULE_CONTRACT_PLAN.md` sets experimental catalog/export/dependency contracts, explicit namespace rules, and G0.2–G0.5 runtime stages. No implementation or testing is claimed for those stages.
+- **Next gate:** build and independently test G0.2 module manifest validator before introducing syntax across runtimes.
+
+
 ### 2026-11-19 — Group 0 linker successfully verified on Windows
 
 - **User's Windows 10 validation:** Following fix `bccfeda`, `python -m pytest -q tests/test_link_kasa_stdlib.py` reported **17 passed, 2 skipped in 0.41s**. Skips are platform symlink permissions, not passed security assertions.
