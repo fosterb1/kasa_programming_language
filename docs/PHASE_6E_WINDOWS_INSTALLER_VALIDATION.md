@@ -1,6 +1,6 @@
 # Phase 6E — Windows installer destination safety and test plan
 
-**2026-11-19 update:** The user compiled the initial guarded installer successfully with Inno Setup 7.1.1; its SHA-256 is `23be7195b31dce824b9cdb0f182c3ccfeb85d4ef548a36b7d2922760f3689613`. The **stricter guarded-v2** revision has been committed but has **not** been compiled or installed on Windows. No installation/uninstall certification exists.
+**2026-11-19 update:** The user compiled the initial guarded installer successfully with Inno Setup 7.1.1; its SHA-256 is `23be7195b31dce824b9cdb0f182c3ccfeb85d4ef548a36b7d2922760f3689613`. The **stricter guarded-v2** revision was compiled successfully on the user's Windows PC using Inno Setup 7.1.1 (size **2,229,729 bytes**, SHA-256 **`2af6ac1347da03870fe1e80543c1fba1af78fac12d087103a52f230f1c003b87`**). It has **not** been installed or uninstalled in a disposable VM. No installation/uninstall certification exists.
 
 ## Directory collision safety change
 
@@ -70,4 +70,26 @@ python scripts\verify_windows_installer_lifecycle.py --execute-in-disposable-vm 
 
 The harness checks Windows VM identity using `Win32_ComputerSystem` and refuses to execute setup without the explicit flag, exact snapshot acknowledgment and expected installer hash. VM identity recognition is **heuristic** and not a guarantee of isolation or authorization. The harness uses `/VERYSILENT` only after these gates; it installs into a new temporary VM workspace, tests occupied destination rejection, runs the installed native executable, invokes Inno Setup's generated uninstaller, and checks two external sentinel files. The script retains a JSON record of results. It does not grant administrator rights, change PATH or disable security software.
 
-**Evidence limitations:** source-level unit tests passed **20/20** in a separate test environment, but no user VM lifecycle execution has yet been reported. This harness checks only its own process's PATH string, **not** persistent user/machine environment variables in the registry or the shell; a separate VM inspection is required to establish no persistent PATH modification. It doesn't establish clean-machine VC++ runtime requirements, native `kasa.cmd` launcher behavior after installer installation, GUI wizard defaults, full registry uninstall ownership, rollback on crashes, or junction/ACL race safety. It requires VM snapshots before destructive rollback tests and must not be used on a real office workstation. Failures must not be interpreted as successful verification.
+**Evidence limitations:** the latest source-level tests passed **21/21** in a separate test environment (including one simulated second-install attempt); the user earlier confirmed **6/6** lifecycle harness tests on Windows, before the new simulated check was added. No user VM lifecycle execution has yet been reported. This harness checks only its own process's PATH string, **not** persistent user/machine environment variables in the registry or the shell; a separate VM inspection is required to establish no persistent PATH modification. It doesn't establish clean-machine VC++ runtime requirements, native `kasa.cmd` launcher behavior after installer installation, GUI wizard defaults, full registry uninstall ownership, rollback on crashes, or junction/ACL race safety. It requires VM snapshots before destructive rollback tests and must not be used on a real office workstation. Failures must not be interpreted as successful verification.
+
+## Phase 6E additional harness coverage — 2026-11-19
+
+The opt-in VM-only harness now also refuses a second installation to the same directory and checks that the installed `kasa.cmd --version` launcher works. The supplemental test uses **mocked executable commands** and does not install Kasa or simulate Windows file ownership. On a disposable VM the relevant planned checks are:
+
+1. Occupied foreign directory refuses installation without modifying a sentinel.
+2. Fresh installation into a nonexistent directory succeeds.
+3. Immediate second installer execution to that directory refuses to overwrite the existing Kasa binary.
+4. Native `kasa-native.exe --version`, Twi program and user-facing `kasa.cmd --version` work.
+5. Uninstall removes its native executable and preserves external sentinel files.
+
+The run report records process exit codes and stdout/stderr tails. The temporary workspace is created under a new VM-only temp directory and automatically cleaned after the run; a VM snapshot remains the correct recovery mechanism. The harness **does not** verify persistent registry PATH, all uninstall registry entries, accessible directory races, or actual upgrades.
+
+On the **office Windows PC** use only the safe command sequence:
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_package_windows_preview.py tests/test_stage_windows_installer.py tests/test_verify_windows_installer_lifecycle.py
+python scripts/verify_windows_installer_lifecycle.py
+```
+
+The last command is **read-only** and should again report `Installer SHA-256 matches: True` and `Installer executed: False`. No installer recompilation is needed; the .iss source and pinned compiled guarded-v2 executable are unchanged. Only run the execution switch in an authorized disposable Windows VM with a real snapshot; the VM identifier is not sufficient proof of isolation by itself.
