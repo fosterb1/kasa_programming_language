@@ -47,6 +47,18 @@ case "$ACTION" in
     .venv/bin/python scripts/verify_local.py --profile "$ACTION" \
       --report "build/macos-${ACTION}-local.json"
     ;;
+  package)
+    if [[ "$(uname -s)" != Darwin ]]; then
+      echo "Native preview packaging requires a Mac; no cross-platform release claim." >&2; exit 2
+    fi
+    if [[ ! -x .venv/bin/python ]]; then
+      echo "Missing .venv; run setup first" >&2; exit 2
+    fi
+    if [[ ! -x build/kasa-local/kasa-native ]]; then
+      echo "Build the native Kasa VM with 'bash scripts/mac_dev.sh parity' first." >&2; exit 2
+    fi
+    .venv/bin/python scripts/package_native_preview.py
+    ;;
   mac-release)
     if [[ ! -x .venv/bin/python ]]; then
       echo "Missing .venv; run setup first" >&2; exit 2
@@ -68,7 +80,7 @@ case "$ACTION" in
     python3 scripts/release_to_academy.py
     ;;
   *)
-    echo "Usage: bash scripts/mac_dev.sh {doctor|setup|quick|parity|full|mac-release|wasm|studio-dry-run}" >&2
+    echo "Usage: bash scripts/mac_dev.sh {doctor|setup|quick|parity|full|mac-release|package|wasm|studio-dry-run}" >&2
     exit 2
     ;;
 esac
