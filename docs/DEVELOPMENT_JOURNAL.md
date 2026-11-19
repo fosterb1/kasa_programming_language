@@ -40,6 +40,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-19 — Group 0 first implementation: pinned library source linker
+
+- **Added:** `scripts/link_kasa_stdlib.py` (strict allowlist `math`/`collections`, Git blob content pins, LF/Windows CRLF canonicalization, no-overwrite output restricted to `build/stdlib-linked`);  `stdlib/demos/group0_sample.kasa`; `tests/test_link_kasa_stdlib.py`; [full milestone rundown](./GROUP_0_MODULE_LINKER_CHECKPOINT.md).
+- **Safety features tested in code:** unknown/traversal module names, duplicate selection, altered library contents, function collisions, UTF-8/size checks, symlink/junction refusal and existing-file preservation. **Test suite has been added but not yet executed on Windows; do not mark it green.**
+- **Scope:** prelinker assembles allowlisted, pinned source before execution. It is neither a full Kasa import system nor namespace isolation, an untrusted-code sandbox, cryptographic publisher authentication or a binary distribution feature.
+- **Next gate:** User Windows test output, run generated source via Python/native, then design true namespaces and module declarations; move to G1 only after G0 acceptance tests.
+
+
 ### 2026-11-19 — Phase 8 balanced stdlib: Windows native compatibility confirmed
 
 - **User-reported Windows tests:** 12/12 Python and 12/12 JavaScript combined finance + experimental stdlib fixtures passed. The existing Phase 8A native source/KBC1 finance driver reported **6/6 passed**. The user subsequently confirmed **PASS** for `python native/tests/stdlib_foundation_conformance.py build/kasa-local/Release/kasa-native.exe`.
