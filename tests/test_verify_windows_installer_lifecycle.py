@@ -107,3 +107,29 @@ def test_lifecycle_rejects_second_install_before_uninstall(tmp_path, monkeypatch
     assert report["passed"] is False  # Mock setup creates no real uninstaller.
     assert sum(any("/DIR=" in part and part.endswith("fresh-install") for part in cmd)
                for cmd in calls) == 2
+
+
+def test_vm_failure_keeps_workspace_and_writes_report(tmp_path, monkeypatch):
+    """No actual installer: simulated VM exception must leave diagnostic evidence."""
+    setup = tmp_path / "mock.exe"
+    setup.write_bytes(b"MZ VM mock")
+    monkeypatch.setattr(tool, "detect_vm", lambda: (True, "synthetic test virtual machine"))
+    monkeypatch.setattr(tool.tempfile, "mkdtemp",
+                        lambda prefix: str(tmp_path / "vm-workspace"))
+    # Simulate the freshly allocated VM workspace without changing the host OS.
+    (tmp_path / "vm-workspace").mkdir()
+    def fail_with_evidence(setup_path, base):
+        base.mkdir()
+        (base / "failed-setup.log").write_text("mock failure evidence")
+        raise RuntimeError("simulated install failure")
+    monkeypatch.setattr(tool, "run_lifecycle", fail_with_evidence)
+    report = tmp_path / "vm-report.json"
+    result = tool.main(["--setup", str(setup), "--sha256", tool.sha256(setup),
+                        "--report", str(report), "--execute-in-disposable-vm",
+                        "--acknowledge-vm-snapshot", "DISPOSABLE-VM-SNAPSHOT-CONFIRMED"])
+    assert result == 1
+    record = json.loads(report.read_text())
+    assert record["executed"] is True
+    assert record["lifecycle"]["passed"] is False
+    assert "simulated install failure" in record["lifecycle"]["error"]
+    assert (tmp_path / "vm-workspace/lifecycle/failed-setup.log").read_text() == "mock failure evidence"
