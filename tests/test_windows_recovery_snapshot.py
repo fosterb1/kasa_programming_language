@@ -148,7 +148,7 @@ def test_cli_create_then_verify(tmp_path, capsys):
     assert '"verified": true' in capsys.readouterr().out
 
 
-@pytest.mark.parametrize("newline", [b"\\n", b"\\r\\n"])
+@pytest.mark.parametrize("newline", [b"\n", b"\r\n"])
 def test_identity_marker_line_endings_are_portable(tmp_path, newline):
     src = payload(tmp_path)
     identity = (tool.IDENTITY.encode("ascii") + newline)
@@ -162,9 +162,9 @@ def test_identity_marker_line_endings_are_portable(tmp_path, newline):
 
 
 @pytest.mark.parametrize("bad", [b"", b"org.kasalang.kasa.windows.preview.v1",
-                                  b"org.kasalang.kasa.windows.preview.v1\\n\\n",
-                                  b"org.kasalang.kasa.windows.preview.v1 \\n",
-                                  b"org.kasalang.kasa.windows.preview.v1\\r"])
+                                  b"org.kasalang.kasa.windows.preview.v1\n\n",
+                                  b"org.kasalang.kasa.windows.preview.v1 \n",
+                                  b"org.kasalang.kasa.windows.preview.v1\r"])
 def test_reject_malformed_marker_even_with_whitespace(tmp_path, bad):
     src = payload(tmp_path)
     (src / "kasa-install-identity.txt").write_bytes(bad)
