@@ -46,3 +46,28 @@ Never run an unsigned preview installer just to bypass a security warning. Do no
 The initial guard used `FindFirst` to enumerate the destination. If enumeration fails due to access restrictions, a naive check cannot reliably distinguish "empty directory" from "directory could not be listed." The v2 guard instead checks the existence of the final `WizardDirValue` directory (or a file at that path) via `DirExists` / `FileExists` and refuses installation when either is true. This does **not** prove safety against inaccessible parents, reparse points, unusual paths or between-check races. The stricter gate is designed to avoid known overwrites during early alpha validation, not to certify filesystem security.
 
 The source-only regression checks verify the presence of these checks; actual Inno Setup compilation and VM testing remain necessary. Inno Setup documentation describes `PrepareToInstall` as an event that can stop Setup prior to installation when returning a non-empty error message. See https://jrsoftware.org/inno-setup/documentation/topic_scriptevents.htm.
+
+## Lifecycle harness added — 2026-11-19
+
+The first repeatable Windows lifecycle audit is `scripts/verify_windows_installer_lifecycle.py`. It requires **no installer execution by default**. Its expected guarded-v2 installer hash is the user's reported SHA-256 `2af6ac1347da03870fe1e80543c1fba1af78fac12d087103a52f230f1c003b87` and it reports to `build/windows-installer-lifecycle.json`.
+
+For **read-only preflight on the office workstation**:
+
+```bat
+git pull --ff-only
+python -m pytest -q tests\test_package_windows_preview.py tests\test_stage_windows_installer.py tests\test_verify_windows_installer_lifecycle.py
+python scripts\verify_windows_installer_lifecycle.py
+type build\windows-installer-lifecycle.json
+```
+
+This verifies the SHA-256 and records a JSON test plan. **It does not install, uninstall, invoke, or execute the unsigned Setup executable.** A verified hash is artifact identity, not a digital signature or trust certificate.
+
+For eventual execution, **copy the verified installer and the audited repository checkout into a disposable Windows VM you own or are authorized to test in; create a VM snapshot first.** After independently checking that the VM has no important personal/office data and the installer matches the expected hash, explicitly run **inside the VM only**:
+
+```bat
+python scripts\verify_windows_installer_lifecycle.py --execute-in-disposable-vm --acknowledge-vm-snapshot DISPOSABLE-VM-SNAPSHOT-CONFIRMED
+```
+
+The harness checks Windows VM identity using `Win32_ComputerSystem` and refuses to execute setup without the explicit flag, exact snapshot acknowledgment and expected installer hash. VM identity recognition is **heuristic** and not a guarantee of isolation or authorization. The harness uses `/VERYSILENT` only after these gates; it installs into a new temporary VM workspace, tests occupied destination rejection, runs the installed native executable, invokes Inno Setup's generated uninstaller, and checks two external sentinel files. The script retains a JSON record of results. It does not grant administrator rights, change PATH or disable security software.
+
+**Evidence limitations:** source-level unit tests passed **20/20** in a separate test environment, but no user VM lifecycle execution has yet been reported. This harness checks only its own process's PATH string, **not** persistent user/machine environment variables in the registry or the shell; a separate VM inspection is required to establish no persistent PATH modification. It doesn't establish clean-machine VC++ runtime requirements, native `kasa.cmd` launcher behavior after installer installation, GUI wizard defaults, full registry uninstall ownership, rollback on crashes, or junction/ACL race safety. It requires VM snapshots before destructive rollback tests and must not be used on a real office workstation. Failures must not be interpreted as successful verification.
