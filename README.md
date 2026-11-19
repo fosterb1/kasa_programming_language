@@ -58,6 +58,17 @@ bash scripts/mac_dev.sh uninstall-plan
 
 Neither command upgrades nor removes installed files. The uninstaller is deliberately **plan-only**, with execution disabled until safe on-device testing and review. Source programs in home directories are never targets. [Phase 5C usage and limitations](./docs/PHASE_5B_INSTALLERS_AND_UPGRADES.md#phase-5c--safe-upgrade-inspection-and-uninstall-planning-new).
 
+## Phases 5E, 7, 8 and 9 — active Mac-first development
+
+**Phase 6 (Windows cross-platform validation) is reserved for the office Windows machine.** Meanwhile:
+
+- **5E recovery:** `bash scripts/mac_dev.sh recovery-snapshot` creates an ownership-verified backup of installed Kasa files only; `uninstall-plan` remains read-only. Real uninstallation is deliberately disabled.
+- **7 developer tooling:** The VS Code extension defaults to the installer-provided `kasa` command and offers help when the executable is missing. Run `node --test editors/vscode-kasa/tests/*.test.cjs`.
+- **8 Academy integration:** Guided lessons link to full first-party Studio, while the optional CMS Netlify URL is a validated separate link—not a replacement for the current Studio WASM build.
+- **9 public alpha:** `python3 scripts/audit_public_alpha.py` reports blockers and writes `build/public-alpha-gate.json`. A nonzero result is expected until licensing, signed builds, platform evidence and educator/security reviews are complete. **No public release is authorized.**
+
+See [Phases 5E/7/8/9 progress and local verification steps](./docs/PHASE_5E_7_8_9_PLAN_AND_PROGRESS.md).
+
 ## See Kasa in action
 
 A first program, saved as `hello.kasa`:
