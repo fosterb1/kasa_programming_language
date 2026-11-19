@@ -581,3 +581,12 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Interpretation:** These are overlapping test collections, not 67 unique test cases. Skips are unresolved platform-specific checks, not failures or passes.
 - **Open work:** Real module declaration syntax, namespace environments, member resolution, browser parity and native/KBC1 support are still pending. Nothing here establishes secure sandbox isolation.
 - **Next gate:** Review Python `src/kasa/core.py` grammar/scoping and provide an explicit import/member-access proposal with regression cases before parser changes.
+
+
+## 2026-11-20 — G0.3 Python isolated closure environments
+
+- **Status:** Implemented on `main`, user Windows tests pending.
+- **Changed:** `src/kasa/modules.py` adds a pure-AST namespace primitive with private module lexical environments and read-only explicit export mapping. `tests/test_module_namespace_isolation.py` adds cases for private exports, duplicate declaration rejection, independent module closures and instruction budget.
+- **Verification:** Reviewed actual parser, `Environment`, `Interpreter.execute` and `Interpreter.evaluate` implementations. An attempted checkout for independent pytest failed because the container cannot resolve github.com; **these new tests were not run**.
+- **Constraints:** This is an internal Python component, not approved language import syntax; it does not read sources, check hashes itself, or bind alias names into user programs. Caller must prevalidate the G0.2 catalog. Browser, native and bytecode untouched.
+- **Next gate:** Windows regression tests; then catalog-verified binder and scoped member resolution with explicit compiler/bytecode version strategy.
