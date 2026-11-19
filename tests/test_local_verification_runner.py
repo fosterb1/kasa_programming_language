@@ -29,7 +29,7 @@ def test_runner_dry_run_never_claims_tests_passed(tmp_path):
     output = json.loads(report.read_text(encoding="utf-8"))
     assert output["dry_run"] is True
     assert output["counts"]["passed"] == 0
-    assert output["counts"]["not_run"] == 18
+    assert output["counts"]["not_run"] == 19
     assert "NOT a pass" in result.stdout
 
 
@@ -106,7 +106,7 @@ def test_parity_plan_runs_all_four_language_execution_paths():
     names = [name for name, _, _ in steps]
     assert names == [
         "Python semantic conformance",
-        "JavaScript semantic conformance",
+        "JavaScript semantic and diagnostics conformance",
         "Native CMake configure",
         "Native C++ build",
         "Native mixed-number precision smoke",
@@ -115,6 +115,7 @@ def test_parity_plan_runs_all_four_language_execution_paths():
         "Native/Python numeric differential",
         "Native Python conformance",
         "Native KBC1 round-trip and rejection tests",
+        "Native diagnostic-category conformance",
     ]
     # Ensure the conformance.py stage is truly the native/Python harness and
     # the compiled VM path comes from the CMake build, not a stale executable.
@@ -122,7 +123,8 @@ def test_parity_plan_runs_all_four_language_execution_paths():
     assert Path(steps[7][1][-1]).name.startswith("kasa-numeric-compare-probe")
     assert steps[8][1][1] == "native/tests/conformance.py"
     assert steps[9][1][1] == "native/tests/test_bytecode.py"
-    assert steps[8][1][-1] == steps[9][1][-1]
+    assert steps[8][1][-1] == steps[9][1][-1] == steps[10][1][-1]
+    assert steps[10][1][1] == "native/tests/diagnostic_conformance.py"
 
 
 def test_parity_dry_run_never_reports_executed_or_passed(tmp_path):
@@ -135,8 +137,8 @@ def test_parity_dry_run_never_reports_executed_or_passed(tmp_path):
     assert result.returncode == 0, result.stderr
     payload = json.loads(report.read_text(encoding="utf-8"))
     assert payload["profile"] == "parity"
-    assert payload["counts"] == {"passed": 0, "failed": 0, "not_run": 10}
-    assert len(payload["checks"]) == 10
+    assert payload["counts"] == {"passed": 0, "failed": 0, "not_run": 11}
+    assert len(payload["checks"]) == 11
     assert "DRY RUN ONLY" in result.stdout
     assert "source_revision" in payload
     assert set(payload["source_revision"]) == {"commit", "working_tree_clean"}
@@ -161,4 +163,4 @@ def test_revision_reports_no_commit_when_git_is_unavailable(monkeypatch):
 def test_full_and_quick_counts_include_numeric_differential():
     runner = load_tool()
     assert len(runner.plan("quick", False)) == 7
-    assert len(runner.plan("full", False)) == 18
+    assert len(runner.plan("full", False)) == 19
