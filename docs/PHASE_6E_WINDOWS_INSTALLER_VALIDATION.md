@@ -82,7 +82,7 @@ The opt-in VM-only harness now also refuses a second installation to the same di
 4. Native `kasa-native.exe --version`, Twi program and user-facing `kasa.cmd --version` work.
 5. Uninstall removes its native executable and preserves external sentinel files.
 
-The run report records process exit codes and stdout/stderr tails. The temporary workspace is created under a new VM-only temp directory and automatically cleaned after the run; a VM snapshot remains the correct recovery mechanism. The harness **does not** verify persistent registry PATH, all uninstall registry entries, accessible directory races, or actual upgrades.
+The run report records process exit codes and stdout/stderr tails. The temporary workspace is created under a new VM-only temp directory and retained after the run so setup logs and partial failures can be inspected; a VM snapshot remains the correct recovery mechanism. The harness **does not** verify persistent registry PATH, all uninstall registry entries, accessible directory races, or actual upgrades.
 
 On the **office Windows PC** use only the safe command sequence:
 
@@ -93,3 +93,27 @@ python scripts/verify_windows_installer_lifecycle.py
 ```
 
 The last command is **read-only** and should again report `Installer SHA-256 matches: True` and `Installer executed: False`. No installer recompilation is needed; the .iss source and pinned compiled guarded-v2 executable are unchanged. Only run the execution switch in an authorized disposable Windows VM with a real snapshot; the VM identifier is not sufficient proof of isolation by itself.
+
+## Phase 6E VM installation execution and rebuild — updated procedure
+
+**On the office/development Windows PC (safe compilation only):** from the repository root with `.venv` activated:
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_verify_windows_installer_lifecycle.py tests/test_stage_windows_installer.py
+python -m cmake --build build/kasa-local --config Release --target kasa-native
+build\kasa-local\Release\kasa-native.exe --version
+```
+
+The native rebuild only refreshes the local Release executable. **It does not rebuild the already-hashed guarded-v2 installer, and must not silently replace any previously verified ZIP.** If recompilation fails, preserve its output and inspect the build log.
+
+**In an authorized disposable Windows VM with an actual snapshot:** copy the repository including the existing guarded-v2 Setup binary to the VM, and verify that `python scripts/verify_windows_installer_lifecycle.py` reports a SHA-256 match and `Installer executed: False`. The VM must not contain valuable user or employer files. Then, and only in the VM:
+
+```bat
+python scripts/verify_windows_installer_lifecycle.py --execute-in-disposable-vm --acknowledge-vm-snapshot DISPOSABLE-VM-SNAPSHOT-CONFIRMED
+type build\windows-installer-lifecycle.json
+```
+
+This runs **the existing guarded-v2 Setup** built earlier from its legacy stage, NOT a new installer based on the versioned portable ZIP build 203. The harness deliberately retains the newly allocated VM workspace and logs on both success and failure. Locate the directory using `vm_workspace` in the JSON report, inspect `blocked.log`, `install.log`, `reinstall.log` and, if present, `uninstall.log`. The test's precise results determine whether the installation guard works in a genuine Inno Setup lifecycle. Restore the VM snapshot after collecting evidence; do not clean up a failed installation manually on an office machine.
+
+**Do not run the VM execution switch on the office workstation.** No Inno Setup installer lifecycle is considered verified until the executed VM report has `lifecycle.passed: true`, backed by log inspection. Automatic upgrades and rollback remain disabled.
