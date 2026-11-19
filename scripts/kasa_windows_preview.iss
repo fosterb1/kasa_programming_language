@@ -1,5 +1,5 @@
 ; Kasa 0.4 alpha Windows per-user installer preview.
-; Build only with Inno Setup 6 on Windows. Never run unsigned installers automatically.
+; Compile with Inno Setup 7 on Windows. Never run unsigned installers automatically.
 #define KasaVersion "0.4.0"
 #define KasaStage "..\build\windows-installer-stage"
 [Setup]
@@ -12,9 +12,9 @@ DefaultDirName={localappdata}\Programs\Kasa Preview
 DefaultGroupName=Kasa Preview
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
-UsePreviousAppDir=yes
+UsePreviousAppDir=no
 OutputDir=..\build\dist
-OutputBaseFilename=kasa-0.4.0-alpha-windows-x64-UNSIGNED-Setup
+OutputBaseFilename=kasa-0.4.0-alpha-windows-x64-UNSIGNED-Setup-guarded
 Compression=lzma
 SolidCompression=yes
 ArchitecturesAllowed=x64compatible
@@ -34,16 +34,39 @@ Source: "{#KasaStage}\kasa-install-identity.txt"; DestDir: "{app}"; Flags: ignor
 [Icons]
 Name: "{group}\Uninstall Kasa Preview"; Filename: "{uninstallexe}"
 [Code]
-function InitializeSetup(): Boolean;
+; Phase 6E: deliberately first-install-only. Never overwrite a folder that
+; contains any file or subdirectory, even if it contains our identity marker.
+; Run at PrepareToInstall, *after* any custom /DIR and wizard selection.
+; This also covers /SILENT installs, unlike a default-path-only startup test.
+function IsEmptyInstallDirectory(const Directory: String): Boolean;
 var
-  InstallDir, IdentityPath: String;
+  FindRec: TFindRec;
 begin
   Result := True;
-  InstallDir := ExpandConstant('{localappdata}\Programs\Kasa Preview');
-  IdentityPath := InstallDir + '\kasa-install-identity.txt';
-  if DirExists(InstallDir) and not FileExists(IdentityPath) then
+  if not DirExists(Directory) then
+    Exit;
+  if FindFirst(AddBackslash(Directory) + '*', FindRec) then
   begin
-    MsgBox('An existing directory at the default installation location does not belong to a recognized Kasa preview. No files were changed. Move the existing directory aside before using this installer.', mbError, MB_OK);
-    Result := False;
+    try
+      repeat
+        if (FindRec.Name <> '.') and (FindRec.Name <> '..') then
+        begin
+          Result := False;
+          Break;
+        end;
+      until not FindNext(FindRec);
+    finally
+      FindClose(FindRec);
+    end;
   end;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  Result := '';
+  if not IsEmptyInstallDirectory(WizardDirValue) then
+    Result := 'Kasa preview refuses to install over an existing non-empty folder: ' +
+      WizardDirValue + #13#10 +
+      'No application files were installed. Choose a new empty folder. ' +
+      'Upgrades are not supported in this prototype.';
 end;
