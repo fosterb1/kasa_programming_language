@@ -5,8 +5,8 @@ import pytest
 # These fixtures model a Unix macOS package with POSIX symlinks.
 # Windows users should not need administrator privileges or Developer Mode
 # to verify the portable Kasa language and native compiler.
-pytestmark = pytest.mark.skipif(
-    os.name == "nt", reason="macOS POSIX-symlink installation fixture is not a Windows release test"
+requires_posix_symlinks = pytest.mark.skipif(
+    os.name == "nt", reason="macOS installation symlink fixture requires POSIX filesystem semantics"
 )
 
 
@@ -36,6 +36,7 @@ def installed_layout(tmp_path, *, version="0.4.0.194"):
     return tmp_path
 
 
+@requires_posix_symlinks
 def test_expected_install_layout_is_accepted(tmp_path):
     root = installed_layout(tmp_path)
     report = module.audit(root, "0.4.0.194")
@@ -44,6 +45,7 @@ def test_expected_install_layout_is_accepted(tmp_path):
     assert report["installed_source_commit"] == "a" * 40
 
 
+@requires_posix_symlinks
 def test_other_command_owner_is_rejected(tmp_path):
     root = installed_layout(tmp_path)
     (root / "bin/kasa").unlink()
@@ -53,6 +55,7 @@ def test_other_command_owner_is_rejected(tmp_path):
     assert any("unexpected target" in item for item in report["issues"])
 
 
+@requires_posix_symlinks
 def test_replaced_directory_symlink_is_rejected(tmp_path):
     root = installed_layout(tmp_path)
     (root / "lib/kasa-preview/build-info.txt").unlink()
@@ -67,6 +70,7 @@ def test_replaced_directory_symlink_is_rejected(tmp_path):
     assert any("replaced with symlink" in issue for issue in report["issues"])
 
 
+@requires_posix_symlinks
 def test_receipt_and_metadata_disagreement_is_rejected(tmp_path):
     root = installed_layout(tmp_path)
     report = module.audit(root, "0.4.0.195")
