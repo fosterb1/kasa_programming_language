@@ -449,3 +449,15 @@ Connect the existing Netlify playground site to this GitHub repository, or uploa
 **Phase 8A kickoff (2026-11-19):** Following a clean 11/11 Windows parity report on commit `5067c5b`, Kasa now includes six shared integer-pesewa finance teaching fixtures and Python/JS/native-KBC1 test drivers. Initial independent Python and Node checks both passed 6/6; native Phase 8A driver still needs a compiled run. This is not yet a production finance library. See [Phase 8A scope and evidence](./docs/PHASE_8A_FINANCE_SUBUNITS.md).
 
 **Balanced standard library chosen (2026-11-19):** General-purpose math, collections, data formats and developer utilities are being developed alongside financial/business capabilities. Phase 8 experimental source helpers are in `stdlib/experimental/` with Python, JS and native/KBC1 compatibility runners. These are not yet importable packages. See [the balanced Phase 8 specification](./docs/PHASE_8_BALANCED_STDLIB.md).
+
+## Group 0 infrastructure checkpoint — safe experimental stdlib source linker
+
+Kasa's **first** researched library-infrastructure slice now supports a pinned source linker, not language-level import. It links allowlisted `math`/`collections` Kasa helper definitions into a **new** local `.kasa` file under `build/stdlib-linked`, with path restrictions, content identity checks and no overwrites:
+
+```bat
+python -m pytest -q tests/test_link_kasa_stdlib.py
+python scripts/link_kasa_stdlib.py --app stdlib/demos/group0_sample.kasa --module math --module collections --output build/stdlib-linked/group0-demo-001.kasa
+python -m kasa run build/stdlib-linked/group0-demo-001.kasa
+```
+
+This newly added test suite needs Windows execution before declaring success. The linker does not alter Kasa's lexer/parser, implement namespaced modules, grant host permissions, or execute arbitrary downloaded dependencies. See [what was built and how to test it](./docs/GROUP_0_MODULE_LINKER_CHECKPOINT.md) and the [nine-group library research roadmap](./docs/LIBRARY_ECOSYSTEM_RESEARCH_2026_11.md).
