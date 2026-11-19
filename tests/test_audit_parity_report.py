@@ -15,7 +15,7 @@ def report():
         "wasm_requested": False,
         "source_revision": {"commit": "a" * 40, "working_tree_clean": True},
         "source_revision_after": {"commit": "a" * 40, "working_tree_clean": True},
-        "counts": {"passed": 10, "failed": 0, "not_run": 0},
+        "counts": {"passed": len(audit_module.STAGES), "failed": 0, "not_run": 0},
         "checks": [{"name": name, "command": command,
                     "status": "passed", "exit_code": 0}
                    for name, command in zip(audit_module.STAGES, audit_module.expected_commands())],
