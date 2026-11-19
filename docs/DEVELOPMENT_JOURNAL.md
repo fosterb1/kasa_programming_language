@@ -40,6 +40,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 
 ## Development entries
 
+### 2026-11-19 — Group 0.2 implemented: Kasa library manifest and validation
+
+- **Changed:** Added `stdlib/catalog.json`, `scripts/validate_kasa_catalog.py`, `tests/test_validate_kasa_catalog.py`; extended `docs/GROUP_0_MODULE_CONTRACT_PLAN.md`.
+- **Implementation:** Exact allowlisted math/collections source paths; SHA-256 identities based on canonical UTF-8 LF files; explicit public-function exports validated against Kasa's parser AST; dependency-first ordering with missing/cyclic dependency rejection. Detects duplicate JSON keys/module IDs/exports, invalid metadata, malformed UTF-8, linked paths, source tampering and top-level side effects.
+- **Verification:** Computed both source SHA-256 hashes with an independent local Python calculation, cross-checked reconstructed Git blob IDs against `main`; inspected Kasa `parse(source, filename)` signature. **New unit suite and Windows CLI run have not yet been executed**; do not count those tests as passed.
+- **Limits:** Catalog verifier is a read-only development tool, not a Kasa-language import system, namespaces, runtime dependency resolver, sandbox or package signature scheme. G0.1 source linker still uses independent pinned allowlist; integration to come after a verified contract.
+- **Next gate:** Windows `python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_link_kasa_stdlib.py` and `python scripts/validate_kasa_catalog.py`; fix actual failures before building runtime syntax.
+
+
 ### 2026-11-19 — Group 0 source-linker native/KBC checkpoint accepted; module contract design opened
 
 - **Windows user verification** on revision `19624e4`: 17 passed, 2 symlink checks skipped; linked source executed in Python and native with exact stdout `300 / 2 / nokware`; native compilation reported success; `check-bytecode` produced no error; compiled KBC1 ran with the same output.
