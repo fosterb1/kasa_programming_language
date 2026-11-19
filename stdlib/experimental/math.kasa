@@ -1,0 +1,30 @@
+# Experimental Kasa function collection. No import system yet.
+# Concatenate with an application source for portable offline execution.
+# Values must remain within signed-64-bit limits for native KBC1 parity.
+
+dwumadie kasa_abs(n)
+    sɛ n < 0 a
+        sanma -n
+    awiei
+    sanma n
+awiei
+
+dwumadie kasa_clamp(value, low, high)
+    sɛ value < low a
+        sanma low
+    awiei
+    sɛ value > high a
+        sanma high
+    awiei
+    sanma value
+awiei
+
+dwumadie kasa_sum(values)
+    ma result = 0
+    ma i = 0
+    bere_a i < tentɛn(values)
+        ma result = result + values[i]
+        ma i = i + 1
+    awiei
+    sanma result
+awiei
