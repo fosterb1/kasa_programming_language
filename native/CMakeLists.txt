@@ -74,6 +74,14 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME kasa_float_display_python_notation COMMAND kasa-float-display-smoke)
 
+    # Force the Apple-compatible format path even on Linux/Windows. This guards
+    # against regressions in the fallback when modern hosts use std::to_chars.
+    add_executable(kasa-float-display-portable-smoke tests/float_display_smoke.cpp)
+    target_compile_features(kasa-float-display-portable-smoke PRIVATE cxx_std_20)
+    target_include_directories(kasa-float-display-portable-smoke PRIVATE include)
+    target_compile_definitions(kasa-float-display-portable-smoke PRIVATE KASA_FORCE_PORTABLE_FLOAT_DISPLAY=1)
+    add_test(NAME kasa_float_display_portable_fallback COMMAND kasa-float-display-portable-smoke)
+
     # Native binary64 formatting differential: Python drives this executable.
     add_executable(kasa-float-display-probe tests/float_display_probe.cpp)
     target_compile_features(kasa-float-display-probe PRIVATE cxx_std_20)
