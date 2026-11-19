@@ -32,3 +32,13 @@ cmake --build build\kasa-local --config Release
 ```
 
 This report should not cause an automatic increase in the existing 90% Kasa 0.4 implementation checklist or ~35% Kasa 1.0 readiness estimate.
+
+## November 19, 2026 — Phase 6B Windows full-profile regression
+
+The user verified CMake 4.4.5, MSVC 19.52.37029.0 and native `kasa-native.exe --version` + `run examples/hello.kasa` (output: `Maakye, Ghana!`). In the full local runner, native build, KBC1, source conformance, JavaScript and numeric parity stages **all passed**. The only failing stage was Python pytest: **14 failed, 266 passed, 4 skipped**, and full runner **18 passed, 1 failed, 0 not run**.
+
+All 14 new Python failures were platform-specific POSIX fixture tests: 11 macOS package installation/recovery tests requiring creation of Unix symlinks and 3 Unix tar/launcher packaging tests requiring `/bin/sh`, POSIX executable permissions or symlinks. In ordinary Windows CMD without symlink privilege, they raised `WinError 1314` or equivalent shell execution failures. This does **not** demonstrate native Kasa language failure.
+
+**Test isolation fix:** mark macOS POSIX installation-fixture tests skip on Windows; mark the three Unix launcher/tar execution fixtures skip on Windows; preserve the portable macOS package rejection test and all native compiler/VM checks. Skipped tests are explicitly not executed on Windows; macOS already tested the POSIX fixtures. No privilege escalation or disabling security is required.
+
+**Pending:** user must pull the fix and rerun `python scripts/verify_local.py --profile full --report build/windows-full.json` on the actual Windows machine. Until those results arrive, do **not** report 19/19 on this checkout. Windows installer packaging remains a separate unverified milestone.
