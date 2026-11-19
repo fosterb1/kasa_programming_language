@@ -75,6 +75,22 @@ source.value = restoreDraft();
 exampleExplanation.textContent = EXAMPLE_GUIDES.hello;
 source.addEventListener("input", saveDraft);
 
+// Character bar inserts literal Unicode into the current selection; never
+// rewrites ASCII code or changes the grammar.
+document.querySelectorAll(".character-key[data-insert]").forEach(button => {
+  button.addEventListener("mousedown", event => event.preventDefault());
+  button.addEventListener("click", () => {
+    const token = button.getAttribute("data-insert") || "";
+    if (!token) return;
+    const start = source.selectionStart;
+    const end = source.selectionEnd;
+    source.setRangeText(token, start, end, "end");
+    source.focus();
+    saveDraft();
+  });
+});
+
+
 function setStatus(label, state = "pending") {
   status.textContent = label;
   status.dataset.state = state;
