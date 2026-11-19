@@ -607,3 +607,14 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Evidence boundary:** Exact pytest pass/skip totals, commit SHA tested and full command output were **not supplied** with this report. This is user-reported success, not independently reproduced CI or an observed complete test log.
 - **Interpretation:** Proceed with the next G0.3 design slice on the basis of this reported local acceptance; do not claim Kasa source-level import syntax is implemented.
 - **Next gate:** Design and review a backwards-compatible import/member syntax, with explicit alias collision, export visibility, missing module and cross-runtime diagnostics tests. Maintain no new unapproved Twi keywords.
+
+
+## 2026-11-20 — Twi-first learning diagnostics preview (Python-only)
+
+- **Status:** Implemented on `main`; new Mac tests pending. Existing language keywords and runtime error strings are unchanged by default.
+- **Changed:** `src/kasa/learning_diagnostics.py`, opt-in `learner_language="tw"` in `playground/runner.py`, `tests/test_learning_diagnostics.py`, and `docs/TWI_FIRST_LEARNER_DIAGNOSTICS.md`.
+- **Behavior:** For recognized `KasaError` categories, opt-in Python playground calls attach a separate structured learner card. The original error category/location/message remains byte-for-byte unchanged. Cards have an explicit `draft_needs_human_review` status, provisional Twi concept label, and English teaching guidance; unknown errors are not guessed.
+- **Verification:** New tests committed but **not independently run**. Existing user Mac quick profile and namespace binder success predate this change.
+- **Language policy:** The card labels are **not approved Twi translations**; obtain Asante/Akuapem and educator review before any public-facing Academy or browser UI integration.
+- **Open scope:** This is not the Kasa import/member syntax milestone and it does not modify JS/native/KBC1 runtimes. Browser-native parity and real learner testing remain pending.
+- **Next gate:** On Mac run `python -m pytest -q tests/test_learning_diagnostics.py tests/test_playground.py` and `bash scripts/mac_dev.sh quick`; report actual output, then resume Group 0.3 import grammar/member semantics.
