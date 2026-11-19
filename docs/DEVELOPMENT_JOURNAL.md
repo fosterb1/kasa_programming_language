@@ -618,3 +618,14 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Language policy:** The card labels are **not approved Twi translations**; obtain Asante/Akuapem and educator review before any public-facing Academy or browser UI integration.
 - **Open scope:** This is not the Kasa import/member syntax milestone and it does not modify JS/native/KBC1 runtimes. Browser-native parity and real learner testing remain pending.
 - **Next gate:** On Mac run `python -m pytest -q tests/test_learning_diagnostics.py tests/test_playground.py` and `bash scripts/mac_dev.sh quick`; report actual output, then resume Group 0.3 import grammar/member semantics.
+
+
+## 2026-11-20 — G0.3 Twi-first import syntax research (non-executing)
+
+- **Status:** Implementation committed to `main`; new tests pending execution on user's Mac.
+- **Changed:** `scripts/study_kasa_module_syntax.py`, `tests/test_module_syntax_study.py`, `docs/GROUP_0_TWI_IMPORT_SYNTAX_RESEARCH.md`.
+- **Behavior:** Standalone English-placeholder grammar research validates single module aliases, explicit member-name shape, duplicate aliases/modules, unsafe names, missing exports and unknown aliases. This is a test-only static contract and does not parse/execute Kasa applications.
+- **Ghanaian-language decision:** No new Twi keyword was added or accepted. The eventual import/member vocabulary must undergo the existing evidence policy and Asante/Akuapem/educator review before public adoption. English placeholders are not final syntax.
+- **Verification:** Code and test cases have been pushed, but `python -m pytest -q tests/test_module_syntax_study.py tests/test_bind_kasa_catalog.py` has **not yet been observed running on this commit**.
+- **Known limits:** Does not implement user-facing imports, production AST, Python runtime alias binding, JavaScript parity, native compiler/KBC1 support, or a package registry.
+- **Next gate:** Mac focused pytest plus quick profile; after success, proceed with reviewed AST design and a fail-closed Python import implementation.
