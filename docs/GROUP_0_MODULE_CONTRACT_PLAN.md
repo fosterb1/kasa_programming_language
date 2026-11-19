@@ -68,3 +68,26 @@ The current Kasa parser does not define a member-access expression `m.kasa_sum`;
 | G0.5 | Native compiler, VM and bytecode self-contained dependency model | Windows native and KBC test, version mismatch and corruption handling | **Planned** |
 
 At each slice, report **what changed, how it works, what it enables, actual test evidence, unresolved limits, next slice**. Proceed to Group 1 only after explicit G0 exit criteria are satisfied or a documented phased exception is approved.
+
+## G0.2 implementation checkpoint (2026-11-19)
+
+**New source:** `stdlib/catalog.json` records two current Kasa-authored modules with stable IDs, exact repository paths, explicit exported functions, no dependencies, and canonical LF UTF-8 source SHA-256 identities. `scripts/validate_kasa_catalog.py` validates the allowlist, manifest schema, declarations against Kasa's parser AST, source hashes, dependencies and deterministic dependency-first order. `tests/test_validate_kasa_catalog.py` tests positive and negative cases.
+
+**Why:** the previous G0.1 linker trusted a hardcoded pair of Git SHA-1 blob IDs and broadly discovered function declarations. The new G0.2 metadata separates **public exports** and module identities from private implementation and prepares future namespace/import semantics. SHA-256 is a source consistency check, **not package signature verification**.
+
+**What it does now:** Run `python scripts/validate_kasa_catalog.py`; if successful the catalog's exact two known library source files have valid syntax, no executable top-level statements, declared exports that exist, and a closed acyclic dependency graph. Malformed manifests, duplicate keys, invalid names, hashes, unsafe source paths and cycles are rejected. No Kasa application is executed by this validator.
+
+**What it does NOT do:** It does not implement Kasa imports, namespaces or exports at runtime, install dependencies, or yet replace the G0.1 linker's independent hardcoded allowlist. Browser/JS and C++ runtimes remain unchanged. In a later integration stage, the validated catalog can feed a checked build-time linker and self-contained bytecode bundle.
+
+**Test gate:**
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_link_kasa_stdlib.py
+python scripts/validate_kasa_catalog.py
+python -m kasa run build/stdlib-linked/group0-demo-001.kasa
+```
+
+The last command runs the **previously generated** source only if it exists on this machine. Existing G0.1 native/KBC1 evidence remains valid and is not evidence that G0.2 has been separately run or approved. The new tests are **pending Windows verification**.
+
+**Next G0.3 decision:** whether to introduce reviewed Kasa syntax for module use and member access or to first integrate the manifest into build-time source linking, always without granting unapproved I/O capabilities.
