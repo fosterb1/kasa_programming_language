@@ -58,6 +58,19 @@ bash scripts/mac_dev.sh uninstall-plan
 
 Neither command upgrades nor removes installed files. The uninstaller is deliberately **plan-only**, with execution disabled until safe on-device testing and review. Source programs in home directories are never targets. [Phase 5C usage and limitations](./docs/PHASE_5B_INSTALLERS_AND_UPGRADES.md#phase-5c--safe-upgrade-inspection-and-uninstall-planning-new).
 
+## Phase 6C — Windows x64 portable package (development preview)
+
+Following the user-verified Windows native build and full-profile regression checks, a **non-installing, unsigned developer ZIP package** is available to build **on Windows x64**:
+
+```bat
+git pull --ff-only
+python scripts\verify_local.py --profile full --report build\windows-full.json
+python -m pytest -q tests\test_package_windows_preview.py
+python scripts\package_windows_preview.py
+```
+
+The package contains `kasa-native.exe`, `kasa.cmd`, a SHA-256 manifest and README. It does not change the registry, PATH, installation folders or system state, and is **not a public installer**. On a fresh Windows PC, the presence of Microsoft Visual C++ runtime dependencies must be verified before broader distribution. See [Phase 6C Windows portable package and verification instructions](./docs/PHASE_6C_WINDOWS_PORTABLE_PREVIEW.md).
+
 ## Phases 5E, 7, 8 and 9 — active Mac-first development
 
 **Phase 6 (Windows cross-platform validation) is reserved for the office Windows machine.** Meanwhile:
