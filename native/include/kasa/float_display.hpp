@@ -16,7 +16,7 @@ inline std::string displayFloat(double number) {
     if (!std::isfinite(number)) throw std::domain_error("Non-finite Kasa number");
     if (number == 0.0) return std::signbit(number) ? "-0.0" : "0.0";
     std::string encoded;
-#if defined(__APPLE__) && defined(_LIBCPP_VERSION)
+#if (defined(__APPLE__) && defined(_LIBCPP_VERSION)) || defined(KASA_FORCE_PORTABLE_FLOAT_DISPLAY)
     // Apple's older libc++ (including the Ventura/Apple Clang 14 SDK) declares
     // floating-point std::to_chars unavailable, despite C++20 support.
     // Instead, find the minimum significant decimal digits that round-trip
