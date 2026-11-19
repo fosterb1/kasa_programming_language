@@ -45,9 +45,12 @@ def package(binary: Path, output: Path, *, allow_non_macos: bool = False) -> Pat
         raise ValueError("This preview targets macOS; use --allow-non-macos for local packaging tests")
     if not binary.is_file() or not os.access(binary, os.X_OK):
         raise ValueError(f"Built executable is missing or not executable: {binary}")
-    revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT,
-                              capture_output=True, text=True, check=False)
-    commit = revision.stdout.strip() if revision.returncode == 0 else "unknown"
+    try:
+        revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT,
+                                  capture_output=True, text=True, timeout=5, check=False)
+        commit = revision.stdout.strip() if revision.returncode == 0 else "unknown"
+    except (OSError, subprocess.TimeoutExpired):
+        commit = "unknown"
     version = subprocess.run([str(binary), "--version"], capture_output=True, text=True,
                              timeout=10, check=False)
     if version.returncode != 0 or not version.stdout.startswith("Kasa Native "):
