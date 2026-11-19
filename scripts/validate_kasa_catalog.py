@@ -37,9 +37,10 @@ def _is_linked(path: Path, base: Path) -> bool:
     if not path.is_relative_to(base):
         return True
     current = base
-    for part in ((), *[(part,) for part in path.relative_to(base).parts]):
-        if part:
-            current = current / part[0]
+    if current.is_symlink() or (hasattr(current, "is_junction") and current.is_junction()):
+        return True
+    for part in path.relative_to(base).parts:
+        current = current / part
         if current.is_symlink() or (hasattr(current, "is_junction") and current.is_junction()):
             return True
     return False
@@ -111,7 +112,7 @@ def load_catalog(catalog_path: Path = CATALOG, root: Path = ROOT) -> list[dict]:
         try:
             source = raw_module.decode("utf-8", "strict")
             ast = parse(source, filename=ALLOWED[name])
-        except (UnicodeError, Exception) as exc:
+        except Exception as exc:
             # Kasa syntax diagnostics are intentionally reduced to catalog
             # validation errors; the specific parser error is chained.
             raise CatalogError("Module source invalid: " + name) from exc
