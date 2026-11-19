@@ -572,3 +572,12 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Decision:** Keep unapproved Twi import vocabulary and dot-member syntax out of the parser until reviewed; no global linker injection is treated as real module isolation.
 - **Limits:** No runtime namespace binding, JS/browser parity, native compiler/VM or bytecode module semantics. No security sandbox asserted.
 - **Next gate:** Windows `python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_plan_kasa_modules.py`, then `python scripts/plan_kasa_modules.py --use math:m --use collections:c`. Record actual output and any failures before implementing grammar.
+
+
+## 2026-11-20 — Windows verification of G0.3 planning (user evidence)
+
+- **Status:** Windows verification completed for G0.2 catalog and G0.3 read-only planner at `c881578`.
+- **Results:** Catalog/linker suite **36 passed, 3 skipped**; catalog validator **PASS**; catalog/planner suite **31 passed, 1 skipped**; planner JSON returned correct independent `collections:c` and `math:m` binding metadata, dependency order and no capability grants.
+- **Interpretation:** These are overlapping test collections, not 67 unique test cases. Skips are unresolved platform-specific checks, not failures or passes.
+- **Open work:** Real module declaration syntax, namespace environments, member resolution, browser parity and native/KBC1 support are still pending. Nothing here establishes secure sandbox isolation.
+- **Next gate:** Review Python `src/kasa/core.py` grammar/scoping and provide an explicit import/member-access proposal with regression cases before parser changes.
