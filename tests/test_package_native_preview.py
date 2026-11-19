@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
+import pytest
 from pathlib import Path
 import stat
 import subprocess
@@ -32,6 +34,7 @@ def mock_native(tmp_path: Path) -> Path:
     return binary
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell executable and symlink fixture; not a Windows packaging test")
 def test_archive_has_versioned_manifest_launcher_and_sha256(tmp_path, monkeypatch):
     tool = load()
     monkeypatch.setattr(tool.platform, "system", lambda: "Darwin")
@@ -57,6 +60,7 @@ def test_archive_has_versioned_manifest_launcher_and_sha256(tmp_path, monkeypatc
         assert tar.getmember(f"{root}/kasa").mode & stat.S_IXUSR
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell executable and symlink fixture; not a Windows packaging test")
 def test_launcher_follows_user_local_symlink(tmp_path, monkeypatch):
     tool = load()
     monkeypatch.setattr(tool.platform, "system", lambda: "Darwin")
@@ -77,6 +81,7 @@ def test_launcher_follows_user_local_symlink(tmp_path, monkeypatch):
     assert output.stdout.strip() == "run:run"
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX shell executable and symlink fixture; not a Windows packaging test")
 def test_wrong_binary_refused(tmp_path, monkeypatch):
     tool = load()
     monkeypatch.setattr(tool.platform, "system", lambda: "Darwin")
