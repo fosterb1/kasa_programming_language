@@ -59,6 +59,18 @@ case "$ACTION" in
     fi
     .venv/bin/python scripts/package_native_preview.py
     ;;
+  installer)
+    if [[ "$(uname -s)" != Darwin ]]; then
+      echo "macOS .pkg build requires a Mac." >&2; exit 2
+    fi
+    if [[ ! -x .venv/bin/python ]]; then
+      echo "Missing .venv; run setup first." >&2; exit 2
+    fi
+    if [[ ! -x build/kasa-local/kasa-native ]]; then
+      echo "Build Kasa with 'bash scripts/mac_dev.sh full' before packaging." >&2; exit 2
+    fi
+    .venv/bin/python scripts/package_macos_installer.py
+    ;;
   mac-release)
     if [[ ! -x .venv/bin/python ]]; then
       echo "Missing .venv; run setup first" >&2; exit 2
@@ -80,7 +92,7 @@ case "$ACTION" in
     python3 scripts/release_to_academy.py
     ;;
   *)
-    echo "Usage: bash scripts/mac_dev.sh {doctor|setup|quick|parity|full|mac-release|package|wasm|studio-dry-run}" >&2
+    echo "Usage: bash scripts/mac_dev.sh {doctor|setup|quick|parity|full|mac-release|package|installer|wasm|studio-dry-run}" >&2
     exit 2
     ;;
 esac
