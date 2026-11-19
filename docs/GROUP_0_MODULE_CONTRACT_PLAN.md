@@ -122,3 +122,20 @@ The user fast-forwarded main to `c881578` and ran:
 **Classification:** G0.2 catalog validation and G0.3 read-only alias planner are now Windows-user-verified. Skipped tests are not passes; overlapping test lists must not be represented as 67 distinct cases. **Runtime imports and namespace isolation remain unimplemented.**
 
 **Next:** freeze grammar/bytecode considerations and test alias shadowing/local-vs-global visibility before implementing source-level imports and dedicated module environments in Python.
+
+
+## G0.3 experimental Python scope primitive — 2026-11-20
+
+**Implemented in source, Windows tests pending:** `src/kasa/modules.py` now offers `instantiate_module(module_id, declarations, exports, runtime)` for a **trusted, already-validated function-only AST**, and `ModuleNamespace.resolve(symbol)` for public symbols only. Every module receives a separate `Environment` and its functions preserve private-helper access via existing lexical closures. Explicit export maps are read-only. Module declarations execute using the existing interpreter's step budget; this is **not** a separate sandbox. `tests/test_module_namespace_isolation.py` exercises private helper calls, two modules with identically named functions, invalid exports/declarations, read-only exports and budget rejection.
+
+**Critical warning:** Calling code must validate the pinned catalog and source identity **before** invoking the primitive. It is not automatically wired to the catalog, CLI or program parser. No Kasa import statement, `m.function` member syntax, browser/native parity or KBC1 module encoding exists. Avoid presenting this as complete imports.
+
+**Local Windows test gate:**
+
+```bat
+git pull --ff-only
+python -m pytest -q tests/test_module_namespace_isolation.py tests/test_plan_kasa_modules.py tests/test_validate_kasa_catalog.py
+python scripts/plan_kasa_modules.py --use math:m --use collections:c
+```
+
+Container cloning for independent testing was attempted but failed to resolve github.com. The new suite has **no claimed pass yet**. Next implement a catalog-verified binder and carefully reviewed grammar/member resolution, without accepting arbitrary module paths.
