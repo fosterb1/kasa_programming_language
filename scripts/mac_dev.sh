@@ -71,6 +71,24 @@ case "$ACTION" in
     fi
     .venv/bin/python scripts/package_macos_installer.py
     ;;
+  upgrade-audit)
+    if [[ "$(uname -s)" != Darwin ]]; then
+      echo "macOS installed-package audit requires a Mac." >&2; exit 2
+    fi
+    if [[ ! -x .venv/bin/python ]]; then
+      echo "Missing .venv; run setup first." >&2; exit 2
+    fi
+    .venv/bin/python scripts/audit_macos_install.py "${@:2}"
+    ;;
+  uninstall-plan)
+    if [[ "$(uname -s)" != Darwin ]]; then
+      echo "macOS uninstall preview requires a Mac." >&2; exit 2
+    fi
+    if [[ ! -x .venv/bin/python ]]; then
+      echo "Missing .venv; run setup first." >&2; exit 2
+    fi
+    .venv/bin/python scripts/plan_macos_uninstall.py
+    ;;
   mac-release)
     if [[ ! -x .venv/bin/python ]]; then
       echo "Missing .venv; run setup first" >&2; exit 2
@@ -92,7 +110,7 @@ case "$ACTION" in
     python3 scripts/release_to_academy.py
     ;;
   *)
-    echo "Usage: bash scripts/mac_dev.sh {doctor|setup|quick|parity|full|mac-release|package|installer|wasm|studio-dry-run}" >&2
+    echo "Usage: bash scripts/mac_dev.sh {doctor|setup|quick|parity|full|mac-release|package|installer|upgrade-audit|uninstall-plan|wasm|studio-dry-run}" >&2
     exit 2
     ;;
 esac
