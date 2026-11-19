@@ -80,3 +80,18 @@ footer { padding: 28px 0 50px; display: flex; gap: 20px; justify-content: space-
 .debug-guidance{grid-column:1/-1;padding:12px 15px;border:1px solid #a87448;border-radius:10px;background:#372c22;color:#ffdeb9!important}
 .debug-guidance[hidden]{display:none}
 @media(max-width:720px){.learning-help{grid-template-columns:1fr;padding:18px}}
+
+
+/* Kasa letter input helper works with touch, mouse, and keyboard. */
+.character-toolbar{padding:14px 20px 15px;border-top:1px solid var(--border);background:#203a35}
+.character-toolbar-title{display:flex;gap:7px 12px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.character-toolbar-title strong{font-size:13px;color:#d4f5c8}
+.character-toolbar-title span{font-size:12px;color:#b6ccc0}
+.character-keys{display:flex;gap:8px;flex-wrap:wrap}
+.character-key{min-width:43px;min-height:44px;border:1px solid #608371;border-radius:9px;padding:7px 12px;color:#e7f9da;background:#26493c;font-size:17px;font-weight:800;cursor:pointer}
+.character-key:hover{background:#365f4a}
+.character-key:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.character-keyboard-tips{margin-top:11px;font-size:12px;color:#d0dfd5}
+.character-keyboard-tips summary{cursor:pointer;color:#c7edb8;font-weight:750}
+.character-keyboard-tips p{line-height:1.7;margin:8px 0 0}
+@media(max-width:580px){.character-toolbar{padding:12px}.character-keys{gap:6px}.character-key{flex:1;min-width:43px}}
