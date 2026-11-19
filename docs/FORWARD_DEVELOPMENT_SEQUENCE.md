@@ -44,3 +44,9 @@ The existing playground and Academy have a partially implemented path; the Netli
 The owner selected the **balanced standard library** direction. Phase 8 therefore alternates foundational general-purpose functionality (math, collections, text, statistics, data formats, safe files and tests) with carefully specified money, validation, inventory and reconciliation capabilities. Avoid optimizing solely for finance or claiming Kasa is an accounting-specific language.
 
 Initial source-level implementation: `stdlib/experimental/math.kasa`, `stdlib/experimental/collections.kasa`, shared Python/JavaScript/native/KBC1 fixture runners. These are not true importable modules. Refer to [Phase 8 balanced library roadmap](./PHASE_8_BALANCED_STDLIB.md).
+
+## Research-first Phase 8 development policy (2026-11-19)
+
+Following the current module-system verification checkpoint, library development proceeds **group by group** using [the researched nine-group ecosystem map](./LIBRARY_ECOSYSTEM_RESEARCH_2026_11.md). The approach covers general language essentials, text, interchange formats, finance, storage, education and eventual optional frameworks rather than favoring a finance-only library.
+
+Each group requires a reviewed minimum contract, shared cross-runtime test fixtures, adversarial tests and a completed acceptance note before its successor becomes the primary sprint. No new language syntax, package name, public import support or stable release claim is created merely by approving this plan. Preserve Phase 9 browser/Academy deployment for after the planned Phase 8 scope.
