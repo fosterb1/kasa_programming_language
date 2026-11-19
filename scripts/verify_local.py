@@ -61,7 +61,7 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
         ("JavaScript runtime syntax", [node, "--check", "playground/kasa-runtime.js"], 30),
         ("JavaScript worker syntax", [node, "--check", "playground/worker.js"], 30),
         ("JavaScript playground UI syntax", [node, "--check", "playground/app.js"], 30),
-        ("JavaScript browser/WASM protocol tests", [node, "--test", "tests/test_kasa_browser.cjs", "tests/test_kasa_wasm.cjs"], 120),
+        ("JavaScript browser/WASM protocol + diagnostics", [node, "--test", "tests/test_kasa_browser.cjs", "tests/test_kasa_wasm.cjs", "tests/test_diagnostics_4c.cjs"], 120),
     ]
     if profile == "parity":
         # Target the shared-language contract: the Python reference,
@@ -77,9 +77,9 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
                 "tests/test_numeric_conversion_conformance.py",
                 "tests/test_int64_boundary_conformance.py",
                 "tests/test_arbitrary_integer_contract.py",
-                "tests/test_crlf_input_conformance.py"], 180),
-            ("JavaScript semantic conformance", [node, "--test",
-                "tests/test_kasa_browser.cjs"], 120),
+                "tests/test_crlf_input_conformance.py", "tests/test_diagnostics_4c.py"], 180),
+            ("JavaScript semantic and diagnostics conformance", [node, "--test",
+                "tests/test_kasa_browser.cjs", "tests/test_diagnostics_4c.cjs"], 120),
         ]
     if profile in ("full", "parity"):
         tests.extend([
@@ -99,6 +99,7 @@ def plan(profile: str, wasm: bool) -> list[tuple[str, list[str], int]]:
             ("Native/Python numeric differential", [python, "native/tests/numeric_differential.py", str(ROOT / build / ("Release/kasa-numeric-compare-probe.exe" if os.name == "nt" else "kasa-numeric-compare-probe"))], 90),
             ("Native Python conformance", [python, "native/tests/conformance.py", str(exe)], 180),
             ("Native KBC1 round-trip and rejection tests", [python, "native/tests/test_bytecode.py", str(exe)], 180),
+                ("Native diagnostic-category conformance", [python, "native/tests/diagnostic_conformance.py", str(exe)], 120),
         ])
         if wasm:
             tests.extend([
