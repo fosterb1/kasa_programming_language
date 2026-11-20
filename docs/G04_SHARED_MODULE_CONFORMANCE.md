@@ -94,3 +94,24 @@ git rev-parse --short HEAD
 ```
 
 Acceptance requires the new 13-case shared suites, no regressions in existing tests, and all applicable parity stages passing. Then run real browser-worker checks before claiming the opt-in browser module path broadly tested.
+
+## G0.4.3 — real-browser worker conformance (implementation, awaiting local execution)
+
+**Developer confirmation:** Owner stated all G0.4.2 verification commands passed, but supplied no individual run logs or exact tested SHA. Treat this as user-confirmed rather than independently reproduced.
+
+Added `scripts/verify_real_module_browser.py`, which builds a pinned local playground ZIP in an isolated temporary directory, checks the packaged worker and pinned module asset, disables optional native WASM in the temporary copy, serves only to localhost, and drives **real Chromium/Chrome/Edge** through Playwright. It exercises all **13 shared experimental import fixtures** from the browser UI, checks exact outputs or diagnostic categories and source positions, verifies no partial preflight stdout, confirms the JS engine, and verifies that standard mode still rejects experimental imports. It does not deploy anything, exercise remote Netlify, certify module support in native WASM/KBC1, or alter the repo's production bundle.
+
+**Not yet run** on the user's workstation; a green Node simulated worker test is not a substitute.
+
+### G0.4.3 Windows command
+
+```cmd
+git pull --ff-only
+python -m pip install playwright
+python -m playwright install chromium
+python scripts/verify_real_module_browser.py
+python scripts/verify_local.py --profile parity
+git rev-parse --short HEAD
+```
+
+If Playwright Chromium is unavailable, use an installed Chrome or Edge with `set KASA_BROWSER_CHANNEL=chrome` or `set KASA_BROWSER_CHANNEL=msedge`, respectively. Do not claim success on browser-install or launch failures. Browser acceptance is required before concluding this checkpoint.
