@@ -743,3 +743,11 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Fix:** Changed only the Python regression assertion to expect an actual newline byte. No behavior change to the browser bundle, import runtime, Twi language syntax or worker protocol.
 - **Verification status:** The test correction was committed at `f5f72c5`, **not yet rerun on Mac**. All earlier successes are scoped to the preceding commit. `python playground/build_site.py` and a real deployed-browser check have not yet been reported.
 - **Next gate:** Pull, rerun `python -m pytest -q tests/test_playground.py`, run `python playground/build_site.py`, then `bash scripts/mac_dev.sh quick`. Do not deploy ZIP until all are confirmed.
+
+
+## 2026-11-20 — User-reported Mac acceptance: verified browser module package
+
+- **Acceptance:** User replied **"all passed"** after the previously prescribed retest of corrected `tests/test_playground.py`, `python playground/build_site.py`, and `bash scripts/mac_dev.sh quick` on Mac.
+- **Evidence boundary:** This turn contains no complete terminal output or exact timing. Treat the corrected Python packaging suite and archive build as **user-reported successful**, rather than reproducing an unobserved exact pytest count. The earlier explicit Mac record showed 16 passing Python cases and one escaped-newline assertion failure, plus 13/13 JS runtime checks and 5/5 worker VM checks; the assertion was repaired in `f5f72c5`.
+- **Accepted milestone:** Group 0.4 pinned browser asset packaging and opt-in worker protocol reached user-reported local acceptance. This does not certify the deployed browser, live Netlify site, UI opt-in, actual WASM module execution, or Academy integrations.
+- **Next implementation:** Add an explicitly labeled learner-facing experimental-module control and Ghanaian example, wire that control into `EXECUTE` messages, ensure browser requests route only to JS when experimental modules are enabled, and add UI/worker regressions before recommending deployment. Preserve default behavior, existing Twi-first tokens and the unapproved status of `@math:m`.
