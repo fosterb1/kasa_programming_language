@@ -43,5 +43,6 @@ def test_release_gate_includes_required_safety_stages():
     assert "tests/test_g05_windows_junctions.py" in TESTS
     assert "tests/test_g05_negative_corpus.py" in TESTS
     assert "tests/test_g05_publication_race.py" in TESTS
+    assert "tests/test_g05_strict_publication.py" in TESTS
     assert any("--profile" in args and "full" in args for _, args, _ in GATES)
     assert all(timeout > 0 for _, _, timeout in GATES)
