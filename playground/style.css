@@ -111,3 +111,13 @@ footer { padding: 28px 0 50px; display: flex; gap: 20px; justify-content: space-
 .kasa-diagnostic details{margin-top:10px;font-size:12px;color:#c8d3ca}
 .kasa-diagnostic summary{cursor:pointer}
 .kasa-diagnostic details pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0}
+
+
+/* Explicit, opt-in development preview for local Kasa standard libraries. */
+.module-experiment{padding:13px 20px;border-top:1px solid var(--border);background:#1c332e}
+.module-experiment-switch{display:flex;align-items:center;gap:10px;color:#d8f1cd;font-size:13px;font-weight:750;cursor:pointer}
+.module-experiment-switch input{width:18px;height:18px;accent-color:#bce8a2;flex-shrink:0}
+.module-experiment-switch input:focus-visible{outline:2px solid #ebffdc;outline-offset:3px}
+.module-experiment p{font-size:12px;line-height:1.55;color:#bdcfc5;margin:7px 0 0 28px}
+.module-experiment code{font-family:ui-monospace,Consolas,monospace;color:#d3f9ae}
+@media(max-width:600px){.module-experiment{padding:12px}.module-experiment p{margin-left:28px}}
