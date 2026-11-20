@@ -256,3 +256,22 @@ Expected final wrapper stdout for the sample: `60` then `nokware`. It has no nor
 Optional sidecar CLI example: `python scripts/link_kasa_modules_hygienic.py --app stdlib/demos/group0_source_import_experiment.kasa --output build/g05-linked/market-demo-with-map-001.kasa --emit-map`. The sibling JSON path becomes `build/g05-linked/market-demo-with-map-001.kasa.map.json`; both must not already exist.
 
 **Limits:** diagnostic mapping remains statement-level; generated expression columns are not claimed accurate. This wrapper is explicitly opt-in, only maps the native source execution path, and does not alter native Kasa import grammar, KBC1/KBC2 wire formats, or browser/WASM builds. No production merge/deployment claim until this new gate passes.
+
+## G0.5 native diagnostic acceptance and KBC1 standalone robustness gate (2026-11-21)
+
+**User confirmation:** The owner reports **success** on the preceding G0.5 mapped-native-runner Windows verification. This is owner-confirmed; the individual counts, test transcript and exact checkout SHA were not supplied. The opt-in source-map sidecar, native diagnostic wrapper and parity baseline are accepted within their documented experimental scope. They do not implement native parsing of import syntax or KBC-embedded source maps.
+
+**New test added, pending Windows verification:** `scripts/verify_g05_kbc_independence.py` builds one catalog-verified, statically linked, two-module program with the existing `kasa-native compile` command, checks KBC1 output, **deletes the generated intermediate Kasa source**, and requires the compiled program to run with the exact same stdout. It then tests five malformed copies of the compiled KBC1 artifact: wrong magic, unsupported version, truncation, trailing bytes and deterministic payload-byte mutation. For each mutation, both `check-bytecode` and `run-bytecode` must fail with **no stdout**. All files are in an isolated temporary directory. It does not mutate the production catalog, original files, or bytecode format.
+
+```cmd
+git pull --ff-only
+python -m py_compile scripts/verify_g05_kbc_independence.py
+python scripts/verify_local.py --profile parity
+python scripts/verify_g05_native_kbc.py
+python scripts/verify_g05_kbc_independence.py
+git rev-parse --short HEAD
+```
+
+Expected final gate line: `PASS G0.5 KBC1 independence and 5 corruption cases (10 rejection checks), no bytecode format changes`. **Not yet independently or owner-verified.** The existing comprehensive `native/tests/test_bytecode.py` and mutation smoke checks remain separate and are not replaced by this focused gate.
+
+**Next after a verified pass:** review what remains before a G0.5 exit: native import front-end UX, provenance and source-map robustness, malicious input budgets, reproducible-build proof, and whether to release the prelink workflow as a documented experimental feature. Keep PR #61 draft until explicit exit criteria are satisfied.
