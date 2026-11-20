@@ -7,6 +7,7 @@ A verified language release can update Kasa Academy's first-party Studio in one 
 ## Prerequisites
 - Local checked-out Kasa language repository.
 - Emscripten SDK activated (`em++` available), Python 3 and Node.js.
+- Python Playwright and its Chromium browser installed in the **same Python environment** used to run this release script: `python -m pip install playwright`, followed by `python -m playwright install chromium`. The real-browser smoke test is mandatory for `--publish`.
 - A fine-grained GitHub token with **Contents: Read and write** access to `fosterb1/kasa-learning-academy` only.
 - The Academy's GitHub main branch must be current; do not force-push over concurrent work.
 - The Academy CMS and curricula **may be upgraded during active development**. Such upgrades belong in the Academy repository, with reviewed Payload/DB migrations, focused tests, and preservation of existing records, uploads, lesson videos and transcripts. They are not in the scope of this browser-asset publisher.
@@ -21,6 +22,7 @@ bash native/wasm/build.sh
 node native/wasm/validate_artifacts.mjs
 node --test tests/test_kasa_wasm.cjs tests/test_kasa_browser.cjs
 python playground/build_site.py --require-wasm
+python scripts/verify_real_wasm_browser.py
 
 # 3. Check exactly which files need updating; never writes to GitHub
 python scripts/release_to_academy.py --academy ../kasa-learning-academy
@@ -33,7 +35,7 @@ python scripts/release_to_academy.py --publish --yes-reviewed
 
 For Windows PowerShell set `$env:GITHUB_TOKEN = "YOUR_FINE_GRAINED_TOKEN"` in the current terminal session and run the same Python command. A Windows or WSL installation capable of building the Emscripten target is required for step 1.
 
-The **publish command first checks that both native Emscripten artifacts are newer than native sources**, then reruns WASM validation, browser-runtime tests, the WebAssembly packaging check, the experimental JS/Python module tests and the offline publisher unit tests before contacting GitHub. Timestamp freshness is only a fail-closed heuristic, not cryptographic build provenance. It refuses absent or invalid WASM and a missing or incomplete Emscripten loader.
+The **publish command first checks that both native Emscripten artifacts are newer than native sources**, then reruns WASM validation, browser-runtime tests, the WebAssembly packaging check, **real Chromium/Playwright execution of the actual newly compiled WASM plus opt-in JavaScript module imports**, the experimental JS/Python module tests and the offline publisher unit tests before contacting GitHub. Timestamp freshness is only a fail-closed heuristic, not cryptographic build provenance. It refuses absent or invalid WASM and a missing or incomplete Emscripten loader.
 
 ## Publication and safeguards
 - Creates a content-addressed **14-file Studio publication**: 13 tracked website assets (including a verified, generated pinned `math` and `collections` library asset) plus `release-manifest.json`. The pinned module sources come only from the allowlisted catalog; the worker and service-worker opt-in flags are enabled in release output.
@@ -59,4 +61,4 @@ Publication remains a **release-owner initiated** command, not a background even
 
 The Academy CMS is **not frozen**. We may improve Payload collections, admin UI, lesson/challenge metadata, content types, assessment workflows and related features as Kasa grows. Apply changes in the Academy repo, not as side effects of the language browser-asset release tool. Use explicit database schema migrations and backwards-compatible reads where practical. Back up or snapshot important data before destructive schema changes; never silently overwrite existing published lessons, user records, transcripts or recorded videos. Treat upgrades to the CMS as separately verified development changes, rather than claiming the asset publisher updates them.
 
-**Pre-publication guard:** Phase 9C changes to `scripts/release_to_academy.py` are awaiting fresh local Mac tests and a new Emscripten/native build. Do not run `--publish` on stale binaries. The current Academy production assets remain deployed, independent of this release-tool update.
+**Pre-publication guard:** The developer has reported successful Mac Emscripten 7.0.0 native WASM compilation (488,235 bytes, 14 exports, 42 imports) and a green 234-check Node suite, with candidate release `53a17e183d46` from a dry-run. **Real Chromium execution of this fresh WASM and the updated Playwright import checks have not yet been reported**, and the publisher code has changed since that dry-run. Do not run `--publish` until the new browser gate and updated dry-run pass; the currently deployed Academy remains unchanged.
