@@ -15,7 +15,7 @@ try:
 finally:
     sys.path.remove(str(ROOT / "scripts"))
 
-from kasa import Interpreter, parse
+from kasa import Interpreter, parse\nfrom kasa.core import KasaError
 
 
 SOURCE = (
@@ -87,7 +87,7 @@ def test_nested_calls_and_private_functions_keep_name_isolation():
     ("fa math firi stdlib: m\nfa collections firi stdlib: m\nka 1\n", "alias reused"),
 ])
 def test_linker_fails_closed(source, reason):
-    with pytest.raises((HygienicLinkError, Exception), match=reason):
+    with pytest.raises((HygienicLinkError, KasaError), match=reason):
         link_source(source)
 
 
@@ -98,7 +98,7 @@ def test_no_writes_on_failed_preflight(tmp_path):
     app = tmp_path / "bad.kasa"
     app.write_text("fa math firi stdlib: m\nka m.private(1)\n", encoding="utf-8")
     before = app.read_bytes()
-    with pytest.raises(Exception, match="does not export"):
+    with pytest.raises(KasaError, match="does not export"):
         write_linked_source(app, output)
     assert app.read_bytes() == before
     assert not output.exists()
