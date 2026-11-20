@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import stat
 from pathlib import Path
 import subprocess
 import sys
@@ -37,6 +38,27 @@ class CompileError(ValueError):
 
 def _linked_directory(path: Path) -> bool:
     return path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction())
+
+
+def _directory_fingerprint(root: Path, permitted: Path) -> tuple[tuple[int, int], ...]:
+    """Detect changed path components before publishing compiled output.
+
+    This is a best-effort snapshot check, NOT a race-free directory handle.
+    Reject linked folders and changes of inode/device for root, build, output.
+    """
+    folders = (root, root / "build", permitted)
+    identities = []
+    for folder in folders:
+        if _linked_directory(folder):
+            raise CompileError("Linked output directory refused")
+        try:
+            details = folder.stat(follow_symlinks=False)
+        except OSError as error:
+            raise CompileError("Output directory unavailable: " + str(error)) from error
+        if not stat.S_ISDIR(details.st_mode):
+            raise CompileError("Output directory is not a regular directory")
+        identities.append((details.st_dev, details.st_ino))
+    return tuple(identities)
 
 
 def _invoke(native: Path, command: str, file: Path, output: Path | None = None):
@@ -81,6 +103,10 @@ def compile_modules(application: Path, output: Path, *, native: Path = DEFAULT_N
     executable = native.absolute()
     if not executable.is_file() or _linked_directory(executable):
         raise CompileError("Native executable missing or linked: " + str(executable))
+    # Pin the destination directory identity across native compilation.
+    # This prevents publication after detectable folder swaps during compile.
+    permitted.mkdir(parents=True, exist_ok=True)
+    initial_dirs = _directory_fingerprint(root, permitted)
     with tempfile.TemporaryDirectory(prefix="kasa-g05-compile-") as folder:
         directory = Path(folder)
         intermediate = directory / "linked.kasa"
@@ -97,9 +123,8 @@ def compile_modules(application: Path, output: Path, *, native: Path = DEFAULT_N
 
         # Every validation is completed before publication. 'xb' creates the
         # destination exclusively, refusing races with an existing file.
-        permitted.mkdir(parents=True, exist_ok=True)
-        if _linked_directory(permitted):
-            raise CompileError("Output directory became linked")
+        if _directory_fingerprint(root, permitted) != initial_dirs:
+            raise CompileError("Output directory identity changed during compilation")
         created = False
         try:
             with destination.open("xb") as handle:
