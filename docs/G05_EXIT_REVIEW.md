@@ -83,3 +83,26 @@ git rev-parse HEAD
 ```
 
 The report path is deliberately fixed inside `build/`, not a user-selected arbitrary output path. Inspect the JSON and **report the exact skip reason** if the collector says `REVIEW_REQUIRED`; that outcome does not necessarily indicate a regression but is insufficient to close the release gate. The script is not CI, a hosted-sandbox audit, a cross-platform reproducibility proof or a PR merge authorization. Keep #61 draft pending release/security review.
+
+## G0.5 release evidence: Windows skip resolved to exact cause (2026-11-21)
+
+The owner supplied the complete release-collector terminal result at revision `1a068d6f1b3cff699998265afe56866cd1a3ea50`:
+
+- `tests/test_g05_release_evidence.py`: **3 passed**.
+- Release collector: `PASSED native_full`, `PASSED g05_pytest`, `PASSED native_kbc_parity`, `PASSED kbc_independence`.
+- G0.5 tests: **57 passed, 1 skipped, 0 failed**.
+- Exact skip: `tests/test_g05_compile_command.py:61: This Windows account cannot create symlinks`.
+- Collector correctly returned **`REVIEW_REQUIRED`** because it does not treat a skipped operating-system security test as passed. This **is not a failed compiler or VM verification**; it is a gap in testing an actual filesystem symlink on the user's Windows account.
+
+**New code committed, not yet verified:** `tests/test_g05_compile_command.py::test_source_link_rejection_without_os_symlink_privileges` monkeypatches the narrow source-link detection guard to simulate a linked source path and demands rejection with no output. This increases branch-level guard coverage independently of Windows symlink-creation privileges. **It does not replace the real symlink test** and does not prove symlink race safety on Windows. The real filesystem test remains unchanged, retains its documented skip and the collector will continue to flag `REVIEW_REQUIRED` while the environment cannot perform it. Do not fake a zero-skip report or weaken the collector's release decision.
+
+Next acceptance:
+
+```cmd
+git pull --ff-only
+python -m pytest -q -rs tests/test_g05_compile_command.py
+python scripts/verify_g05_release.py
+git rev-parse HEAD
+```
+
+Expected while the OS policy is unchanged: the new simulated-guard test passes, the real symlink test remains an **explained skip**, four release stages pass, and aggregate status remains `REVIEW_REQUIRED`. That is acceptable for *continued experimental development*, **not** the final security sign-off for hosted/untrusted compilation. A separate Windows security configuration or properly isolated test environment is required to run the real symlink check.
