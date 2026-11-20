@@ -1,7 +1,7 @@
 # Group 0.4 — shared experimental module conformance checkpoint
 
 **Date:** 2026-11-20  
-**Status:** implemented on `dev/g04-module-cross-runtime-fixtures`; **not yet executed on the Windows workstation**. Not merged into `main` and not stable Kasa syntax.
+**Status:** Windows acceptance verified on commit `a06a9ac` using owner-provided logs; still experimental, not merged into `main`, and not stable Kasa syntax.
 
 ## Current behavior
 
@@ -30,7 +30,16 @@ python scripts/verify_local.py --profile parity
 git rev-parse --short HEAD
 ```
 
-Document any failures, exact tested SHA, output and skipped stages before accepting this branch. The previous Group 0.3 developer checkout reported 68/68 module tests and 11/11 parity stages passed; those results do **not** automatically certify this new suite.
+### Windows acceptance evidence (2026-11-20)
+
+- Checkout: `dev/g04-module-cross-runtime-fixtures`, exact tested HEAD `a06a9ac`.
+- Python focused suite: **52 passed in 0.82 seconds**.
+- Shared Node JavaScript driver: **12/12 cases passed**. It was invoked twice with the same 12 results; count it once, not as 24 independent cases.
+- Existing JavaScript module suite: **19 checks passed**.
+- Full local parity profile: **11 passed / 0 failed / 0 not run**, including CMake native build, numeric differential, KBC1 and diagnostic-category conformance.
+- Verified scope: the Python experimental runner and Node JavaScript engine execute the shared fixture corpus. This is not native import support and does not certify exact category/location parity, web worker execution, public release, or WASM imports.
+
+**Change after verification:** This documentation update creates a new branch commit; the tested code revision remains `a06a9ac`.
 
 ## Next
 
