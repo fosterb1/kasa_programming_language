@@ -145,3 +145,25 @@ Record whether the actual junction test ran, and the final `skip_details` lines;
 The owner reports **"all pass"** after the new Windows junction / fixed negative-input corpus gate and complete release collector were requested at revision `5ef85871a5789e03da0228d15f844ff33c219994`. The exact test counts, actual junction execution/skip disposition and resulting checkout SHA were **not supplied**. Consequently, this is **owner-reported overall success**, not enough to assert that the real junction test executed rather than skipped, nor that the existing file-symlink skip disappeared.
 
 This validates continued experimental progress with no reported regression. The security verdict **does not change**: trusted local development only; external/untrusted hosted compilation is blocked pending a filesystem-race/TOCTOU review. Retain the strict `REVIEW_REQUIRED` classification whenever real symlink coverage is skipped. Next work should focus on controlled adversarial directory changes between validation and artifact publication, while explicitly refusing publication and avoiding changes to protected paths.
+
+## G0.5 output-publication directory identity guard — 2026-11-21
+
+**Status: new code committed; acceptance pending Windows testing.** This slice addresses a *detectable subset* of the publication time-of-check/time-of-use (TOCTOU) risk identified in R1, without claiming race-free publication.
+
+- `scripts/compile_g05_modules.py` now snapshots `st_dev` and `st_ino` for the repository root, `build`, and `build/g05-compiled` (using no-follow directory stat and link/junction rejection) **before native compilation**. After native `check`, `compile`, and `check-bytecode` succeed, it requires the same directory identities immediately before exclusive output creation. This refuses detectable folder replacements made while native compilation executes. The output folder is created before compiling if needed; no bytecode is published until validation succeeds.
+- `tests/test_g05_publication_race.py` uses an **isolated disposable checkout**, a synthetic native command stub and an explicitly simulated link stage. It checks the ordinary case, a replacement of the `g05-compiled` directory after bytecode verification, and a replacement of its `build` parent. It requires rejected publication and no bytecode in either old or new directory for replacement cases. These tests do **not** rename anything in the actual user checkout.
+- `scripts/verify_g05_release.py` and `tests/test_g05_release_evidence.py` include/enforce the new race test suite.
+
+**Security boundary:** A fingerprint comparison is not a directory handle or an atomic path constraint. A malicious process could still replace a directory **after** the final identity check, or replace and restore it between observations; `open("xb")` prevents overwriting a file at the final pathname but does not provide race-free confinement to the expected parent directory. This implementation is suitable only for *trusted, local, non-adversarial* developer checkouts pending a further Windows/POSIX directory-handle-based design/security review. Cross-OS filesystem identity behavior has not been proven. Do not host untrusted source compilation based on these checks.
+
+### Windows acceptance gate
+
+```cmd
+git pull --ff-only
+python -m py_compile scripts/compile_g05_modules.py tests/test_g05_publication_race.py scripts/verify_g05_release.py
+python -m pytest -q -rs tests/test_g05_publication_race.py tests/test_g05_compile_command.py tests/test_g05_release_evidence.py
+python scripts/verify_g05_release.py
+git rev-parse HEAD
+```
+
+The existing actual Windows file-symlink skip may still cause the overall result to be `REVIEW_REQUIRED` even if all other gates pass. Record actual output and the current Git SHA before changing the PR readiness.
