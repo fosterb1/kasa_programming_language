@@ -67,12 +67,30 @@ def changed_files(base: str, head: str) -> set[str]:
 def audit() -> dict:
     revisions = {name: checked("rev-parse", "--verify", ref) for name, ref in
                  (("main", MAIN), ("g04", G04), ("g05", G05))}
-    changes04 = changed_files(MAIN, G04)
-    changes05 = changed_files(G04, G05)
+    # After a normal G0.4 merge, main contains G0.4 as second parent and
+    # main's tree is identical to the G0.4 tip. Compare the G0.4 change set
+    # against the merge commit's first parent, NOT main itself.
+    merged_g04 = ancestor(G04, MAIN)
+    if merged_g04:
+        main_tree = checked("rev-parse", "--verify", MAIN + "^{tree}")
+        g04_tree = checked("rev-parse", "--verify", G04 + "^{tree}")
+        trees_match = main_tree == g04_tree
+        changes04 = changed_files(MAIN + "^1", G04)
+        changes05 = changed_files(MAIN, G05)
+        topology = "g04_merged_main_g05_reconciled"
+    else:
+        trees_match = None
+        changes04 = changed_files(MAIN, G04)
+        changes05 = changed_files(G04, G05)
+        topology = "pre_g04_merge_stacked"
     head = checked("rev-parse", "HEAD")
     tracked_status = checked("status", "--porcelain", "--untracked-files=no")
     checks = {
-        "main_ancestor_of_g04": ancestor(MAIN, G04),
+        "g04_integrated_into_main_or_pre_merge_main_is_ancestor": (
+            ancestor(G04, MAIN) if merged_g04 else ancestor(MAIN, G04)
+        ),
+        "main_tree_matches_g04_after_merge": trees_match if merged_g04 else True,
+        "main_ancestor_of_g05_after_merge": ancestor(MAIN, G05) if merged_g04 else True,
         "g04_ancestor_of_g05": ancestor(G04, G05),
         "g04_exact_file_scope": changes04 == G04_FILES,
         "g05_minimum_expected_files": G05_REQUIRED <= changes05,
@@ -90,6 +108,7 @@ def audit() -> dict:
         "purpose": "read-only experimental integration topology check",
         "revisions": revisions,
         "local_head": head,
+        "topology": topology,
         "checks": checks,
         "g04_changed_files": sorted(changes04),
         "g05_changed_files": sorted(changes05),
