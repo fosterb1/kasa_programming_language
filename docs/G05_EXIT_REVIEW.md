@@ -211,3 +211,9 @@ The owner reports **"all passed and confirmed"** after the Windows acceptance co
 On Windows, the supported security claim is that requesting `strict_publication=True` / `--strict-publication` is **refused before source access**, while the previous trusted-local compiler pipeline remains supported. The POSIX-only tests are expected to skip on Windows and **were not established as executed** by this confirmation. The prior actual Windows symlink-creation restriction remains an evidence gap unless fresh logs establish otherwise. Keep the collector's `REVIEW_REQUIRED` result when such tests skip.
 
 **Next independent milestone:** exercise the real directory-handle publication tests on a supported POSIX filesystem using a separate Linux checkout or appropriately configured WSL; capture its `pytest -q -rs` output and exact revision. Before public hosted compilation, separately review Windows-native handle-based publishing, TOCTOU on the source/catalog side, and broader process sandboxing. This confirmation does not approve production deployment or conversion of PR #61 from draft.
+
+## Stacked PR integration audit and no-merge plan (2026-11-21)
+
+A new [G0.4 → G0.5 integration audit](G04_G05_INTEGRATION_AUDIT_2026-11-21.md) independently compares the actual PR changed-file lists and branch ancestry. It confirms PR #60 (`main` → G0.4, **19 commits / nine files**) is the required foundation for PR #61 (G0.4 → G0.5, **62 commits / 23 files**) at the audited GitHub snapshot. Both PRs are **open, draft, mergeable**, and have **no submitted reviews**. Mergeability alone is not an acceptance verdict.
+
+The report lists exact Windows G0.4 browser/Node/Python gates, the G0.5 release collector and its skip reporting, required POSIX strict-publication validation and the ordered experimental merge plan. No branches were merged, retargeted or rebased; no release policy was weakened. The G0.5 security restrictions described above remain in force.
