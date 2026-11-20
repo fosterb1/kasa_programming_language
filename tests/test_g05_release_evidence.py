@@ -40,5 +40,7 @@ def test_release_gate_includes_required_safety_stages():
     assert names == ["native_full", "g05_pytest", "native_kbc_parity", "kbc_independence"]
     assert "tests/test_g05_build_reproducibility.py" in TESTS
     assert "tests/test_g05_native_mapped_runner.py" in TESTS
+    assert "tests/test_g05_windows_junctions.py" in TESTS
+    assert "tests/test_g05_negative_corpus.py" in TESTS
     assert any("--profile" in args and "full" in args for _, args, _ in GATES)
     assert all(timeout > 0 for _, _, timeout in GATES)
