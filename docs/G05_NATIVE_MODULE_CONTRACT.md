@@ -228,3 +228,31 @@ git rev-parse --short HEAD
 ```
 
 After this gate passes, add an atomic, opt-in map sidecar to the CLI and a true native-error differential test with known runtime diagnostic locations. Keep Kasa import syntax experimental and PR #61 in draft until accepted.
+
+## G0.5 mapped native errors and optional source-map sidecar (2026-11-21)
+
+The user explicitly confirmed **all previous G0.5 verification commands passed** after the corrected blank-separator test, including the five-suite source-map/collision test set, four-case native/KBC1 parity and standard parity profile. This is **owner-reported acceptance**, not independent observation of the exact revision/test log.
+
+### New implementation (NOT YET VERIFIED)
+
+- The existing `scripts/link_kasa_modules_hygienic.py` now accepts `--emit-map`, writing `<output>.map.json` *only when explicitly requested*. Its Python `write_linked_source(..., map_output=...)` API requires the exact sibling sidecar path. Both outputs must be new; preexisting files are never overwritten. The writer creates ordinary Kasa source and a SHA-256-verified statement-only source map, rolling back newly created outputs on write errors. The existing no-sidecar CLI remains the default.
+- Added `scripts/run_g05_native_mapped.py`, a bounded execution wrapper that prelinks opt-in modules to a temporary `.kasa` file, invokes the **existing** native `kasa-native run` binary, preserves the actual exit code and stdout, and uses `annotate_g05_diagnostic.py` to append original statement origins to eligible native stderr lines. It neither modifies the compiler nor embeds maps in KBC1.
+- Added `tests/test_g05_native_mapped_runner.py` with sidecar/hash, no-overwrite, unrelated-path and two real-native tests (success and division-by-zero with expected original application statement). Real-native tests skip when no native executable is available; the acceptance gate must build native first and confirm they did not skip.
+
+### Windows commands (new code, results pending)
+
+```cmd
+git pull --ff-only
+python -m py_compile scripts/link_kasa_modules_hygienic.py scripts/run_g05_native_mapped.py tests/test_g05_native_mapped_runner.py
+python scripts/verify_local.py --profile parity
+python -m pytest -q tests/test_g05_native_mapped_runner.py tests/test_g05_source_map.py tests/test_g05_diagnostic_mapping.py tests/test_g05_namespace_collision.py tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+python scripts/verify_g05_native_kbc.py
+python scripts/run_g05_native_mapped.py --app stdlib/demos/group0_source_import_experiment.kasa
+git rev-parse --short HEAD
+```
+
+Expected final wrapper stdout for the sample: `60` then `nokware`. It has no normal diagnostic annotation on success.
+
+Optional sidecar CLI example: `python scripts/link_kasa_modules_hygienic.py --app stdlib/demos/group0_source_import_experiment.kasa --output build/g05-linked/market-demo-with-map-001.kasa --emit-map`. The sibling JSON path becomes `build/g05-linked/market-demo-with-map-001.kasa.map.json`; both must not already exist.
+
+**Limits:** diagnostic mapping remains statement-level; generated expression columns are not claimed accurate. This wrapper is explicitly opt-in, only maps the native source execution path, and does not alter native Kasa import grammar, KBC1/KBC2 wire formats, or browser/WASM builds. No production merge/deployment claim until this new gate passes.
