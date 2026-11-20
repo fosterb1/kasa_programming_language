@@ -13,7 +13,7 @@ The Python experimental runner and the browser JavaScript interpreter both accep
 - `tests/test_module_cross_runtime_fixtures.py`: runs each case via the catalog-pinned Python source-runner. Asserts exact output, explicit Python error category, error message fragment, zero output on preflight failure, and no module-name leakage into application globals.
 - `tests/test_js_module_cross_runtime_fixtures.cjs`: validates catalog SHA-256 identities before passing locally read module source to `executeKasa`, then checks the same cases against JavaScript with explicit expected JS error category and no partial stdout.
 
-**Known behavioral difference — not concealed:** Python currently classifies several catalog errors as `ModuleError` and unknown/private access as `NameError`. The JavaScript path currently emits `SyntaxError` for all those static preflight failures. The shared fixture records both categories to avoid falsely claiming identical diagnostics. Harmonizing error categories and source locations requires a separately reviewed language contract and implementation change.
+**G0.4.1 implementation (pending Windows test):** JavaScript now emits `ModuleError` for catalog/binding failures and `NameError` for unknown/private members and aliases, matching the Python experimental runner for covered fixtures. Parser failures remain `SyntaxError`. The shared fixture now checks line/column on unknown modules, missing/private members, alias reassignment and misplaced imports. Duplicate-alias source positions are not yet asserted: the Python runner currently attaches certain planner failures to the first import, whereas JavaScript points at the later conflicting import. This is a documented discrepancy to resolve separately; categories alone do not establish universal diagnostic parity.
 
 **Scope:** JavaScript driver exercises the interpreter in Node, not a real browser worker, WASM, native C++ or KBC bytecode. The Python driver uses experimental-only import mode. It does not prove a secure package manager, arbitrary imports, or stable stdlib.
 
@@ -48,3 +48,27 @@ git rev-parse --short HEAD
 3. Run a genuine browser worker regression separately.
 4. Only after agreed semantics and tests, design native/KBC self-contained module packaging with versioning and rejections.
 5. Update `docs/DEVELOPMENT_JOURNAL.md` when Windows verification results arrive, and preserve the separate Academy security PR and unreleased WASM candidate.
+
+## G0.4.1 — diagnostic harmonization implementation (not yet accepted)
+
+After the Windows-verified G0.4 baseline at `a06a9ac`, this branch added a small, **opt-in-only** JavaScript diagnostic classifier and tightened the existing shared fixture drivers. Ordinary JS Kasa programs are unchanged. Expected class alignment is:
+
+- `SyntaxError`: grammar and misplaced declarations.
+- `ModuleError`: missing catalog modules, duplicate module/alias selection, invalid module metadata.
+- `NameError`: unknown alias, non-exported symbol, alias reassignment/redeclaration.
+
+The test fixtures assert exact source line/column on selected errors for both engines. No attempt has been made to claim source identity, dependency/package security, KBC1 imports or Native WASM module support. This branch's **new code is not yet Windows-verified**. The previous 52 Python / 12 JS / 19 JS existing / 11 parity stage passes apply only to `a06a9ac`.
+
+### New local verification gate
+
+```cmd
+cd C:\Users\User\kasa_programming_language
+git pull --ff-only
+python -m pytest -q tests/test_module_cross_runtime_fixtures.py tests/test_g03_source_import_acceptance.py tests/test_experimental_module_source.py
+node tests/test_js_module_cross_runtime_fixtures.cjs
+node tests/test_js_experimental_modules.js
+python scripts/verify_local.py --profile parity
+git rev-parse --short HEAD
+```
+
+Next: after this gate passes, resolve remaining duplicate-alias location mismatch with an explicit per-declaration Python diagnostic, add real-worker verification, then consider G0.5 native/KBC packaging design.
