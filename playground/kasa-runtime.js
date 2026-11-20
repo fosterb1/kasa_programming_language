@@ -133,14 +133,23 @@
     }
     statement() {
       const t = this.current;
-      if (this.experimentalModules && this.match("@")) {
+      // Contextual fa is enabled only in the module experiment, not in
+      // Kasa's stable keyword table. Legacy @module:alias is still accepted.
+      if (this.experimentalModules && (this.current.kind === "@" ||
+          this.current.kind === "NAME" && this.current.text === "fa")) {
+        const legacy = this.current.kind === "@";
+        this.pos++;
         const module = this.expect("NAME", "catalog module ID");
-        this.expect(":", "':' between module and alias");
-        if (Object.values(KEYWORDS).includes(this.current.kind))
-          this.fail("reserved module alias: " + this.current.text, this.current);
-        const alias = this.expect("NAME", "module alias");
+        if (legacy) this.expect(":", "':' between module and alias");
+        let alias = module.text;
+        if (legacy || this.match(":")) {
+          if (Object.values(KEYWORDS).includes(this.current.kind) ||
+              this.current.kind === "NAME" && this.current.text === "fa")
+            this.fail("reserved module alias: " + this.current.text, this.current);
+          alias = this.expect("NAME", "module alias").text;
+        }
         this.endLine();
-        return literal("module_import", t, [module.text, alias.text]);
+        return literal("module_import", t, [module.text, alias]);
       }
       if (this.match("PRINT")) { const expr = this.expression(); this.endLine(); return literal("print", t, null, [expr]); }
       if (this.match("ASSIGN")) {
