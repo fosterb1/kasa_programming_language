@@ -275,3 +275,28 @@ git rev-parse --short HEAD
 Expected final gate line: `PASS G0.5 KBC1 independence and 5 corruption cases (10 rejection checks), no bytecode format changes`. **Not yet independently or owner-verified.** The existing comprehensive `native/tests/test_bytecode.py` and mutation smoke checks remain separate and are not replaced by this focused gate.
 
 **Next after a verified pass:** review what remains before a G0.5 exit: native import front-end UX, provenance and source-map robustness, malicious input budgets, reproducible-build proof, and whether to release the prelink workflow as a documented experimental feature. Keep PR #61 draft until explicit exit criteria are satisfied.
+
+## G0.5 experimental one-command module-to-KBC1 front-end (2026-11-21)
+
+**Owner-confirmed checkpoint:** The preceding G0.5 KBC1 independence and five-corruption rejection gate, plus native/module parity, were reported as **all passed** by the owner. Individual command logs and exact tested SHA were not provided. This confirmation does not cover the following newly added files.
+
+**New implementation committed; not yet Windows tested:**
+
+- `scripts/compile_g05_modules.py` accepts an explicit `--app` Kasa source path with experimental `fa ... firi stdlib` imports, plus a new `--output` filename under the fixed repo `build/g05-compiled/` directory. Uses existing catalog preflight, SHA-256 source identities and restricted AST source linker. Compiles a **temporary** plain Kasa intermediate using the **existing** `kasa-native check`, `compile`, and `check-bytecode` commands, validates KBC1 magic, then exclusively creates the requested output only after all prior steps succeed. Input and output aliases, linked directories, over-budget source, existing output, untrusted imports and failed native checks are refused. Compiler KBC1 format is unchanged. There is no native parser for `fa` and no runtime source/package lookup.
+- `tests/test_g05_compile_command.py` tests unknown module rejection, out-of-directory output rejection, no-overwrite preservation, linked source refusal, and real native compilation of the two-module demonstration. The native test deletes the original application and verifies that the emitted KBC1 still executes. A missing native executable causes that test to skip: acceptance must first build native and confirm **no unexpected skips**.
+
+**Windows acceptance (new code unverified):**
+
+```cmd
+git pull --ff-only
+python -m py_compile scripts/compile_g05_modules.py tests/test_g05_compile_command.py
+python scripts/verify_local.py --profile parity
+python -m pytest -q tests/test_g05_compile_command.py tests/test_g05_native_mapped_runner.py tests/test_g05_source_map.py tests/test_g05_diagnostic_mapping.py tests/test_g05_namespace_collision.py tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+python scripts/verify_g05_native_kbc.py
+python scripts/verify_g05_kbc_independence.py
+python scripts/compile_g05_modules.py --app stdlib/demos/group0_source_import_experiment.kasa --output build/g05-compiled/market-demo-001.kbc
+build\kasa-local\Release\kasa-native.exe run-bytecode build\g05-compiled\market-demo-001.kbc
+git rev-parse --short HEAD
+```
+
+Expected demo execution: `60` then `nokware`. The compiler intentionally refuses an existing output; use a fresh filename when rerunning. Import language notation remains experimental and Twi-first only. The command is **not** a new native module parser or production-ready package compiler. The next exit gate is verifying compiler reproducibility, fuller malformed-input budgets, and revisiting PR #61 merge readiness.
