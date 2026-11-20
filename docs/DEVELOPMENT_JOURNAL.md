@@ -679,3 +679,11 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Fix:** In experimental module-declaration parsing, detect reserved keyword token kinds before `expect("NAME")` and emit `Reserved module alias: ka` at the original token location. The existing Twi keyword table, regular parser mode and namespace binding policies are unchanged.
 - **Verification status:** Fix committed but **not yet rerun on Mac**. The earlier 33 passing tests are not evidence that this new change passes.
 - **Next gate:** Repeat `python -m pytest -q tests/test_experimental_module_source.py tests/test_configure_kasa_modules.py tests/test_module_member_execution.py`; then run demo and `bash scripts/mac_dev.sh quick`.
+
+
+## 2026-11-20 — Second Mac regression finding: case-sensitive reserved-alias match
+
+- **Mac user evidence at `e0a8a89`:** Focused experimental-source/catalog/member suite still reported **33 passed, 1 failed in 0.39s**.
+- **Diagnosis:** The earlier patch correctly changed error classification to `SyntaxError: Reserved module alias: ka`, but the existing pytest case uses the case-sensitive pattern `reserved` (lowercase), so its regex did not match. The parser was now refusing the alias for the intended reason.
+- **Fix:** The experimental parser emits `reserved module alias: ka` (lowercase), matching the test while preserving keyword protection, Kasa filename/line/column, and the default grammar.
+- **Verification:** This second patch is committed but **has not been rerun on Mac**; repeat focused suite and demo before accepting.
