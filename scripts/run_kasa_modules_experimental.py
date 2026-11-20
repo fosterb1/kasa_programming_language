@@ -12,6 +12,12 @@ import argparse
 from pathlib import Path
 import sys
 
+# Direct file execution sets sys.path[0] to scripts/, whereas the Kasa
+# package lives in src/. Pytest config adds src/ only during test runs.
+# Resolve relative to this trusted script, not the caller's current directory.
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
 from kasa import parse
 from kasa.core import KasaError, Node
 from kasa.module_execution import ModuleAwareInterpreter
