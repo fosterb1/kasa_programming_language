@@ -122,3 +122,28 @@ def test_new_fa_syntax_is_still_rejected_by_stable_parser():
 def test_provisional_fa_invalid_cases(source, message):
     with pytest.raises(KasaError, match=message):
         execute_module_source(source)
+
+
+def test_provisional_fa_firi_source_and_alias():
+    stream = io.StringIO()
+    execute_module_source(
+        "fa math firi stdlib: m\nfa collections firi stdlib: c\n"
+        "ka m.kasa_sum([10, 20, 30])\n"
+        "ka c.kasa_contains([10, 20, 30], 20)\n",
+        stdout=stream,
+    )
+    assert stream.getvalue() == "60\nnokware\n"
+
+
+def test_provisional_fa_firi_default_alias():
+    stream = io.StringIO()
+    execute_module_source(
+        "fa math firi stdlib\nka math.kasa_sum([1, 2, 3])\n",
+        stdout=stream,
+    )
+    assert stream.getvalue() == "6\n"
+
+
+def test_provisional_fa_firi_rejects_unpinned_source():
+    with pytest.raises(KasaError, match="Only the pinned stdlib source"):
+        execute_module_source("fa math firi unknown: m\nka m.kasa_sum([1])")
