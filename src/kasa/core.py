@@ -213,6 +213,11 @@ class Parser:
                 self.pos += 1
                 legacy = False
             module = self.expect("NAME", "catalog module ID")
+            if not legacy and self.current.kind == "NAME" and self.current.text == "firi":
+                self.pos += 1
+                origin = self.expect("NAME", "the source 'stdlib'")
+                if origin.text != "stdlib":
+                    self.fail("Only the pinned stdlib source is supported", origin)
             if legacy:
                 self.expect(":", "':' between module and alias")
             alias = module.text
