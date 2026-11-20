@@ -733,3 +733,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Evidence:** Files and test assertions committed; **no execution of the new tests on the user's Mac yet**. Previous G0.4 JS runtime tests were user-reported passing on an earlier revision.
 - **Boundaries:** No learner-facing UI switch, no automatic Netlify deployment, no Academy CMS change, no native/KBC1 module implementation, no reviewed Twi import vocabulary. Unbundled worker fails closed if module mode is requested. SHA-256 protects content consistency, not publisher authentication.
 - **Next gate:** `python -m pytest -q tests/test_playground.py`, `node tests/test_js_experimental_modules.js`, `node tests/test_js_worker_modules.js`, `node --check playground/worker.js`, `python playground/build_site.py`, then `bash scripts/mac_dev.sh quick` on Mac; only then consider exposing a deliberate playground opt-in.
+
+
+## 2026-11-20 — Mac G0.4 browser bundle regression: escaped newline assertion
+
+- **User's Mac checkout:** fast-forwarded `main` from `a2288c6` to `6a16888`.
+- **Observed results:** `python -m pytest -q tests/test_playground.py` → **16 passed, 1 failed in 0.64s**; `node tests/test_js_experimental_modules.js` → **13 checks passed**; `node tests/test_js_worker_modules.js` → **5 checks passed**; `node --check playground/worker.js` returned without a reported error.
+- **Failure detail:** `test_packaged_web_bundle` compared the ZIP's valid generated JavaScript (real newline after `*/`) with a byte literal containing escaped backslash + `n`. The tested package asset showed the expected real newline.
+- **Fix:** Changed only the Python regression assertion to expect an actual newline byte. No behavior change to the browser bundle, import runtime, Twi language syntax or worker protocol.
+- **Verification status:** The test correction was committed at `f5f72c5`, **not yet rerun on Mac**. All earlier successes are scoped to the preceding commit. `python playground/build_site.py` and a real deployed-browser check have not yet been reported.
+- **Next gate:** Pull, rerun `python -m pytest -q tests/test_playground.py`, run `python playground/build_site.py`, then `bash scripts/mac_dev.sh quick`. Do not deploy ZIP until all are confirmed.
