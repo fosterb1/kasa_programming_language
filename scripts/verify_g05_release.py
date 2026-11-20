@@ -59,13 +59,13 @@ def pytest_summary(output: str) -> dict:
     """Parse the terminal summary without treating skipped tests as passes."""
     summary = {}
     for key in ("passed", "failed", "error", "errors", "skipped", "xfailed", "xpassed"):
-        match = re.search(r"\\b(\\d+) " + key + r"\\b", output)
+        match = re.search(r"\b(\d+) " + key + r"\b", output)
         if match:
             summary[key] = int(match.group(1))
     # -rs reports individual short skip details; keep all lines for audit.
     summary["skip_details"] = [
         line.strip() for line in output.splitlines()
-        if re.search(r"\\bSKIPPED\\b", line)
+        if re.search(r"\bSKIPPED\b", line)
     ]
     return summary
 
