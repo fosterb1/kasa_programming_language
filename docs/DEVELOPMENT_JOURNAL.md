@@ -830,3 +830,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Navigation:** Connected syntax/glossary, curriculum landing, guide and lesson pages to the new learning/reference/download sections. No new CMS migration or seed updates.
 - **Checks:** Added `tests/phase9-academy-alignment.test.mjs` with 5 build-gated checks; Academy's production build also retains the 3 gated first-party Studio import tests and hash manifest regeneration. **At journal writing, latest Academy deployment is pending verification; do not claim production READY based on GitHub push alone.**
 - **Open:** Track the final Vercel deployment, inspect build logs and live page routing. Then evaluate whether to update the Kasa-to-Academy publisher (now tracking 13 bundled assets), and postpone unverified desktop distributions.
+
+
+## 2026-11-20 — Academy Phase 9A/9B production verified
+
+- **Academy production Git SHA:** `77194eb42cb50f9f75803d7d165ee6558d09aed7`; Vercel deployment `dpl_CfPujJ8iQdHLEgk6rFmXxVEPvdvA`, target `production`, state **READY**.
+- **Build gates:** Vercel build log shows **8/8** passing Node tests, **0 failed**: five new Phase 9 curriculum/lesson-runner/feature-status/installer/CMS checks and three existing Studio module/runtime checks. Next production build completed successfully and generated the new static pages.
+- **Live Academy check:** HTTP 200 and expected route content independently observed for `/learn/modules` (experimental import syntax), `/language-status` (native/KBC support matrix), `/downloads` (unsigned Windows/Intel Mac preview status and Apple Silicon caveat), `/learn/syntax` (corrected import statement + module lesson link), `/glossary` (experimental vocabulary), and `/playground` (first-party Studio preserved).
+- **Corrected regression:** First Vercel gated build `4b2db5a` failed **one new test** because the test assumed spaces in the existing CMS seed's `if(await existing('challenges',slug))continue` clause. Implementation was not defective; corrected formatting-tolerant regex at `77194eb` and reran full production gate green.
+- **Boundary:** Static HTTP checks plus Node integration checks do not certify manual learner interaction, device compatibility, unsigned installer safety, cross-runtime parity or any public desktop binary release. Existing editable CMS data was not migrated, reseeded, rewritten or deleted.
+- **Next work:** Phase 9C language-to-Academy release sync and manifest/worker cache policy; then resume C++/KBC1 module imports and safe installer validation. No Netlify deployment.
