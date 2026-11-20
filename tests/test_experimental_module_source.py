@@ -64,3 +64,29 @@ def test_colon_or_dotted_text_inside_string_is_not_a_declaration():
 def test_step_quota_applies_to_module_function_calls():
     with pytest.raises(KasaError, match="Execution limit"):
         execute_module_source('@math:m\nmpɛn 100\nka m.kasa_sum([1, 2])\nawiei', max_steps=25)
+
+
+def test_direct_script_launch_without_pytest_pythonpath():
+    """The published command must work in a clean Python subprocess."""
+    import os
+    import subprocess
+
+    environment = os.environ.copy()
+    environment.pop("PYTHONPATH", None)
+    command = [
+        sys.executable,
+        str(ROOT / "scripts" / "run_kasa_modules_experimental.py"),
+        str(ROOT / "stdlib" / "demos" / "group0_source_import_experiment.kasa"),
+    ]
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=20,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "60\\nnokware\\n".replace("\\n", "\n")
+    assert result.stderr == ""
