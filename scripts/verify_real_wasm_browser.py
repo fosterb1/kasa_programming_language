@@ -52,12 +52,18 @@ def run():
         directory = Path(tmp)
         with ZipFile(BUNDLE) as archive:
             required = {"index.html", "app.js", "worker.js", "kasa-runtime.js",
-                        "native/kasa-native.js", "native/kasa-native.wasm"}
+                        "native/kasa-native.js", "native/kasa-native.wasm",
+                        "kasa-pinned-modules.js"}
             if not required.issubset(archive.namelist()):
                 raise RuntimeError("Incomplete native WASM ZIP")
             worker = archive.read("worker.js").decode("utf-8")
             if "const KASA_HAS_WASM = true;" not in worker:
                 raise RuntimeError("Packaged worker does not enable native WASM")
+            if "const KASA_HAS_PINNED_MODULES = true;" not in worker:
+                raise RuntimeError("Packaged worker does not enable pinned modules")
+            sw = archive.read("sw.js").decode("utf-8")
+            if "const KASA_PACKAGED_MODULES = true;" not in sw:
+                raise RuntimeError("Packaged offline cache omits pinned modules")
             archive.extractall(directory)
         errors = []
         with sync_playwright() as pw:
@@ -129,11 +135,48 @@ def run():
                                        timeout=25000)
                 assert page.locator("#output").inner_text().strip() == "JS fallback"
                 assert "JavaScript" in page.locator("#status").inner_text()
+                # The pinned catalog is a separate, opt-in JavaScript mode.
+                # Verify real browser importScripts() and member execution, not
+                # just a simulated worker protocol.
+                page.locator("#experimental-modules").check()
+                page.locator("#engine").select_option("javascript")
+                page.locator("#source").fill(
+                    "fa math firi stdlib: m\\n"
+                    "fa collections firi stdlib: c\\n"
+                    "ma nneɛma = [10, 20, 30]\\n"
+                    "ka m.kasa_sum(nneɛma)\\n"
+                    "ka c.kasa_contains(nneɛma, 20)\\n"
+                )
+                page.locator("#run").click()
+                page.wait_for_function(
+                    "document.querySelector('#status').textContent.includes('Run completed')",
+                    timeout=25000,
+                )
+                assert page.locator("#output").inner_text().strip() == "60\\nnokware"
+                assert "JavaScript" in page.locator("#status").inner_text()
+                assert page.locator("#engine option[value=native]").is_disabled()
+
+                # Disabling imports returns to the independent native runner.
+                page.locator("#experimental-modules").uncheck()
+                page.wait_for_function(
+                    "!document.querySelector('#engine option[value=native]').disabled",
+                    timeout=25000,
+                )
+                page.locator("#engine").select_option("native")
+                page.locator("#source").fill('ka "Akwaaba Ghana!"\\nka 25 + 15')
+                page.locator("#run").click()
+                page.wait_for_function(
+                    "document.querySelector('#status').textContent.includes('Run completed')",
+                    timeout=25000,
+                )
+                assert page.locator("#output").inner_text().strip() == "Akwaaba Ghana!\\n40"
+                assert "Native WebAssembly" in page.locator("#status").inner_text()
                 assert not errors, f"Uncaught browser page errors: {errors}"
             context.close()
             browser.close()
-    print("PASS genuine Chromium native Emscripten WASM: load, run, check, input, "
-          "error, explicit JavaScript fallback")
+    print("PASS genuine Chromium Emscripten WASM + pinned JavaScript modules: "
+          "native load, run, check, input, errors, differential parity, "
+          "module imports, native recovery")
 
 
 if __name__ == "__main__":
