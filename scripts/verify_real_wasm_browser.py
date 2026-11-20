@@ -4,7 +4,7 @@ Fails closed unless a completed WASM-enabled ZIP is present. Exercises the
 packaged site (never the JS-only source worker), and verifies native engine
 selection plus exact output, input, syntax checking, errors and JS fallback.
 
-Prerequisites: python -m pip install playwright; python -m playwright install chromium
+Prerequisites: python -m pip install playwright; on macOS use installed Google Chrome\n(Linux: python -m playwright install chromium). Optional KASA_BROWSER_CHANNEL=chrome|chromium|msedge.
 Build: bash native/wasm/build.sh; python playground/build_site.py --require-wasm
 Run: python scripts/verify_real_wasm_browser.py
 """
@@ -14,6 +14,8 @@ from contextlib import contextmanager
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+import os
+import sys
 import tempfile
 import threading
 from zipfile import ZipFile
@@ -67,7 +69,30 @@ def run():
             archive.extractall(directory)
         errors = []
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=True, args=["--no-sandbox"])
+            # Playwright 1.65+ no longer distributes Chromium for macOS 13.
+            # Use an already installed, supported Chrome channel on macOS;
+            # retain Playwright-managed Chromium on Linux. Never skip the test.
+            channel = os.environ.get("KASA_BROWSER_CHANNEL") or (
+                "chrome" if sys.platform == "darwin" else "chromium"
+            )
+            if channel not in {"chrome", "chromium", "msedge"}:
+                raise ValueError(
+                    "KASA_BROWSER_CHANNEL must be chrome, chromium, or msedge"
+                )
+            try:
+                if channel == "chromium":
+                    browser = pw.chromium.launch(headless=True)
+                else:
+                    browser = pw.chromium.launch(headless=True, channel=channel)
+            except Exception as error:
+                raise RuntimeError(
+                    f"Cannot launch Playwright browser channel {channel!r}. "
+                    "On macOS 13 use an installed Google Chrome and "
+                    "KASA_BROWSER_CHANNEL=chrome; on supported Linux install "
+                    "the Chromium browser with python -m playwright install chromium. "
+                    "The real-browser release gate remains mandatory."
+                ) from error
+            print(f"Real Kasa release browser: {channel}; version {browser.version}")
             context = browser.new_context(service_workers="block")
             page = context.new_page()
             page.on("pageerror", lambda error: errors.append(str(error)))
