@@ -10,7 +10,7 @@ Examples:
   node --test tests/test_kasa_wasm.cjs tests/test_kasa_browser.cjs
   python playground/build_site.py --require-wasm
   python scripts/release_to_academy.py --academy ../kasa-learning-academy
-  GITHUB_TOKEN=... python scripts/release_to_academy.py --academy ../kasa-learning-academy --publish
+  python scripts/release_to_academy.py --academy ../kasa-learning-academy --publish --yes-reviewed
 """
 from __future__ import annotations
 
@@ -24,9 +24,12 @@ import subprocess
 import sys
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
-from playground.build_site import packaged_pinned_modules
-
 ROOT = Path(__file__).resolve().parents[1]
+# Direct script execution makes scripts/ sys.path[0], not the checkout root.
+# Resolve our pinned packaging helper from this same trusted source checkout.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from playground.build_site import packaged_pinned_modules
 FILES = (
     "index.html", "style.css", "app.js", "diagnostics.js", "worker.js", "kasa-runtime.js",
     "sw.js", "manifest.webmanifest",
