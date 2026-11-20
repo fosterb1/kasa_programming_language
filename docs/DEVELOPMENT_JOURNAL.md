@@ -705,3 +705,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Interpretation:** G0.3 opt-in Python source-level module import experiment is locally accepted by user report. Production Kasa CLI, JS browser interpreter, C++ native and KBC1 still do not implement this import syntax.
 - **Language gate:** `@math:m` is temporary punctuation notation, not approved Twi-first language design. Native-speaker and educator review required for final language-level import vocabulary.
 - **Next:** Preserve the stable parser default, add cross-runtime-compatible fixtures and investigate JavaScript experimental module loading without implying KBC1/official grammar support. Maintain the Ghanaian examples and terminology research policy.
+
+
+## 2026-11-20 — Group 0.4 opt-in JavaScript module runtime experiment
+
+- **Implemented on main, tests pending:** `playground/kasa-runtime.js` takes an opt-in `experimentalModules` source-metadata object through the fourth parameter to `executeKasa`. With that option only, it parses temporary `@math:m` declarations and `m.kasa_sum(...)` member expressions, installs separate Kasa closure environments for the supplied module functions, restricts exported names and rejects missing/duplicate aliases and shadowing before application output.
+- **Tests:** `tests/test_js_experimental_modules.js` validates SHA-256 of locally loaded Kasa standard library source against `stdlib/catalog.json` via Node crypto and checks positive/negative behavior and normal legacy execution. **No Mac/Node run observed on this commit**.
+- **Scope:** No Kasa vocabulary approval or new Twi keyword. The default browser interpreter mode still rejects the temporary import syntax. No worker protocol, Netlify bundle, Academy lesson UI, C++ or KBC1 change.
+- **Important limit:** The JavaScript runtime trusts metadata passed by its caller and **does not independently validate arbitrary source hashes**; only the Node test fixture checks hashes. This is not yet a secure or verified browser package loader. `check` mode parses experimental syntax but does not validate module catalog exports.
+- **Next test gate:** `node --check playground/kasa-runtime.js`; `node tests/test_js_experimental_modules.js`; `python -m pytest -q tests/test_experimental_module_source.py`; `bash scripts/mac_dev.sh quick`.
+- **Next implementation gate:** After actual node proof, design pinned browser asset packaging and optional worker protocol, plus cross-runtime parity corpus, with reviewed Twi-first syntax as a separate language approval step.
