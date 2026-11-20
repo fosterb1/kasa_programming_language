@@ -789,3 +789,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Evidence limits:** Individual dictionary words do not establish a complete idiomatic software grammar; official orthography bibliographic records were not treated as having been fully read. Required fluent Asante/Akuapem and computing-educator reviews remain pending; no token status changed to `accepted`.
 - **Code changes this checkpoint:** None. Repository documentation only. Previously committed provisional import changes remain pending user-reported Mac proof.
 - **Hosting:** Continue host-neutral playground and Academy development; no Netlify.
+
+
+## 2026-11-20 — Retain `:` for aliases; defer undecided vocabulary (owner decision)
+
+- **Decision:** Continue provisional `fa math: m` / `fa math firi stdlib: m` with colon as a syntactically scoped alias separator, not a globally privileged meaning. Keep `fa math` / `fa math firi stdlib` default alias. The user requests leaving unresolved export, package, exception, class and other vocabulary choices for future evidence and implementation needs.
+- **Future-compatibility reasoning:** Import declarations end at NEWLINE and accept at most one colon and one alias name; this context does not intrinsically collide with future mapping literal entries, slice separators or type annotations, though each future grammar will need new explicit lexer/parser and cross-runtime tests. More significant risk: contextual `fa` at statement start in experimental mode may shadow an ordinary callable/variable named `fa`; formal design must revisit this.
+- **New regression tests committed:** Optional and source-qualified aliases, empty/double alias delimiters, colon within quoted strings in Python and JavaScript experimental suites. Stable parser and existing syntax intentionally unchanged.
+- **Documentation:** Expanded `docs/TWI_IMPORT_FA_FIRI_DECISION.md` with punctuation and compatibility rationale. No further Twi vocabulary was approved or added. No hosting-provider assumption or deployment.
+- **Evidence:** New tests and decision documentation committed on `main`; **no user Mac/Node output for these new tests yet**. Previous `fa ... firi` changes also lack verified Mac results in the available transcript.
+- **Next gate:** Pull and run `python -m pytest -q tests/test_experimental_module_source.py tests/test_playground_module_ui.py`, `node tests/test_js_experimental_modules.js`, `node tests/test_js_playground_module_ui.js`, `node tests/test_js_worker_modules.js`, execute source demo, and `bash scripts/mac_dev.sh quick`. Investigate any failures before moving forward.
