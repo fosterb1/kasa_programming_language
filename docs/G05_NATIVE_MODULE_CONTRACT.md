@@ -161,3 +161,9 @@ git rev-parse --short HEAD
 ```
 
 Expected normal interpreter output for the sample: `60` on the first line and `nokware` on the second line. The CLI deliberately refuses reuse of `market-demo-001.kasa`; choose a fresh filename for subsequent attempts. **No claim of a passing native/KBC1 module test has been made.** After this source-level gate, explicitly test generated source with `kasa-native run`, `compile`, `check-bytecode`, and `run-bytecode` separately; record the output and checksum before expanding language support.
+
+## G0.5a first Windows test failure and correction — 2026-11-21
+
+The owner's first run of `python -m pytest -q tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py` **failed during pytest collection**: `tests/test_hygienic_module_linker.py`, line 18, contained a literal backslash-n between the two Python import statements. Pytest raised `SyntaxError: unexpected character after line continuation character`; no actual G0.5a tests executed in that run. The literal was introduced by a faulty earlier GitHub file-edit operation, not by the Kasa interpreter or Windows environment.
+
+Commit `729e750` replaces the literal `\\n` with an actual line break. **This edit has not yet been retested on Windows.** Do not describe the new linker as passing or native-module complete. Re-run the focused tests before writing generated source, compiling, or changing the draft PR status. If a new failure appears, preserve the full traceback rather than working around assertions.
