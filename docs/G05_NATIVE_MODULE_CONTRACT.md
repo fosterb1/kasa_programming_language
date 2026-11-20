@@ -300,3 +300,28 @@ git rev-parse --short HEAD
 ```
 
 Expected demo execution: `60` then `nokware`. The compiler intentionally refuses an existing output; use a fresh filename when rerunning. Import language notation remains experimental and Twi-first only. The command is **not** a new native module parser or production-ready package compiler. The next exit gate is verifying compiler reproducibility, fuller malformed-input budgets, and revisiting PR #61 merge readiness.
+
+## G0.5 one-command compiler accepted; reproducibility boundary gate (2026-11-21)
+
+**Owner-confirmed acceptance:** The owner confirms **all previous Windows commands passed**, including Python compilation-command tests, parity, KBC1 safety, and the `compile_g05_modules.py` two-module demonstration producing `60` and `nokware`. This establishes an **experimental** CLI pipeline for the pinned modules; individual test counts/full logs and the tested revision were not provided. The native compiler continues to consume flattened Kasa, not import syntax directly.
+
+**New, unverified gate:** `tests/test_g05_build_reproducibility.py` exercises:
+- Identical linked source output from two independent invocations with the same source name.
+- Two **independent temporary directory** compilations of the same application using the experimental CLI; byte-for-byte KBC1 SHA-256 must agree, and the second bytecode must execute correctly. This test **fails** if the build embeds uncontrolled paths/timestamps; it intentionally does not normalize or rewrite bytecode.
+- Source-size budget over 50,000 bytes, duplicate module selection, private export rejection, generated internal-symbol spoofing, late import rejection, and missing native executable. Each invalid case must fail **before publishing any output**.
+
+### Required Windows gate (new reproducibility test is not yet run)
+
+```cmd
+git pull --ff-only
+python -m py_compile tests/test_g05_build_reproducibility.py
+python scripts/verify_local.py --profile parity
+python -m pytest -q tests/test_g05_build_reproducibility.py tests/test_g05_compile_command.py tests/test_g05_native_mapped_runner.py tests/test_g05_source_map.py tests/test_g05_diagnostic_mapping.py tests/test_g05_namespace_collision.py tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+python scripts/verify_g05_native_kbc.py
+python scripts/verify_g05_kbc_independence.py
+git rev-parse --short HEAD
+```
+
+**Do not claim reproducibility unless the new twice-compiled KBC1 comparison passes and the native-dependent tests are not skipped.** The gate is narrower than a cross-platform reproducible-build claim: compare only the same platform, compiler and configuration. A cross-toolchain/Windows-Linux bitwise reproducibility claim would need separate evidence.
+
+**Remaining G0.5 closure work:** independent review of path/symlink race handling and error categories, stronger malformed source/quota corpus, cross-platform tests, and a release decision for the opt-in command. Keep PR #61 draft until all explicitly selected acceptance gates are evidenced.
