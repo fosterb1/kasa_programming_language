@@ -115,3 +115,11 @@ git rev-parse --short HEAD
 ```
 
 If Playwright Chromium is unavailable, use an installed Chrome or Edge with `set KASA_BROWSER_CHANNEL=chrome` or `set KASA_BROWSER_CHANNEL=msedge`, respectively. Do not claim success on browser-install or launch failures. Browser acceptance is required before concluding this checkpoint.
+
+## G0.4.3 — owner-confirmed browser checkpoint (2026-11-21)
+
+The owner reports that the full set of commands including `python scripts/verify_real_module_browser.py` and `python scripts/verify_local.py --profile parity` **all passed**, and explicitly confirmed the result. This is accepted as **user-reported** real-browser verification for the G0.4.3 experimental JavaScript module workstream. The terminal transcript, exact tested commit, browser version and individual case count were not supplied for this latest run; do not describe them as independently inspected. The previous shared fixture corpus contains 13 cases, and earlier detailed evidence at `a06a9ac` remains a separate checkpoint.
+
+**Scope still excluded:** live Netlify/Academy publication, native WASM module imports, compiled native import syntax, runtime KBC1/KBC2 module loading, third-party modules, authentication/signatures and a stable Twi grammar contract.
+
+**Next gate:** G0.5 native module packaging design with a compatible source-prelink prototype before changing any binary format. Preserve all existing KBC1/KBC2 readability and malformed-input rejections.
