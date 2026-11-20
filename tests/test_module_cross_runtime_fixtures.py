@@ -36,4 +36,6 @@ def test_opt_in_python_module_contract(case):
             execute_module_source(case["source"], stdout=output)
         assert caught.value.category == case["python_category"]
         assert case["error_contains"].lower() in str(caught.value).lower()
+        if "line" in case:
+            assert (caught.value.token.line, caught.value.token.column) == (case["line"], case["column"])
         assert output.getvalue() == ""
