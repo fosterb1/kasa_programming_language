@@ -10,7 +10,7 @@
   <title>Kasa Playground — Kasa Programming Language</title>
   <link rel="stylesheet" href="./style.css" />
   <script src="./diagnostics.js?v=4c1" defer></script>
-  <script src="./app.js?v=4c1" defer></script>
+  <script src="./app.js?v=4c2" defer></script>
 </head>
 <body>
   <div class="page-shell">
@@ -39,6 +39,7 @@
                 <option value="lists">Lists</option>
                 <option value="input">User input</option>
                 <option value="market">Market receipt (GHS)</option>
+                <option value="moduleMarket">Market baskets · experimental modules</option>
                 <option value="grades">School marks</option>
                 <option value="stock">Inventory alert</option>
                 <option value="savings">Savings club</option>
@@ -59,6 +60,13 @@
               <button type="button" class="character-key" data-insert="ɛnyɛ" aria-label="Insert ɛnyɛ keyword">ɛnyɛ</button>
             </div>
             <details class="character-keyboard-tips"><summary>Help for phone and laptop keyboards</summary><p>No special keyboard is required inside this editor. Use the buttons above or a Twi/Akan input layout installed on your own device. Kasa keywords keep their real spelling; English words are not automatically converted into language commands.</p></details>
+          </div>
+          <div class="module-experiment">
+            <label class="module-experiment-switch" for="experimental-modules">
+              <input id="experimental-modules" type="checkbox" aria-describedby="module-experiment-help" />
+              <span>Experimental modules (JavaScript only)</span>
+            </label>
+            <p id="module-experiment-help">Optional developer preview: use <code>@math:m</code> and <code>m.kasa_sum(...)</code>. This notation is temporary and is <strong>not</strong> approved Twi import syntax. It works only in a verified packaged playground build.</p>
           </div>
           <div class="editor-footer">
             <div id="editor-help" class="hint">Ctrl + Enter to run · Saved on this device (source only)</div>
