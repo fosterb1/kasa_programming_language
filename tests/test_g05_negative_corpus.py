@@ -5,7 +5,6 @@ every specimen must be rejected before publication of a .kbc file.
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
 import sys
 import uuid
@@ -15,9 +14,13 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 try:
-    from compile_g05_modules import MAX_INPUT_BYTES, compile_modules
+    from compile_g05_modules import CompileError, MAX_INPUT_BYTES, compile_modules
+    from link_kasa_modules_hygienic import HygienicLinkError
+    from validate_kasa_catalog import CatalogError
 finally:
     sys.path.remove(str(ROOT / "scripts"))
+
+from kasa.core import KasaError
 
 
 CASES: tuple[tuple[str, bytes], ...] = (
@@ -43,7 +46,8 @@ def test_rejected_inputs_publish_no_bytecode(tmp_path, label, payload):
     try:
         # This corpus tests refusal and non-publication, not diagnostic category
         # text or parser-specific messages.
-        with pytest.raises((Exception,), match=None):
+        with pytest.raises((CompileError, KasaError, HygienicLinkError,
+                            CatalogError, UnicodeError)):
             compile_modules(application, output)
         assert not output.exists(), f"{label}: invalid source published KBC1"
     finally:
