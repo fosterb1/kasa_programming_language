@@ -175,3 +175,25 @@ The owner replied **"all pass"** after receiving the G0.5 integration command se
 [The standalone PR #60 experimental merge-readiness review](G04_PR60_EXPERIMENTAL_MERGE_READINESS.md) provides a nine-file code/diff scope audit, an evidence register, a concrete Windows exact-head command sequence and explicit non-merge controls. This packet is intentionally authored **on the existing G0.5 branch**, not on G0.4, so it does not shift the base of dependent PR #61. Both PR descriptions now link to the packet.
 
 **Current state:** PR #60 and PR #61 remain draft/open, no merge or retarget occurred. Owner reports all applicable Windows tests passed, but exact-head terminal output and independent review are still outstanding. No authorization has been requested or inferred by this documentation change.
+
+## 10. Read-only stacked branch auditor added (2026-11-21)
+
+After the PR #60 code-review packet, the integration branch now includes `scripts/audit_g04_g05_stack.py` and `tests/test_g04_g05_stack_audit.py`. These changes are confined to the G0.5 dependent branch; PR #60 remains at its pinned reviewed head.
+
+The auditor runs **read-only local Git commands** against `origin/main`, `origin/dev/g04-module-cross-runtime-fixtures` and `origin/dev/g05-native-module-contract`. It records commit SHA, ancestry, exact nine-file G0.4 changed-path set, necessary G0.5 paths, whether G0.5 has touched `native/`, `src/` or `playground/` unexpectedly, current HEAD and tracked worktree state. Its JSON result is only `scope_ok_not_merge_approval` or `review_required`; **even success never authorizes merging**. Missing refs, stale head, dirty tracked files or unexpected changes are reported rather than silently accepted. It performs no fetch, checkout, write, merge or GitHub API change.
+
+Use Windows CMD from the G0.5 checkout:
+
+```cmd
+git status --short
+git fetch origin
+git pull --ff-only
+python -m py_compile scripts/audit_g04_g05_stack.py tests/test_g04_g05_stack_audit.py
+python -m pytest -q -rs tests/test_g04_g05_stack_audit.py
+python scripts/audit_g04_g05_stack.py --pretty
+git rev-parse HEAD
+```
+
+The audit itself was written based on the GitHub connector's current PR comparisons, **not independently executed** against the owner's Windows Git checkout. Do not confuse branch scope success with previous G0.4/G0.5 functional test passes. The script does not solve POSIX strict-publication verification or authorize public compilation.
+
+An attempt to reach GitHub directly from the available Linux runtime was blocked by DNS/network policy; **no actual POSIX G0.5 tests were run or claimed** during this step. POSIX security coverage remains open and the two PRs stay draft.
