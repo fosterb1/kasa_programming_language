@@ -687,3 +687,12 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Diagnosis:** The earlier patch correctly changed error classification to `SyntaxError: Reserved module alias: ka`, but the existing pytest case uses the case-sensitive pattern `reserved` (lowercase), so its regex did not match. The parser was now refusing the alias for the intended reason.
 - **Fix:** The experimental parser emits `reserved module alias: ka` (lowercase), matching the test while preserving keyword protection, Kasa filename/line/column, and the default grammar.
 - **Verification:** This second patch is committed but **has not been rerun on Mac**; repeat focused suite and demo before accepting.
+
+
+## 2026-11-20 — Direct experimental runner import-path failure on Mac
+
+- **Mac user evidence:** After reserved-alias diagnostic fix, focused Python suite reported **34 passed in 0.26s**; direct `python scripts/run_kasa_modules_experimental.py stdlib/demos/group0_source_import_experiment.kasa` crashed immediately with `ModuleNotFoundError: No module named 'kasa'`.
+- **Root cause:** Pytest config adds `src` to `sys.path`, but Python's direct script invocation includes `scripts/` instead. Thus unit test imports succeeded while the actual documented CLI entrypoint failed.
+- **Fix:** Insert repository-relative `src` into `sys.path` before importing `kasa` in the experimental script (trusted script path, not input-file path); add a subprocess regression that runs the documented command with `PYTHONPATH` removed.
+- **Verification:** Patch committed but not independently executed on the Mac. Until a direct subprocess run succeeds, source-import demo **is not verified**. Parser and normal Kasa syntax remain unchanged by this fix.
+- **Next gate:** `python -m pytest -q tests/test_experimental_module_source.py tests/test_configure_kasa_modules.py tests/test_module_member_execution.py`, then actual standalone demo and `bash scripts/mac_dev.sh quick`.
