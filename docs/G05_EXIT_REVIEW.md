@@ -139,3 +139,9 @@ git rev-parse HEAD
 ```
 
 Record whether the actual junction test ran, and the final `skip_details` lines; no production source/VM changes were made in this slice.
+
+## Junction and malformed-source verification — owner confirmation (2026-11-21)
+
+The owner reports **"all pass"** after the new Windows junction / fixed negative-input corpus gate and complete release collector were requested at revision `5ef85871a5789e03da0228d15f844ff33c219994`. The exact test counts, actual junction execution/skip disposition and resulting checkout SHA were **not supplied**. Consequently, this is **owner-reported overall success**, not enough to assert that the real junction test executed rather than skipped, nor that the existing file-symlink skip disappeared.
+
+This validates continued experimental progress with no reported regression. The security verdict **does not change**: trusted local development only; external/untrusted hosted compilation is blocked pending a filesystem-race/TOCTOU review. Retain the strict `REVIEW_REQUIRED` classification whenever real symlink coverage is skipped. Next work should focus on controlled adversarial directory changes between validation and artifact publication, while explicitly refusing publication and avoiding changes to protected paths.
