@@ -140,6 +140,12 @@
         const legacy = this.current.kind === "@";
         this.pos++;
         const module = this.expect("NAME", "catalog module ID");
+        if (!legacy && this.current.kind === "NAME" && this.current.text === "firi") {
+          this.pos++;
+          const origin = this.expect("NAME", "the source 'stdlib'");
+          if (origin.text !== "stdlib")
+            this.fail("Only the pinned stdlib source is supported", origin);
+        }
         if (legacy) this.expect(":", "':' between module and alias");
         let alias = module.text;
         if (legacy || this.match(":")) {
