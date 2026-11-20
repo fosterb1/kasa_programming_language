@@ -93,9 +93,16 @@ def _expr(node: Node, functions: dict[str, str], aliases: dict[str, str],
 
 
 def _statements(nodes, functions: dict[str, str], aliases: dict[str, str],
-                *, module: bool, indent: int = 0) -> list[str]:
+                *, module: bool, indent: int = 0,
+                origins: list[dict] | None = None, origin_file: str = "") -> list[str]:
     lines = []
     prefix = "    " * indent
+    def emit(text: str, stmt: Node, *, synthetic: bool = False) -> None:
+        lines.append(text)
+        if origins is not None:
+            origins.append({"file": origin_file, "line": stmt.token.line,
+                            "column": stmt.token.column, "kind": stmt.kind,
+                            "precision": "statement", "synthetic": synthetic})
     def exp(n):
         return _expr(n, functions, aliases, module=module)
     for stmt in nodes:
@@ -105,42 +112,47 @@ def _statements(nodes, functions: dict[str, str], aliases: dict[str, str],
                 raise HygienicLinkError("Nested module functions are unsupported")
             name, params = stmt.value
             emitted_name = functions.get(name, name) if module else name
-            lines.append(prefix + "dwumadie " + emitted_name + "(" + ", ".join(params) + ")")
-            lines.extend(_statements(stmt.children[0], functions, aliases, module=module, indent=indent + 1))
-            lines.append(prefix + "awiei")
+            emit(prefix + "dwumadie " + emitted_name + "(" + ", ".join(params) + ")", stmt)
+            lines.extend(_statements(stmt.children[0], functions, aliases, module=module, indent=indent + 1,
+                                      origins=origins, origin_file=origin_file))
+            emit(prefix + "awiei", stmt, synthetic=True)
         elif kind == "print":
-            lines.append(prefix + "ka " + exp(stmt.children[0]))
+            emit(prefix + "ka " + exp(stmt.children[0]), stmt)
         elif kind == "assign":
             target, value = stmt.children
-            lines.append(prefix + "ma " + exp(target) + " = " + exp(value))
+            emit(prefix + "ma " + exp(target) + " = " + exp(value), stmt)
         elif kind == "return":
             value = stmt.children[0]
-            lines.append(prefix + "sanma" + (" " + exp(value) if value is not None else ""))
+            emit(prefix + "sanma" + (" " + exp(value) if value is not None else ""), stmt)
         elif kind == "expression":
-            lines.append(prefix + exp(stmt.children[0]))
+            emit(prefix + exp(stmt.children[0]), stmt)
         elif kind == "if":
             condition, yes, no = stmt.children
-            lines.append(prefix + "sɛ " + exp(condition) + " a")
-            lines.extend(_statements(yes, functions, aliases, module=module, indent=indent + 1))
+            emit(prefix + "sɛ " + exp(condition) + " a", stmt)
+            lines.extend(_statements(yes, functions, aliases, module=module, indent=indent + 1,
+                                      origins=origins, origin_file=origin_file))
             if no:
-                lines.append(prefix + "anyɛ_saa_a")
-                lines.extend(_statements(no, functions, aliases, module=module, indent=indent + 1))
-            lines.append(prefix + "awiei")
+                emit(prefix + "anyɛ_saa_a", stmt, synthetic=True)
+                lines.extend(_statements(no, functions, aliases, module=module, indent=indent + 1,
+                                      origins=origins, origin_file=origin_file))
+            emit(prefix + "awiei", stmt, synthetic=True)
         elif kind in ("while", "repeat"):
             condition, body = stmt.children
-            lines.append(prefix + ("bere_a " if kind == "while" else "mpɛn ") + exp(condition))
-            lines.extend(_statements(body, functions, aliases, module=module, indent=indent + 1))
-            lines.append(prefix + "awiei")
+            emit(prefix + ("bere_a " if kind == "while" else "mpɛn ") + exp(condition), stmt)
+            lines.extend(_statements(body, functions, aliases, module=module, indent=indent + 1,
+                                      origins=origins, origin_file=origin_file))
+            emit(prefix + "awiei", stmt, synthetic=True)
         elif kind == "break":
-            lines.append(prefix + "gyae")
+            emit(prefix + "gyae", stmt)
         elif kind == "continue":
-            lines.append(prefix + "toa_so")
+            emit(prefix + "toa_so", stmt)
         else:
             raise HygienicLinkError("Unsupported statement for native source linker: " + kind)
     return lines
 
 
-def link_source(source: str, *, root: Path = ROOT, filename: str = "<g05-link>") -> str:
+def link_source(source: str, *, root: Path = ROOT, filename: str = "<g05-link>",
+                source_map: dict | None = None) -> str:
     """Return self-contained source; no I/O side effects besides verified reads."""
     root = root.absolute()
     plan = preflight(source, filename=filename, root=root)
@@ -160,6 +172,7 @@ def link_source(source: str, *, root: Path = ROOT, filename: str = "<g05-link>")
             raise HygienicLinkError("Application declares reserved internal linker parameter")
 
     parts = []
+    origins: list[dict] = []
     for module in plan["load_order"]:
         path = root / ALLOWED[module]
         if _is_linked(path, root) or not path.is_file():
@@ -191,16 +204,34 @@ def link_source(source: str, *, root: Path = ROOT, filename: str = "<g05-link>")
                                if inner.kind == "assign" and inner.children[0].kind == "name"}
                     if node.value not in locals_:
                         raise HygienicLinkError("Module contains unresolved free name: " + node.value)
-        parts.extend(_statements(ast, functions, {}, module=True))
+        parts.extend(_statements(ast, functions, {}, module=True,
+                                 origins=origins, origin_file=catalog[module]["source"]))
         parts.append("")
+        origins.append({"file": catalog[module]["source"], "line": None,
+                        "column": None, "kind": "separator",
+                        "precision": "none", "synthetic": True})
 
-    parts.extend(_statements(body, {}, aliases, module=False))
+    parts.extend(_statements(body, {}, aliases, module=False,
+                             origins=origins, origin_file=filename))
+    assert len(parts) == len(origins)
+    # The serializer removes trailing blank separator lines. Keep the map
+    # aligned with exactly the lines that survive serialization.
+    while parts and not parts[-1].strip():
+        parts.pop()
+        origins.pop()
     result = "\n".join(parts).rstrip() + "\n"
     if len(result.encode("utf-8")) > MAX_OUTPUT_BYTES:
         raise HygienicLinkError("Linked Kasa source exceeds size limit")
     # Check that the native parser's expected non-experimental syntax is valid
     # in the Python reference parser; native verification remains separate.
     parse(result, filename="<g05-linked>")
+    if source_map is not None:
+        source_map.clear()
+        source_map.update({"schema_version": 1,
+                           "generated_sha256": hashlib.sha256(result.encode("utf-8")).hexdigest(),
+                           "precision": "statement_only",
+                           "lines": [{"generated_line": i, **origin}
+                                     for i, origin in enumerate(origins, start=1)]})
     return result
 
 
