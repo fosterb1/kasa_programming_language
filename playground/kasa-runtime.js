@@ -35,6 +35,9 @@
     }
   }
   const syntax = (message, token) => { throw new KasaError("SyntaxError", message, token); };
+  // Opt-in module diagnostics: keep parser syntax errors separate from
+  // catalog/binding failures and unknown namespace/member names.
+  const moduleFailure = (category, message, token) => { throw new KasaError(category, message, token); };
 
   function tokenize(source, experimentalModules = false) {
     source = source.replace(/\r\n?/g, "\n");
@@ -577,25 +580,25 @@
           const seenModules = new Set();
           for (const stmt of imports) {
             const [id, alias] = stmt.value;
-            if (seenModules.has(id)) syntax("Module selected more than once: " + id, stmt.token);
-            if (runtime.moduleAliases.has(alias)) syntax("Module alias reused: " + alias, stmt.token);
-            if (["bisa", "tentɛn", "nɔma", "nsɛm", "a"].includes(alias)) syntax("reserved module alias: " + alias, stmt.token);
+            if (seenModules.has(id)) moduleFailure("ModuleError", "Module selected more than once: " + id, stmt.token);
+            if (runtime.moduleAliases.has(alias)) moduleFailure("ModuleError", "Module alias reused: " + alias, stmt.token);
+            if (["bisa", "tentɛn", "nɔma", "nsɛm", "a"].includes(alias)) moduleFailure("ModuleError", "reserved module alias: " + alias, stmt.token);
             // Options must be trusted, locally packaged source metadata.
-            if (!Object.hasOwn(experimentalModules, id)) syntax("Unknown catalog module: " + id, stmt.token);
+            if (!Object.hasOwn(experimentalModules, id)) moduleFailure("ModuleError", "Unknown catalog module: " + id, stmt.token);
             const metadata = experimentalModules[id];
             if (!metadata || typeof metadata.source !== "string" || !Array.isArray(metadata.exports))
-              syntax("Invalid local module metadata: " + id, stmt.token);
+              moduleFailure("ModuleError", "Invalid local module metadata: " + id, stmt.token);
             const declarations = new Parser(tokenize(metadata.source)).parse();
             if (!declarations.length || declarations.some(node => node.kind !== "function"))
-              syntax("Module must contain function declarations only: " + id, stmt.token);
+              moduleFailure("ModuleError", "Module must contain function declarations only: " + id, stmt.token);
             const names = new Set();
             const moduleEnv = new Environment();
             for (const decl of declarations) {
-              if (names.has(decl.value[0])) syntax("Duplicate module function: " + decl.value[0], stmt.token);
+              if (names.has(decl.value[0])) moduleFailure("ModuleError", "Duplicate module function: " + decl.value[0], stmt.token);
               names.add(decl.value[0]);
             }
             if (!metadata.exports.length || new Set(metadata.exports).size !== metadata.exports.length ||
-                metadata.exports.some(name => !names.has(name))) syntax("Invalid module exports: " + id, stmt.token);
+                metadata.exports.some(name => !names.has(name))) moduleFailure("ModuleError", "Invalid module exports: " + id, stmt.token);
             // Declarations execute with the same interpreter budget as app calls.
             for (const decl of declarations) runtime.execute(decl, moduleEnv);
             runtime.moduleAliases.set(alias, { id, exports: new Set(metadata.exports), env: moduleEnv });
@@ -604,18 +607,18 @@
           for (const stmt of app) traverse(stmt, node => {
             if (node.kind === "module_member") {
               const alias = node.children[0].value;
-              if (!runtime.moduleAliases.has(alias)) syntax("Unknown module alias: " + alias, node.token);
+              if (!runtime.moduleAliases.has(alias)) moduleFailure("NameError", "Unknown module alias: " + alias, node.token);
               const mod = runtime.moduleAliases.get(alias);
-              if (!mod.exports.has(node.value)) syntax(`Module '${mod.id}' does not export '${node.value}'`, node.token);
+              if (!mod.exports.has(node.value)) moduleFailure("NameError", `Module '${mod.id}' does not export '${node.value}'`, node.token);
             }
             if (node.kind === "function" && (runtime.moduleAliases.has(node.value[0]) ||
                 node.value[1].some(name => runtime.moduleAliases.has(name))))
-              syntax("Module alias cannot be redeclared", node.token);
+              moduleFailure("NameError", "Module alias cannot be redeclared", node.token);
             if (node.kind === "assign") {
               let target = node.children[0];
               while (target.kind === "index") target = target.children[0];
               if (target.kind === "name" && runtime.moduleAliases.has(target.value))
-                syntax("Module alias cannot be reassigned", node.token);
+                moduleFailure("NameError", "Module alias cannot be reassigned", node.token);
             }
           });
         }

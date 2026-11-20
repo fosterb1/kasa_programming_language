@@ -42,6 +42,10 @@ def execute_module_source(
     declarations = []
     body = []
     body_started = False
+    # Track the exact import statement that introduces a conflict. The
+    # catalog planner still validates the full graph after this local check.
+    selected_modules: set[str] = set()
+    selected_aliases: set[str] = set()
 
     def walk(node):
         if isinstance(node, Node):
@@ -57,6 +61,12 @@ def execute_module_source(
             if body_started:
                 raise KasaError("SyntaxError", "Module declarations must precede statements", stmt.token, filename)
             module_id, alias = stmt.value
+            if module_id in selected_modules:
+                raise KasaError("ModuleError", "Module selected more than once: " + module_id, stmt.token, filename)
+            if alias in selected_aliases:
+                raise KasaError("ModuleError", "Module alias reused: " + alias, stmt.token, filename)
+            selected_modules.add(module_id)
+            selected_aliases.add(alias)
             declarations.append(f"{module_id}:{alias}")
         else:
             body_started = True
