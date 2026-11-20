@@ -269,3 +269,24 @@ python scripts/verify_real_module_browser.py
 ```
 
 The G0.5 collector may correctly return `REVIEW_REQUIRED` on Windows due to skipped POSIX strict-publication tests and unavailable real file symlink privileges. Report the exact JSON/skip details and keep those gaps open. A green branch topology check is **never** security approval or authorization to merge PR #61. True POSIX publication tests and a separate independent G0.5 code/security review remain outstanding.
+
+## 15. Post-merge G0.5 branch integrity — owner-supplied Windows evidence (2026-11-21)
+
+The owner supplied full CMD output after checking out and pulling the reconciled G0.5 branch, **HEAD `58e051deac69ad06048a65c4ace3c842f022f86a`**:
+
+- `python -m pytest -q -rs tests/test_g04_g05_stack_audit.py` — **8 passed in 0.10 seconds**; no failures or skips shown.
+- `python scripts/audit_g04_g05_stack.py --pretty` — JSON `"topology": "g04_merged_main_g05_reconciled"`, `"status": "scope_ok_not_merge_approval"`, **all ten checks true**.
+- `revisions.main=46d74cb2d61623ce23e3018870c4feee8aa6908a`, `revisions.g04=7ddc7d5f733432d64d5a6dd9a043221c02f60e6c`, `revisions.g05=58e051deac69ad06048a65c4ace3c842f022f86a`.
+- `local_head` matched the reported G0.5 remote head and tracked working-tree status was empty.
+- Confirmed G0.4 tree equals main's post-merge tree, main is G0.5 ancestor, G0.4 is G0.5 ancestor, original nine-file G0.4 scope unchanged, and G0.5 changes restricted to intended documentation/scripts/tests paths.
+
+**Evidence classification:** direct owner-provided terminal report, not an independent CI execution. Branch topology is accepted at the cited SHA. **No evidence yet supplied for the full G0.5 native compiler/KBC1 collector or real browser regression at that reconciled SHA.**
+
+**Next verification:**
+
+```cmd
+python scripts/verify_g05_release.py
+python scripts/verify_real_module_browser.py
+```
+
+Record exact output, `build/g05-release-evidence.json` status and pytest skips. Windows POSIX strict-publication skips and any real-symlink skip must remain `REVIEW_REQUIRED`, never relabeled as a full security pass. PR #61 stays draft; no merge or deployment authorization follows from topology success.
