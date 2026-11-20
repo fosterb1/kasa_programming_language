@@ -19,7 +19,7 @@ Expand Kasa's general-purpose standard-library experience without introducing un
 
 ## Shared acceptance fixtures
 
-`tests/conformance_g1_foundation.json` contains eight fixtures exercising negative numbers, zero, duplicate values, empty fallback, one-element lists, missing elements, stable zero-based indexing, no input mutation, and composing math with collection search. The same corpus is consumed by Python and Node tests. Testing the native executable/KBC1 using identical fixtures is the next acceptance gate, **not yet demonstrated**.
+`tests/conformance_g1_foundation.json` contains eight fixtures exercising negative numbers, zero, duplicate values, empty fallback, one-element lists, missing elements, stable zero-based indexing, no input mutation, and composing math with collection search. The same corpus is consumed by Python and Node tests. A dedicated native/KBC1 runner is now implemented at `native/tests/g1_foundation_conformance.py` using the exact same eight fixtures. **Its execution has not yet been confirmed** on the owner's Windows machine.
 
 ### Windows CMD acceptance (no GitHub Actions, WSL or Codespaces needed)
 
@@ -29,6 +29,7 @@ git switch dev/g1-math-collections-foundation
 git pull --ff-only
 python -m pytest -q tests/test_g1_foundation.py tests/test_stdlib_foundation.py
 node --test tests/test_g1_foundation.cjs tests/test_stdlib_foundation.cjs
+python native/tests/g1_foundation_conformance.py build/kasa-local/Release/kasa-native.exe
 python -m pytest -q tests/test_module_cross_runtime_fixtures.py
 node tests/test_js_module_cross_runtime_fixtures.cjs
 ```
@@ -37,4 +38,4 @@ node tests/test_js_module_cross_runtime_fixtures.cjs
 
 ## Next decision
 
-After owner-reported Windows results, add a dedicated native/KBC1 fixture runner and review signed-integer extremes, semantic errors and resource limits. Only then consider integrating G1 helper prototypes into a versioned library catalog once the separate G0.5 contract and content-hash changes have been formally accepted.
+After owner-reported Windows results, review signed-integer extremes, semantic errors and resource limits. Only then consider integrating G1 helper prototypes into a versioned library catalog once the separate G0.5 contract and content-hash changes have been formally accepted.
