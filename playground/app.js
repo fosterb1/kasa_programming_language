@@ -8,6 +8,7 @@ const EXAMPLES = Object.freeze({
   lists: 'ma aba = [10, 20, 30]\nma aba[1] = 99\nka aba[1]\nka tentɛn(aba)\n',
   input: '# Add a name to the Program Input box\nka "Wo din de sɛn?"\nma edin = bisa()\nka "Akwaaba, " + edin\n',
   market: 'ma books = 3\nma price = 12\nma pens = 2\nma pen_price = 5\nka "Total GHS: " + nsɛm(books * price + pens * pen_price)\n',
+  moduleMarket: '@math:m\n@collections:c\nma nneɛma = [10, 20, 30]\nka m.kasa_sum(nneɛma)\nka c.kasa_contains(nneɛma, 20)\n',
   grades: 'ma maths = 65\nma english = 70\nma science = 75\nma average = (maths + english + science) / 3\nka average\nsɛ average >= 50 a\n    ka "Pass"\nanyɛ_saa_a\n    ka "Review"\nawiei\n',
   stock: 'ma opening = 50\nma sold = 43\nma remaining = opening - sold\nka remaining\nsɛ remaining <= 10 a\n    ka "Reorder"\nawiei\n',
   savings: 'ma total = 0\nmpɛn 6\n    ma total = total + 80\nawiei\nka "Saved GHS: " + nsɛm(total)\n',
@@ -22,6 +23,7 @@ const EXAMPLE_GUIDES = Object.freeze({
   lists: "List positions start at zero. Try changing the second element.",
   input: "The bisa() function reads a line from Program Input. Add your name below the editor.",
   market: "Market receipt: 3 books at GHS 12 and 2 pens at GHS 5 should total GHS 46.",
+  moduleMarket: "Developer preview: add three basket values to get 60 and test whether 20 appears (nokware). The @math:m notation is temporary and not reviewed Twi syntax. This example requires the packaged JavaScript module assets.",
   grades: "School marks: compute the average and test a declared passing threshold of 50.",
   stock: "Inventory: subtract sales from opening stock, then print a reorder warning at 10 or fewer.",
   savings: "Savings club: six contributions of GHS 80 add to GHS 480, excluding fees and withdrawals.",
@@ -87,6 +89,13 @@ function showStructuredDiagnostic(error) {
 
 const retryButton = $("retry");
 const engineSelect = $("engine");
+const experimentalModulesInput = $("experimental-modules");
+function syncModuleEngine() {
+  const enabled = experimentalModulesInput.checked;
+  nativeOption.disabled = enabled || !nativeAvailable;
+  if (enabled && engineSelect.value === "native") engineSelect.value = "javascript";
+}
+experimentalModulesInput.addEventListener("change", syncModuleEngine);
 const nativeOption = engineSelect.querySelector('option[value="native"]');
 let worker = null;
 let ready = false;
@@ -150,6 +159,7 @@ function stopWorker() {
   nativeAvailable = false;
   nativeOption.disabled = true;
   if (engineSelect.value === "native") engineSelect.value = "auto";
+  syncModuleEngine();
   setReady(false);
   if (worker) worker.terminate();
   worker = null;
@@ -166,13 +176,13 @@ function prepareWorker() {
     }
     if (data.type === "NATIVE_READY") {
       nativeAvailable = true;
-      nativeOption.disabled = false;
+      syncModuleEngine();
       if (!active) setStatus("Kasa ready · Native WebAssembly available", "ready");
       return;
     }
     if (data.type === "NATIVE_ERROR") {
       nativeAvailable = false;
-      nativeOption.disabled = true;
+      syncModuleEngine();
       if (engineSelect.value === "native") engineSelect.value = "auto";
       if (!active) setStatus("Kasa ready · JavaScript fallback", "ready");
       return;
@@ -247,7 +257,9 @@ function execute(mode) {
   setStatus(mode === "check" ? "Checking syntax…" : "Running program…", "pending");
   output.textContent = "";
   debugGuidance.hidden = true;
-  worker.postMessage({ type: "EXECUTE", source: source.value, input: input.value, mode, requestId, engine: engineSelect.value });
+  const experimentalModules = experimentalModulesInput.checked;
+  const engine = experimentalModules ? "javascript" : engineSelect.value;
+  worker.postMessage({ type: "EXECUTE", source: source.value, input: input.value, mode, requestId, engine, experimentalModules });
   timeoutId = setTimeout(() => {
     stopWorker();
     output.textContent = "Your program exceeded the 5-second time limit and was stopped. The interpreter is restarting.";
@@ -263,6 +275,10 @@ $("clear").addEventListener("click", () => { output.textContent = ""; });
 exampleSelect.addEventListener("change", () => {
   source.value = EXAMPLES[exampleSelect.value] || EXAMPLES.hello;
   exampleExplanation.textContent = EXAMPLE_GUIDES[exampleSelect.value] || EXAMPLE_GUIDES.hello;
+  if (exampleSelect.value === "moduleMarket") {
+    experimentalModulesInput.checked = true;
+    syncModuleEngine();
+  }
   debugGuidance.hidden = true;
   saveDraft();
 });
@@ -271,6 +287,8 @@ $("reset").addEventListener("click", () => {
   input.value = "";
   exampleSelect.value = "hello";
   exampleExplanation.textContent = EXAMPLE_GUIDES.hello;
+  experimentalModulesInput.checked = false;
+  syncModuleEngine();
   debugGuidance.hidden = true;
   output.textContent = "Draft reset. Press Run code to begin.";
   try { localStorage.removeItem(DRAFT_KEY); }
