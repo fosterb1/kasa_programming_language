@@ -77,7 +77,7 @@ const run = () => {
 example.value = "moduleMarket";
 example.dispatch("change");
 assert.equal(optIn.checked, true);
-assert.match(element("source").value, /fa math: m/);
+assert.match(element("source").value, /fa math firi stdlib: m/);
 assert.match(element("source").value, /kasa_sum/);
 assert.equal(run().experimentalModules, true);
 assert.equal(run().engine, "javascript");
