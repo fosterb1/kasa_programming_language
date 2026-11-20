@@ -167,3 +167,13 @@ git rev-parse HEAD
 ```
 
 The existing actual Windows file-symlink skip may still cause the overall result to be `REVIEW_REQUIRED` even if all other gates pass. Record actual output and the current Git SHA before changing the PR readiness.
+
+## Owner-confirmed publication-race guard checkpoint — 2026-11-21
+
+The owner reports **all passed** following the G0.5 directory-fingerprint guard and controlled publication-race tests introduced at revision `52efd8016146d1b75cac56289f716e1042eaa80a`. This is **owner-reported** verification only: the exact focused pytest results, release-collector skip details, and tested SHA were not pasted. No failures were reported.
+
+The verified-scope claim is limited to the newly implemented directory identity checks and controlled test cases for replacing the output folder or its `build` parent **during** compilation. The guard checks `st_dev`/`st_ino` before compilation and again before publication. It **does not guarantee race-free confinement**: a directory could change after the final check, and path-based exclusive creation is not equivalent to an open directory handle.
+
+The historical Windows file-symlink test skip remains unresolved unless accompanied by new evidence, and `REVIEW_REQUIRED` continues to be the appropriate strict release status if it still skips.
+
+**Next security design milestone:** investigate a directory-handle-bound publication design with platform-appropriate controls, including safe failure and cleanup. Do not treat experimental trusted-local compilation as security-approved for hosted or adversarial workspaces, and do not close PR #61 solely on the reported passes.
