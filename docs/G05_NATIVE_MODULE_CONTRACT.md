@@ -339,3 +339,22 @@ git rev-parse --short HEAD
 ```
 
 If the new test result is clean (except any explained, nonessential OS privilege-dependent skip), proceed with the independent four-case native/KBC1 and bytecode corruption scripts. Record the tested SHA; keep PR #61 draft until completion.
+
+## G0.5 corrected reproducibility suite — owner confirmation and exit review (2026-11-21)
+
+The owner subsequently reported **all pass and confirmed** following the `HygienicLinkError` test-assertion correction, and previous native/KBC1 checks. This is user-reported evidence; exact final test count, `pytest -rs` skip disposition, and checkout SHA were not pasted. The earlier short test transcript did show one skip. Do not silently equate a green pytest exit with every platform-dependent test having run.
+
+A dedicated review is now available in [G05_EXIT_REVIEW.md](G05_EXIT_REVIEW.md). Its determination is **experimental trusted-local front-end candidate, not a stable or hosted native module system**. Explicit residual concerns include path-to-open races in build output directories, local source/catalog mutation under adversarial shared-workspace access, statement-only diagnostic positions, syntax stability, missing cross-toolchain reproducibility evidence and the unknown Windows skip reason.
+
+Next explicit release evidence:
+
+```cmd
+git pull --ff-only
+python -m pytest -q -rs tests/test_g05_build_reproducibility.py tests/test_g05_compile_command.py tests/test_g05_native_mapped_runner.py tests/test_g05_source_map.py tests/test_g05_diagnostic_mapping.py tests/test_g05_namespace_collision.py tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+python scripts/verify_local.py --profile full
+python scripts/verify_g05_native_kbc.py
+python scripts/verify_g05_kbc_independence.py
+git rev-parse HEAD
+```
+
+Keep PR #61 in draft during this exit review. The `--profile full` run is **new** relative to the most recently confirmed parity profile and has not yet been accepted for this revision.
