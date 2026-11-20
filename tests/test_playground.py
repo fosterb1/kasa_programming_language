@@ -86,6 +86,8 @@ def test_packaged_web_bundle(tmp_path):
         assert set(archive.namelist()) == expected | {MODULE_DESTINATION}
         assert b"self.KasaPinnedModules" in archive.read(MODULE_DESTINATION)
         assert b"const KASA_HAS_PINNED_MODULES = true;" in archive.read("worker.js")
+        assert b"const KASA_PACKAGED_MODULES = true;" in archive.read("sw.js")
+        assert b"generated at build time. */\\nself.KasaPinnedModules" in archive.read(MODULE_DESTINATION)
         assert b'<!doctype html>' in archive.read("index.html")
         assert b'function executeKasa' in archive.read("kasa-runtime.js")
         assert b'kasa-runtime.js' in archive.read("worker.js")
