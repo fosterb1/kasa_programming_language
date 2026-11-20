@@ -47,6 +47,23 @@ The **publish command first checks that both native Emscripten artifacts are new
 - Academy `tests/academy-studio.test.mjs` checks bundled first-party files and SHA-256 metadata. Its build refreshes the release manifest from the actual Academy assets; the language publisher separately includes hashes for all 13 tracked Studio files.
 - The live native binary is a compiled artefact. Releasing a fresh language revision requires compiling the actual current C++ source first, not reusing an old downloaded binary.
 
+## Windows workstation handoff (verified Mac build stays private)
+
+The owner's 2026-11-20 Emscripten 7.0.0 build and Chrome 157 smoke verification took place on an **Intel Mac**. The generated 488,235-byte `playground/native/kasa-native.wasm` and companion JavaScript glue are **local build artifacts**, not tracked source on GitHub. A Windows `git pull` does **not** transfer those binaries.
+
+On an existing Windows checkout, run non-publishing source/publisher tests using PowerShell:
+
+```powershell
+cd C:\Users\User\kasa_programming_language
+git pull --ff-only
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p test_release_to_academy.py -v
+node --test tests/test_kasa_wasm.cjs tests/test_kasa_browser.cjs
+```
+
+The unit tests are **not** a substitute for the actual Mac WASM artifact. A clean Windows machine cannot recreate Mac's candidate `53a17e183d46` by pulling source alone. Do **not** run `--publish` or substitute the Academy's older WASM artifact. To release that *exact* candidate, return to the Mac with the original binaries and the reviewed publisher; refresh both Git checkouts, re-run the real Chrome smoke gate and dry-run, then explicitly approve the controlled publisher invocation. Alternatively, build and independently verify a **new Windows Emscripten WASM** release using Git Bash or an equivalent Bash environment and all mandatory gates; the resulting fingerprint may be different.
+
+The cross-repository Academy compatibility fixes are tracked in Academy commits `78abe83a551b7e87a287b65d531aeef18bbac898` and `0141c901f959b7d308602a5ac65192db7440596e`. Both Vercel deployment records reached `READY` on 2026-11-20. They do **not** constitute a new Kasa Studio WASM release.
+
 ## After release
 1. Confirm Vercel deploys the new Academy commit successfully.
 2. Verify `/playground` shows native WebAssembly available and experimental imports remain available in the JavaScript Studio mode.
