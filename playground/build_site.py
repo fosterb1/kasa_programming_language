@@ -70,7 +70,7 @@ def packaged_pinned_modules(root: Path) -> bytes:
         modules[module_id] = {"source": payload.decode("utf-8", "strict"), "exports": entry["exports"]}
     # Emit ASCII-safe JSON as a JavaScript literal; no source interpolation.
     serialized = json.dumps(modules, ensure_ascii=True, sort_keys=True)
-    return ("/* Verified, local Kasa standard libraries; generated at build time. */\\n"
+    return ("/* Verified, local Kasa standard libraries; generated at build time. */\n"
             "self.KasaPinnedModules = Object.freeze(" + serialized + ");\n").encode("utf-8")
 
 
