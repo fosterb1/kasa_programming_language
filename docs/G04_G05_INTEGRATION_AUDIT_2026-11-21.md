@@ -137,3 +137,24 @@ main (no new G0.4/G0.5 merges)
 **First finish exact-HEAD G0.4 acceptance on Windows**, before revisiting G0.5 merging. In parallel, a POSIX-only smoke on the strict output implementation can collect independent safety evidence. Keep the companion Academy release work gated separately.
 
 Once source and tests are accepted, update PR #60's checklist first and PR #61's checklist second. **Nothing gets merged just because GitHub currently reports `mergeable=true`.**
+
+## 7. G0.4 Windows acceptance reported and browser delta reviewed (2026-11-21)
+
+**User report:** the owner confirmed **"all pass"** after the exact-head G0.4 Windows acceptance commands were supplied (shared pytest fixtures, both Node module runners, `verify_real_module_browser.py`, and the `--profile full` native runner). The owner did not paste the final command outputs, clean-tree status or `git rev-parse HEAD`; hence record this as *owner-confirmed*, not independently observed test execution at a particular SHA. The intended unchanged G0.4 head at review time is `7ddc7d5f733432d64d5a6dd9a043221c02f60e6c`.
+
+**Independent source-diff review:** GitHub's exact `playground/kasa-runtime.js` patch for PR #60 adds the `moduleFailure(category, message, token)` helper and changes **only the error category at experimental module validation sites** from `SyntaxError` to `ModuleError` (catalog and namespace validation) or `NameError` (unknown alias/export and alias mutation). It does not alter tokenization, numeric operators, default interpreter execution, runtime quotas, bytecode or module evaluation logic in that file. Existing browser tests remain necessary, but this diff supports *narrow diagnostic classification scope* rather than a broad interpreter rewrite.
+
+**G0.4 decision:** *eligible for review as an opt-in experimental integration candidate*, **not yet merge-authorized**. PR #60 remains draft, no reviews submitted at last inspection. Explicit owner merge authorization and the policy decision about any remaining platform skips are still separate. Do not mark it ready or merge during the consolidation audit.
+
+**Next no-merge action:** return to the G0.5 branch, run its entire release collector and the inherited G0.4 real-browser worker test, and record the final HEAD/skip details:
+
+```cmd
+git status --short
+git switch dev/g05-native-module-contract
+git pull --ff-only
+git rev-parse HEAD
+python scripts/verify_g05_release.py
+python scripts/verify_real_module_browser.py
+```
+
+If the Windows environment still lacks real symlink privileges and POSIX-specific functionality, `REVIEW_REQUIRED` remains **expected and mandatory** despite passing executable checks. Do not bypass the release collector or claim Linux directory-handle publication passed on Windows.
