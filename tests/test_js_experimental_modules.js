@@ -65,4 +65,20 @@ test("experimental check mode parses but does not execute", () => {
   assert.equal(result.output, "");
   assert.equal(result.steps, 0);
 });
+
+test("proposed Twi fa ... firi stdlib imports resolve aliases", () => {
+  const result = run("fa math firi stdlib: m\nfa collections firi stdlib: c\nka m.kasa_sum([10,20,30])\nka c.kasa_contains([1,2,3],2)");
+  assert.equal(result.ok, true, result.error);
+  assert.equal(result.output, "60\nnokware\n");
+});
+test("proposed Twi fa ... firi stdlib supports default module alias", () => {
+  const result = run("fa math firi stdlib\nka math.kasa_sum([1,2,3])");
+  assert.equal(result.ok, true, result.error);
+  assert.equal(result.output, "6\n");
+});
+test("proposed Twi import source cannot be arbitrary", () => {
+  const result = run("fa math firi external: m\nka m.kasa_sum([1])");
+  assert.equal(result.ok, false);
+  assert.match(result.error, /Only the pinned stdlib source/);
+});
 process.stdout.write(total + " JS experimental module checks passed\n");
