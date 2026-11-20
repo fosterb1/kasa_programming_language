@@ -1,6 +1,6 @@
 # G0.3 opt-in source-import acceptance checkpoint — 2026-11-20
 
-**Status:** regression tests added on development branch; **not independently executed on the Windows checkout yet**.
+**Status:** development-branch acceptance verified with owner-provided Windows terminal output on 2026-11-20; still experimental and not merged/released.
 
 ## Evidence received from Windows (commit `84ab2e0`)
 
@@ -24,7 +24,7 @@ The current source **already contains an opt-in Python-only experimental import 
 5. Stable parser rejecting opt-in syntax.
 6. Step-budget enforcement for library calls.
 
-## Windows gate — run on the new branch
+## Windows gate — passed on the new branch
 
 ```cmd
 git fetch origin
@@ -33,7 +33,7 @@ python -m pytest -q tests/test_g03_source_import_acceptance.py tests/test_experi
 python scripts/verify_local.py --profile parity
 ```
 
-Record full stdout, interpreter/toolchain version and exact commit. Do not mark this branch verified until tests run. Existing WASM candidate remains unpublished; Academy PR #9 remains separate.
+**Observed on the user's Windows checkout after `git switch dev/g03-source-import-acceptance`:** focused expanded module suite **68 passed in 0.89 seconds**; parity profile **11 passed, 0 failed, 0 not run**. The prior base revision was `84ab2e0`; the exact branch HEAD was not printed after switching, so do not attach an unverified exact tested HEAD to this run. The supplied screenshot shows experimental JavaScript module execution with output `60` and `nokware`; it is not Native WASM module support and does not independently prove live hosted deployment. Existing fresh WASM candidate remains unpublished; Academy PR #9 remains separate.
 
 ## Next implementation gate
 
