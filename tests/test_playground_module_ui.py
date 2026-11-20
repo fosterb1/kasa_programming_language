@@ -21,7 +21,7 @@ def test_ui_sends_opt_in_flag_to_worker_and_preserves_normal_mode():
     assert 'const experimentalModules = experimentalModulesInput.checked;' in js
     assert 'experimentalModules ? "javascript" : engineSelect.value' in js
     assert 'engine, experimentalModules });' in js
-    assert 'fa math: m' in js and 'kasa_sum(nneɛma)' in js
+    assert 'fa math firi stdlib: m' in js and 'kasa_sum(nneɛma)' in js
 
 
 def test_worker_only_accepts_explicit_true_and_fails_without_package():
