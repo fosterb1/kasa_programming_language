@@ -639,3 +639,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Ghanaian language policy:** No new Twi word, English import keyword, dot syntax, browser language surface or officially approved vocabulary added. This remains a Python AST experiment, not a working Kasa source import implementation.
 - **Risks/limits:** Future runtime integration must combine catalog-pinned loading, alias ownership, parser AST and bytecode contracts without resetting execution budgets on module initialization. Runtime API is not a sandbox or proof against malicious crafted ASTs.
 - **Next gate:** `python -m pytest -q tests/test_module_member_execution.py tests/test_module_namespace_isolation.py tests/test_bind_kasa_catalog.py tests/test_module_syntax_study.py` then `bash scripts/mac_dev.sh quick` on the updated Mac checkout. Record exact outputs before proceeding with syntax.
+
+
+## 2026-11-20 — Mac Group 0.3 member-execution acceptance + catalog integration
+
+- **User-supplied Mac evidence at `b2c61f4`:** `python -m pytest -q tests/test_module_member_execution.py tests/test_module_namespace_isolation.py tests/test_bind_kasa_catalog.py tests/test_module_syntax_study.py` → **46 passed in 0.64s**. `bash scripts/mac_dev.sh quick` → **7 passed, 0 failed, 0 not run**. Git fast-forward from `6b4a6af` to `b2c61f4`.
+- **Acceptance scope:** Experimental Python module-member AST evaluation passes its focused local regression gate. Neither accepted Twi import vocabulary nor executable source-level import syntax exists yet.
+- **New work after that acceptance:** `scripts/configure_kasa_modules.py` combines the G0.2 catalog validator, G0.3 alias planner, SHA-256-verified source binder and `ModuleAwareInterpreter` behind one opt-in developer API. `tests/test_configure_kasa_modules.py` tests real math/collections calls via synthetic AST, private/unknown exports, duplicate aliases, no global name injection, pre-execution shadowing checks and normal parser rejection of the English placeholder syntax.
+- **Verification of new integration suite:** **Pending Mac execution**. Do not represent committed tests as passed.
+- **Risks and limits:** Driver intentionally remains Python-only and uses trusted synthetic AST; it is not a real Kasa import statement or security sandbox. User-visible Twi import grammar still requires linguistic review; JS/browser, native and KBC1 semantics remain open.
+- **Next Mac gate:** `python -m pytest -q tests/test_configure_kasa_modules.py tests/test_module_member_execution.py tests/test_bind_kasa_catalog.py` then `bash scripts/mac_dev.sh quick`.
