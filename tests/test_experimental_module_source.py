@@ -88,5 +88,5 @@ def test_direct_script_launch_without_pytest_pythonpath():
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert result.stdout == "60\\nnokware\\n".replace("\\n", "\n")
+    assert result.stdout == "60\nnokware\n"
     assert result.stderr == ""
