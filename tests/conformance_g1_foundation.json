@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "description": "G1 standalone experimental source composition; NOT imported, pinned, or exposed in G0.5 native linker",
+  "libraries": [
+    "stdlib/g1/math.kasa",
+    "stdlib/g1/collections.kasa"
+  ],
+  "cases": [
+    {
+      "name": "signed_min_max",
+      "source": "ka kasa_min_or([7, -4, 20, -4], 99)\nka kasa_max_or([7, -4, 20, -4], 99)",
+      "expected_stdout": "-4\n20\n"
+    },
+    {
+      "name": "empty_fallback",
+      "source": "ka kasa_min_or([], -19)\nka kasa_max_or([], 42)",
+      "expected_stdout": "-19\n42\n"
+    },
+    {
+      "name": "single_and_duplicates",
+      "source": "ka kasa_min_or([5], 0)\nka kasa_max_or([5, 5, 5], 0)",
+      "expected_stdout": "5\n5\n"
+    },
+    {
+      "name": "zero_and_negative",
+      "source": "ka kasa_min_or([0, -1, -2], 9)\nka kasa_max_or([-8, -1, -10], 9)",
+      "expected_stdout": "-2\n-1\n"
+    },
+    {
+      "name": "first_last_duplicates",
+      "source": "ma a = [7, 2, 7, 7, 2]\nka kasa_first_index(a, 7)\nka kasa_last_index(a, 7)\nka a",
+      "expected_stdout": "0\n3\n[7, 2, 7, 7, 2]\n"
+    },
+    {
+      "name": "missing_and_empty",
+      "source": "ka kasa_first_index([1, 2], 9)\nka kasa_last_index([1, 2], 9)\nka kasa_first_index([], 1)\nka kasa_last_index([], 1)",
+      "expected_stdout": "-1\n-1\n-1\n-1\n"
+    },
+    {
+      "name": "first_last_boundary",
+      "source": "ka kasa_first_index([4, 5, 6], 6)\nka kasa_last_index([4, 5, 6], 4)",
+      "expected_stdout": "2\n0\n"
+    },
+    {
+      "name": "composed_math_collections",
+      "source": "ma a = [-5, 10, -5, 2]\nka kasa_first_index(a, kasa_min_or(a, 0))\nka kasa_last_index(a, kasa_min_or(a, 0))\nka kasa_max_or(a, -99)",
+      "expected_stdout": "0\n2\n10\n"
+    }
+  ]
+}
