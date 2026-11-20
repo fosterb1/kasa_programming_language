@@ -203,3 +203,11 @@ git rev-parse HEAD
 ```
 
 On a **POSIX** checkout with the native tool built, run the same pytest suite and the full collector to exercise actual handle-relative creation. Record full counts and skipped-test reasons per operating system; a Windows refusal is not a substitute for a POSIX success run.
+
+## Owner-confirmed Windows verification of strict publication (2026-11-21)
+
+The owner reports **"all passed and confirmed"** after the Windows acceptance commands for the opt-in POSIX handle-bound publication change at revision `46ff7f1e07cbb729c973ccb06725ec935d5582a6`. Exact pytest counts, full JSON collector report, skip details and the tested Git SHA were not pasted. This is **owner-reported** verification, not independently inspected logs.
+
+On Windows, the supported security claim is that requesting `strict_publication=True` / `--strict-publication` is **refused before source access**, while the previous trusted-local compiler pipeline remains supported. The POSIX-only tests are expected to skip on Windows and **were not established as executed** by this confirmation. The prior actual Windows symlink-creation restriction remains an evidence gap unless fresh logs establish otherwise. Keep the collector's `REVIEW_REQUIRED` result when such tests skip.
+
+**Next independent milestone:** exercise the real directory-handle publication tests on a supported POSIX filesystem using a separate Linux checkout or appropriately configured WSL; capture its `pytest -q -rs` output and exact revision. Before public hosted compilation, separately review Windows-native handle-based publishing, TOCTOU on the source/catalog side, and broader process sandboxing. This confirmation does not approve production deployment or conversion of PR #61 from draft.
