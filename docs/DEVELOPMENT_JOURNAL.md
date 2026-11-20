@@ -649,3 +649,14 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Verification of new integration suite:** **Pending Mac execution**. Do not represent committed tests as passed.
 - **Risks and limits:** Driver intentionally remains Python-only and uses trusted synthetic AST; it is not a real Kasa import statement or security sandbox. User-visible Twi import grammar still requires linguistic review; JS/browser, native and KBC1 semantics remain open.
 - **Next Mac gate:** `python -m pytest -q tests/test_configure_kasa_modules.py tests/test_module_member_execution.py tests/test_bind_kasa_catalog.py` then `bash scripts/mac_dev.sh quick`.
+
+
+## 2026-11-20 — User-verified Mac catalog-to-runtime G0.3 integration
+
+- **Checkout:** User fast-forwarded `main` from `b2c61f4` to `9f22df0` through the NetShare per-command proxy.
+- **Focused test command:** `python -m pytest -q tests/test_configure_kasa_modules.py tests/test_module_member_execution.py tests/test_bind_kasa_catalog.py`.
+- **Observed result (user transcript):** **27 passed in 0.45s**, with no skipped or failed cases reported.
+- **Quick profile:** `bash scripts/mac_dev.sh quick` — **7 passed, 0 failed, 0 not run**, including Python pytest/CLI and JavaScript runtime/worker/playground syntax and protocol diagnostics.
+- **Acceptance:** The experimental catalog-backed Python module-aware interpreter is verified on the user's Intel macOS test environment for this targeted scope. The previous `46 passed` result was on `b2c61f4` and must not be combined as distinct test coverage.
+- **Open blockers:** Actual source-level Kasa import declarations and dotted member grammar not implemented; no approved Twi import vocabulary; no JS/native/KBC1 module parity. Local quick profile is not full native/WASM certification.
+- **Next work:** Design the syntax-neutral parser AST contract first, record Twi terminology proposals separately for human review, then add end-to-end source examples only when grammar and cross-runtime compatibility are explicitly gated.
