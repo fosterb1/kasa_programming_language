@@ -81,4 +81,35 @@ test("proposed Twi import source cannot be arbitrary", () => {
   assert.equal(result.ok, false);
   assert.match(result.error, /Only the pinned stdlib source/);
 });
+
+test("colon alias grammar is scoped to import declarations", () => {
+  for (const source of [
+    "fa math: m\nka m.kasa_sum([1,2])",
+    "fa math firi stdlib: m\nka m.kasa_sum([1,2])",
+    "fa math\nka math.kasa_sum([1,2])",
+    "fa math firi stdlib\nka math.kasa_sum([1,2])",
+  ]) {
+    const result = run(source);
+    assert.equal(result.ok, true, result.error);
+    assert.equal(result.output, "3\n");
+  }
+});
+test("malformed alias colon fails before output", () => {
+  for (const source of [
+    "fa math:\nka 1",
+    "fa math firi stdlib:\nka 1",
+    "fa math: m: x\nka 1",
+    "fa math firi stdlib: m: x\nka 1",
+  ]) {
+    const result = run(source);
+    assert.equal(result.ok, false, source);
+    assert.match(result.error, /SyntaxError/, source);
+    assert.equal(result.output, "");
+  }
+});
+test("colon in string is data not an alias", () => {
+  const result = run('fa math firi stdlib: m\nka "su: m"\nka m.kasa_sum([2,3])');
+  assert.equal(result.ok, true, result.error);
+  assert.equal(result.output, "su: m\n5\n");
+});
 process.stdout.write(total + " JS experimental module checks passed\n");
