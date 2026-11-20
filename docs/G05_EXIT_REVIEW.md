@@ -106,3 +106,14 @@ git rev-parse HEAD
 ```
 
 Expected while the OS policy is unchanged: the new simulated-guard test passes, the real symlink test remains an **explained skip**, four release stages pass, and aggregate status remains `REVIEW_REQUIRED`. That is acceptable for *continued experimental development*, **not** the final security sign-off for hosted/untrusted compilation. A separate Windows security configuration or properly isolated test environment is required to run the real symlink check.
+
+## User-confirmed guard simulation and complete release-gate result — 2026-11-21
+
+At exact tested revision `34b3a8673431cf8ab213457045e0284ff2e63cff`, owner-supplied Windows terminal output shows:
+
+- `python -m pytest -q -rs tests/test_g05_compile_command.py`: **5 passed, 1 skipped**, with the exact skip reason `This Windows account cannot create symlinks` at `tests/test_g05_compile_command.py:62`. The simulated path-link guard rejection test **passed**; the actual symlink test did not execute.
+- `python scripts/verify_g05_release.py`: `PASSED native_full`, `PASSED g05_pytest`, `PASSED native_kbc_parity`, and `PASSED kbc_independence`.
+- Aggregate G0.5 pytest results: **58 passed, 1 skipped, 0 failed**.
+- The collector returns **`REVIEW_REQUIRED`**, correctly preserving the real symlink test's missing coverage. This is **not** a functional compiler failure and must not be reclassified as a zero-skip pass.
+
+**Disposition:** G0.5 remains an experimental trusted-local candidate on the verified Windows setup. The next security evidence should run the actual filesystem symlink test in a Windows environment where symlink creation is permitted, then independently evaluate filesystem replacement/race threats before any hosted or untrusted compilation deployment. This is not grounds for a stable-module release or automatic production merge. The experimental source prelink path and KBC1 format have not changed in this checkpoint.
