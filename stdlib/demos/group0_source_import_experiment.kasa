@@ -1,7 +1,7 @@
-# G0.3 experimental syntax. Not final Twi vocabulary.
+# G0.4 proposed Twi-first import notation; linguistic review pending.
 # Run with: python scripts/run_kasa_modules_experimental.py stdlib/demos/group0_source_import_experiment.kasa
-@math:m
-@collections:c
+fa math: m
+fa collections: c
 
 # Adesua: Ghanaian market basket quantities.
 ma nnoɔma = [10, 20, 30]
