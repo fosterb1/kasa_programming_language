@@ -186,3 +186,21 @@ git rev-parse --short HEAD
 ```
 
 Successful driver output should end with `PASS G0.5 linked imports: 4 portable cases, Python experimental / linked / native / KBC1 outputs agree`. **No pass claimed pending owner's terminal logs.** KBC1 result parity for four examples is narrower than a general proof of native namespaces or full semantic hygiene. Continue with synthetic colliding function names/private helpers, malformed package inputs and original-source diagnostics before declaring a stable native module system.
+
+## G0.5 user-confirmed native/KBC1 differential and collision stress test (2026-11-21)
+
+The owner confirmed that **all requested verification commands passed**, including the four-case `python scripts/verify_g05_native_kbc.py` gate. This is **user-reported verification**: exact stdout and commit SHA for that round were not provided. It demonstrates linked-source execution through experimental/reference Python, native C++, and KBC1 for the four specified portable programs; it **does not** prove native import parsing or a general native module loader.
+
+New `tests/test_g05_namespace_collision.py` constructs a **disposable, independent allowlisted catalog** of two synthetic function-only Kasa libraries (`alpha` and `beta`) with deliberately identical exported function `shared` and identically named private helper `helper`. Each library has a different helper implementation, while the application also declares both names. Tests require distinct generated internal symbols, separate outputs, correct nested qualified calls, private-helper access rejection, and string-literal preservation. Test code temporarily extends the catalog validator's allowlist via pytest monkeypatch only; the production `stdlib/catalog.json` remains untouched. The test runs linked code through the Python reference interpreter and **does not yet establish native/KBC parity for synthetic catalogs**.
+
+**Status:** collision test committed; **not yet executed on Windows**. A new green gate must be recorded before claiming this invariant verified.
+
+```cmd
+git pull --ff-only
+python -m pytest -q tests/test_g05_namespace_collision.py tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+python scripts/verify_g05_native_kbc.py
+python scripts/verify_local.py --profile parity
+git rev-parse --short HEAD
+```
+
+After this gate, implement original-source location mapping and native diagnostic differential checks. Keep import grammar experimental, maintain existing KBC1 binary wire format, and do not merge incomplete behavior into `main`.
