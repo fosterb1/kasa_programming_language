@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -30,6 +31,47 @@ WASM_FILES = {
     "playground/native/kasa-native.wasm": "native/kasa-native.wasm",
 }
 WORKER_FLAG = "const KASA_HAS_WASM = false;"
+MODULE_FLAG = "const KASA_HAS_PINNED_MODULES = false;"
+MODULE_DESTINATION = "kasa-pinned-modules.js"
+
+
+def packaged_pinned_modules(root: Path) -> bytes:
+    """Verify fixed local catalog and produce a deterministic, inert JS asset."""
+    catalog = json.loads((root / "stdlib/catalog.json").read_text(encoding="utf-8"))
+    if catalog.get("schema_version") != 1 or not isinstance(catalog.get("modules"), list):
+        raise RuntimeError("Invalid packaged Kasa module catalog")
+    expected = {
+        "math": ("stdlib/experimental/math.kasa", {"kasa_abs", "kasa_clamp", "kasa_sum"}),
+        "collections": ("stdlib/experimental/collections.kasa", {"kasa_count_equal", "kasa_contains"}),
+    }
+    modules = {}
+    if len(catalog["modules"]) != len(expected):
+        raise RuntimeError("Unexpected number of packaged Kasa modules")
+    for entry in catalog["modules"]:
+        module_id = entry.get("id")
+        if module_id not in expected or module_id in modules:
+            raise RuntimeError("Unknown or duplicate packaged module")
+        source_path, exports = expected[module_id]
+        if entry.get("source") != source_path or set(entry.get("exports", [])) != exports or len(entry["exports"]) != len(exports) or entry.get("dependencies") != []:
+            raise RuntimeError("Packaged Kasa module metadata mismatch")
+        current = root
+        for part in source_path.split("/"):
+            current = current / part
+            if current.is_symlink() or (hasattr(current, "is_junction") and current.is_junction()):
+                raise RuntimeError("Linked packaged module source rejected")
+        payload = current.read_bytes()
+        if b"\\r" in payload.replace(b"\\r\\n", b""):
+            raise RuntimeError("Unexpected module line ending")
+        payload = payload.replace(b"\\r\\n", b"\\n")
+        digest = "sha256:" + hashlib.sha256(payload).hexdigest()
+        if entry.get("content_identity") != digest:
+            raise RuntimeError("Packaged Kasa module source hash mismatch: " + module_id)
+        modules[module_id] = {"source": payload.decode("utf-8", "strict"), "exports": entry["exports"]}
+    # JSON is safe as inert JavaScript literal after protecting HTML-sensitive <.
+    serialized = json.dumps(modules, ensure_ascii=False, sort_keys=True).replace("<", "\\u003c")
+    return ("/* Verified, local Kasa standard libraries; generated at build time. */\\n"
+            "self.KasaPinnedModules = Object.freeze(" + serialized + ");\\n").encode("utf-8")
+
 
 
 def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> Path:
@@ -45,11 +87,14 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
         wasm = ROOT / "playground/native/kasa-native.wasm"
         if wasm.read_bytes()[:8] != b"\x00asm\x01\x00\x00\x00":
             raise RuntimeError("WASM asset is invalid (missing WebAssembly header)")
+    pinned_asset = packaged_pinned_modules(ROOT)
     # A stable content digest invalidates the previous offline cache on every update.
     digest = hashlib.sha256()
     for source in (*FILES, *(WASM_FILES if all(have_wasm) else ())):
         digest.update(source.encode("utf-8"))
         digest.update((ROOT / source).read_bytes())
+    digest.update(MODULE_DESTINATION.encode("utf-8"))
+    digest.update(pinned_asset)
     revision = digest.hexdigest()[:12]
     with ZipFile(output, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
         for source, destination in FILES.items():
@@ -62,11 +107,15 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
                 text = (ROOT / source).read_text(encoding="utf-8")
                 if text.count(WORKER_FLAG) != 1:
                     raise RuntimeError("Cannot patch the WASM worker flag safely")
+                if text.count(MODULE_FLAG) != 1:
+                    raise RuntimeError("Cannot safely patch the module worker flag")
+                text = text.replace(MODULE_FLAG, "const KASA_HAS_PINNED_MODULES = true;")
                 if all(have_wasm):
                     text = text.replace(WORKER_FLAG, "const KASA_HAS_WASM = true;")
                 archive.writestr(destination, text.encode("utf-8"))
             else:
                 archive.write(ROOT / source, destination)
+        archive.writestr(MODULE_DESTINATION, pinned_asset)
         if all(have_wasm):
             for source, destination in WASM_FILES.items():
                 archive.write(ROOT / source, destination)
