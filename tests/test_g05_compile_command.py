@@ -11,6 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 try:
+    import compile_g05_modules as compiler
     from compile_g05_modules import CompileError, DEFAULT_NATIVE, compile_modules
 finally:
     sys.path.remove(str(ROOT / "scripts"))
@@ -61,6 +62,26 @@ def test_rejects_unlinked_source_symlink(tmp_path, output_path):
         pytest.skip("This Windows account cannot create symlinks")
     with pytest.raises(CompileError, match="regular source"):
         compile_modules(alias, output_path)
+    assert not output_path.exists()
+
+
+def test_source_link_rejection_without_os_symlink_privileges(tmp_path, output_path, monkeypatch):
+    """Exercise the actual guard even when Windows prohibits symlink creation.
+
+    This is a simulated path-link check, not a substitute for the real
+    filesystem symlink test (which continues to skip when unavailable).
+    """
+    original = _write(tmp_path, "fa math firi stdlib: m\\nka 1\\n")
+    original_guard = compiler._linked_directory
+
+    def linked_for_test(path):
+        if path == original:
+            return True
+        return original_guard(path)
+
+    monkeypatch.setattr(compiler, "_linked_directory", linked_for_test)
+    with pytest.raises(CompileError, match="regular source"):
+        compile_modules(original, output_path)
     assert not output_path.exists()
 
 
