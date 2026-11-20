@@ -76,7 +76,7 @@ def packaged_pinned_modules(root: Path) -> bytes:
 
 
 def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> Path:
-    """Produce a static ZIP; enable WASM only if both generated assets exist."""
+    """Produce a hosting-neutral static ZIP; enable WASM only with complete assets."""
     output = output or ROOT / "dist" / "Kasa_Playground_Web.zip"
     output.parent.mkdir(parents=True, exist_ok=True)
     have_wasm = [(ROOT / source).is_file() for source in WASM_FILES]
