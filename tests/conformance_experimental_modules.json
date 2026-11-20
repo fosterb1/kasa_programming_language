@@ -32,14 +32,16 @@
       "source": "fa missing firi stdlib: m\nka 1\n",
       "error_contains": "Unknown catalog module",
       "python_category": "ModuleError",
-      "js_category": "SyntaxError"
+      "js_category": "ModuleError",
+      "line": 1,
+      "column": 1
     },
     {
       "id": "duplicate-alias",
       "source": "fa math firi stdlib: m\nfa collections firi stdlib: m\nka 1\n",
       "error_contains": "alias reused",
       "python_category": "ModuleError",
-      "js_category": "SyntaxError"
+      "js_category": "ModuleError"
     },
     {
       "id": "untrusted-origin",
@@ -53,28 +55,36 @@
       "source": "fa math firi stdlib: m\nka \"not reached\"\nka m.private(1)\n",
       "error_contains": "does not export",
       "python_category": "NameError",
-      "js_category": "SyntaxError"
+      "js_category": "NameError",
+      "line": 3,
+      "column": 5
     },
     {
       "id": "unknown-alias",
       "source": "fa math firi stdlib: m\nka \"not reached\"\nka x.kasa_sum([1])\n",
       "error_contains": "Unknown module alias",
       "python_category": "NameError",
-      "js_category": "SyntaxError"
+      "js_category": "NameError",
+      "line": 3,
+      "column": 5
     },
     {
       "id": "reassign-alias",
       "source": "fa math firi stdlib: m\nka \"not reached\"\nma m = 3\n",
       "error_contains": "Module alias cannot",
       "python_category": "NameError",
-      "js_category": "SyntaxError"
+      "js_category": "NameError",
+      "line": 3,
+      "column": 1
     },
     {
       "id": "late-import",
       "source": "fa math firi stdlib: m\nka \"not reached\"\nfa collections firi stdlib: c\n",
       "error_contains": "precede statements",
       "python_category": "SyntaxError",
-      "js_category": "SyntaxError"
+      "js_category": "SyntaxError",
+      "line": 3,
+      "column": 1
     }
   ]
 }
