@@ -62,3 +62,24 @@ For a **stable native module system**, require more: native import grammar speci
 Prioritize an **experimental release-check command** collecting JSON evidence from the local revision, full native tests, G0.5 focused tests and both KBC scripts, while separating passes, failures and skips. Do not silently re-run or claim CI/GitHub tests on the owner's Windows machine.
 
 No repository changes in this review affect the native runtime, KBC wire format or experimental language grammar.
+
+## Owner-confirmed full native milestone and release-evidence collector — 2026-11-21
+
+The owner reports **all pass and confirmed** after executing the `--profile full` native verification, native/KBC1 module comparison and KBC1 independence/mutation commands. The full profile is thus **user-confirmed** for the then-current checkout. No complete full-profile JSON log, final revision SHA, or skip details were pasted into the conversation, so the open Windows skip evidence gap persists.
+
+The following separate code was subsequently added and is **not yet Windows-run**:
+- `scripts/verify_g05_release.py` runs the full native profile into `build/g05-full-native-evidence.json`, the G0.5 pytest suites with `-rs` skip reasons, the four-case module/KBC1 differential and the KBC1 independence/corruption gate.
+- It captures the exact Git commit before/after, branch, tracked working-tree modifications, per-gate exit codes/stdout/stderr tails and pytest counts into `build/g05-release-evidence.json`.
+- It returns a clean `passed` status **only** if all commands pass, the source revision does not change, the expected dev branch and clean tracked tree are retained, the full-native JSON matches the revision and no tests are skipped. If tests skip or evidence metadata is incomplete, status is `review_required` with a nonzero exit. A failing check yields `failed`.
+- `tests/test_g05_release_evidence.py` validates classification of the past 53-pass/1-failure/1-skip output, skip-reason preservation and mandatory gate coverage.
+
+### Next Windows evidence command
+
+```cmd
+git pull --ff-only
+python -m pytest -q tests/test_g05_release_evidence.py
+python scripts/verify_g05_release.py
+git rev-parse HEAD
+```
+
+The report path is deliberately fixed inside `build/`, not a user-selected arbitrary output path. Inspect the JSON and **report the exact skip reason** if the collector says `REVIEW_REQUIRED`; that outcome does not necessarily indicate a regression but is insufficient to close the release gate. The script is not CI, a hosted-sandbox audit, a cross-platform reproducibility proof or a PR merge authorization. Keep #61 draft pending release/security review.
