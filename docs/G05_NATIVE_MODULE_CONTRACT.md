@@ -167,3 +167,22 @@ Expected normal interpreter output for the sample: `60` on the first line and `n
 The owner's first run of `python -m pytest -q tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py` **failed during pytest collection**: `tests/test_hygienic_module_linker.py`, line 18, contained a literal backslash-n between the two Python import statements. Pytest raised `SyntaxError: unexpected character after line continuation character`; no actual G0.5a tests executed in that run. The literal was introduced by a faulty earlier GitHub file-edit operation, not by the Kasa interpreter or Windows environment.
 
 Commit `729e750` replaces the literal `\\n` with an actual line break. **This edit has not yet been retested on Windows.** Do not describe the new linker as passing or native-module complete. Re-run the focused tests before writing generated source, compiling, or changing the draft PR status. If a new failure appears, preserve the full traceback rather than working around assertions.
+
+## Language import direction approved; G0.5 native/KBC1 differential gate (2026-11-21)
+
+**Language policy:** Keep `fa <module> firi stdlib: <alias>` as the current **experimental, Twi-first** import direction. Do **not** add Python's `from ... import ...` to the Kasa parser merely because Kasa tooling is implemented in Python. The exact natural-language form remains subject to eventual linguistic review and stable-language specification. Existing default Kasa parsers continue to reject opt-in imports.
+
+Added `scripts/verify_g05_native_kbc.py`: a strict, **not yet Windows-run** acceptance driver for four portable source cases. For each case it (1) statically links the validated catalog source to ordinary Kasa without writing into the repo, (2) compares experimental Python execution against the linked Python interpreter, (3) runs the linked source through the prebuilt native C++ binary, (4) compiles with the **existing KBC1** option, checks the `KBC1` file magic, runs `check-bytecode` and `run-bytecode`, and (5) requires byte-for-byte UTF-8 stdout agreement. It writes only into a temporary directory and refuses missing native binaries, unsupported cases, failed native commands, malformed KBC1, and output differences. No new native parser, opcode, bytecode format, runtime module loader or source catalog permissions were added.
+
+**Windows acceptance commands (only after prior focused linker tests pass):**
+
+```cmd
+git pull --ff-only
+python -m py_compile scripts/verify_g05_native_kbc.py
+python -m pytest -q tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+python scripts/verify_local.py --profile parity
+python scripts/verify_g05_native_kbc.py
+git rev-parse --short HEAD
+```
+
+Successful driver output should end with `PASS G0.5 linked imports: 4 portable cases, Python experimental / linked / native / KBC1 outputs agree`. **No pass claimed pending owner's terminal logs.** KBC1 result parity for four examples is narrower than a general proof of native namespaces or full semantic hygiene. Continue with synthetic colliding function names/private helpers, malformed package inputs and original-source diagnostics before declaring a stable native module system.
