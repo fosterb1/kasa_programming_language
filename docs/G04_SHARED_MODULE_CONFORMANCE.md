@@ -72,3 +72,25 @@ git rev-parse --short HEAD
 ```
 
 Next: after this gate passes, resolve remaining duplicate-alias location mismatch with an explicit per-declaration Python diagnostic, add real-worker verification, then consider G0.5 native/KBC packaging design.
+
+## G0.4.2 — duplicate module/alias diagnostics (implementation, Windows verification pending)
+
+- The experimental Python source runner now records module IDs and aliases while reading leading import declarations. A duplicate is rejected at **the conflicting second declaration**, before catalog binding or program output, with the existing `ModuleError` category and message.
+- The shared fixture corpus now has **13 cases** (previously 12): both duplicate aliases and duplicate module selections assert **line 2, column 1** in Python and JavaScript. Existing source/output tests and isolated namespace checks remain in place.
+- This does **not** change the normal `python -m kasa` parser, grammar, JavaScript interpreter semantics, native C++ compiler or KBC formats. Planner-level validation remains in force for catalog identity, allowable aliases, dependency checks and other rules.
+- **Known limits:** error coordinates currently point at the import statement's beginning. Exact identifier-token highlighting is future work. Python still wraps catalog failures into `ModuleError` at the first declaration for cases beyond locally detected duplicates; no universal diagnostic-location guarantee is claimed.
+- **Verification:** Files committed on this development branch; **not yet executed on owner's Windows workstation**. Earlier user-reported G0.4.1 tests passed but without detailed stdout/HEAD, so do not conflate them with G0.4.2 acceptance.
+
+### G0.4.2 Windows acceptance
+
+```cmd
+cd C:\Users\User\kasa_programming_language
+git pull --ff-only
+python -m pytest -q tests/test_module_cross_runtime_fixtures.py tests/test_g03_source_import_acceptance.py tests/test_experimental_module_source.py
+node tests/test_js_module_cross_runtime_fixtures.cjs
+node tests/test_js_experimental_modules.js
+python scripts/verify_local.py --profile parity
+git rev-parse --short HEAD
+```
+
+Acceptance requires the new 13-case shared suites, no regressions in existing tests, and all applicable parity stages passing. Then run real browser-worker checks before claiming the opt-in browser module path broadly tested.
