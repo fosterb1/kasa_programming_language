@@ -751,3 +751,11 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Evidence boundary:** This turn contains no complete terminal output or exact timing. Treat the corrected Python packaging suite and archive build as **user-reported successful**, rather than reproducing an unobserved exact pytest count. The earlier explicit Mac record showed 16 passing Python cases and one escaped-newline assertion failure, plus 13/13 JS runtime checks and 5/5 worker VM checks; the assertion was repaired in `f5f72c5`.
 - **Accepted milestone:** Group 0.4 pinned browser asset packaging and opt-in worker protocol reached user-reported local acceptance. This does not certify the deployed browser, live Netlify site, UI opt-in, actual WASM module execution, or Academy integrations.
 - **Next implementation:** Add an explicitly labeled learner-facing experimental-module control and Ghanaian example, wire that control into `EXECUTE` messages, ensure browser requests route only to JS when experimental modules are enabled, and add UI/worker regressions before recommending deployment. Preserve default behavior, existing Twi-first tokens and the unapproved status of `@math:m`.
+
+
+## 2026-11-20 — Deployment direction updated by project owner
+
+- **Owner decision:** Kasa is **no longer using Netlify**. Do not describe Netlify as the intended deployment platform or recommend deploying to it.
+- **Hosting replacement:** Not specified yet. Treat hosting and release destination as undecided until confirmed by the project owner; do not assume Vercel or any other provider.
+- **Engineering consequence:** Continue developing and independently testing the browser playground, offline static bundles, module imports and Academy integration in a hosting-neutral way. Existing ZIP paths and historical Netlify references in earlier journals are legacy artifacts, **not current deployment commitments**.
+- **Next planning gate:** Confirm the actual hosting/deployment workflow before adding provider-specific CI, deployment steps, URLs or CMS hosting guidance.
