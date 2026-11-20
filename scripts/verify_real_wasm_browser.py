@@ -166,18 +166,24 @@ def run():
                 page.locator("#experimental-modules").check()
                 page.locator("#engine").select_option("javascript")
                 page.locator("#source").fill(
-                    "fa math firi stdlib: m\\n"
-                    "fa collections firi stdlib: c\\n"
-                    "ma nneɛma = [10, 20, 30]\\n"
-                    "ka m.kasa_sum(nneɛma)\\n"
-                    "ka c.kasa_contains(nneɛma, 20)\\n"
+                    "fa math firi stdlib: m\n"
+                    "fa collections firi stdlib: c\n"
+                    "ma nneɛma = [10, 20, 30]\n"
+                    "ka m.kasa_sum(nneɛma)\n"
+                    "ka c.kasa_contains(nneɛma, 20)\n"
                 )
                 page.locator("#run").click()
                 page.wait_for_function(
-                    "document.querySelector('#status').textContent.includes('Run completed')",
+                    "['ready', 'error'].includes(document.querySelector('#status').dataset.state) "
+                    "&& !document.querySelector('#run').disabled",
                     timeout=25000,
                 )
-                assert page.locator("#output").inner_text().strip() == "60\\nnokware"
+                assert "Run completed" in page.locator("#status").inner_text(), (
+                    "Pinned module browser run failed: status="
+                    + page.locator("#status").inner_text()
+                    + " output=" + page.locator("#output").inner_text()
+                )
+                assert page.locator("#output").inner_text().strip() == "60\nnokware"
                 assert "JavaScript" in page.locator("#status").inner_text()
                 assert page.locator("#engine option[value=native]").is_disabled()
 
@@ -188,13 +194,13 @@ def run():
                     timeout=25000,
                 )
                 page.locator("#engine").select_option("native")
-                page.locator("#source").fill('ka "Akwaaba Ghana!"\\nka 25 + 15')
+                page.locator("#source").fill('ka "Akwaaba Ghana!"\nka 25 + 15')
                 page.locator("#run").click()
                 page.wait_for_function(
                     "document.querySelector('#status').textContent.includes('Run completed')",
                     timeout=25000,
                 )
-                assert page.locator("#output").inner_text().strip() == "Akwaaba Ghana!\\n40"
+                assert page.locator("#output").inner_text().strip() == "Akwaaba Ghana!\n40"
                 assert "Native WebAssembly" in page.locator("#status").inner_text()
                 assert not errors, f"Uncaught browser page errors: {errors}"
             context.close()
