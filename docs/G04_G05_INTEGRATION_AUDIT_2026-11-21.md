@@ -245,3 +245,27 @@ The owner explicitly lifted the previous no-deploy restriction ("no problem depl
 **Deployment caveat:** repository Netlify integration is present, and the owner permitted deployment for this merge, but immediately after merging GitHub exposed **no combined statuses and zero check runs for the new merge commit**. That is **not** proof that Netlify did or did not deploy; check the site's deploy history/production URL independently before claiming deployment success. No manual deployment API was invoked by this workflow.
 
 **Next:** separately reconcile G0.5's branch topology and compare its exact 23-file scope against the now-merged G0.4 content; perform tests on the reconciled commit and independently verify POSIX strict-publication tests. Keep PR #61 draft and the collector's `REVIEW_REQUIRED` semantics intact.
+
+## 14. G0.5 ancestry reconciled with merged main (2026-11-21)
+
+**GitHub source proof before reconciliation:** `main=46d74cb2d61623ce23e3018870c4feee8aa6908a` was a normal two-parent merge with parents `84ab2e03a94b207a2d16aba52db36f880653c52f` and the original G0.4 head `7ddc7d5f733432d64d5a6dd9a043221c02f60e6c`. GitHub's Git object API confirmed the **main and G0.4 tree SHA are identical** (`c7b716da1bf612ea9e2e0d5234ae60928a2c5575`). Therefore incorporating the merge commit into G0.5 required no file-level conflict resolution.
+
+**Performed (no force push, no G0.5 merge into main):** created merge commit `dda5e8a18b95b401ef1cdbe6ce97ba2f7e61f88d` with first parent `144224978ba24047417c87859c212e0f98d37eec` (then-current G0.5 head), second parent `46d74cb2d61623ce23e3018870c4feee8aa6908a` (main), and **the unchanged G0.5 source tree** `db8ee85928c6918f106d8e57e17cc2e3cc6f58b5`. Applied a non-forced, expected-head guarded Git ref update to G0.5 only. GitHub compare `main...G0.5` changed to **ahead 75 / behind 0**, with **exactly 27 paths** in `docs/`, `scripts/` and `tests/`; no duplicate G0.4 runtime files or changes in `native/`, `src/`, `playground/`.
+
+After those checks, PR #61 was **retargeted to `main`**, preserving `open` and `draft`. No PR #61 merge or production release was attempted.
+
+**Auditor compatibility repair:** the old `scripts/audit_g04_g05_stack.py` intentionally expected pre-merge `main → G0.4 → G0.5` and would incorrectly fail once G0.4 landed on main. It now distinguishes the historical pre-merge stack from the post-merge topology. In post-merge mode it checks that G0.4 is an ancestor of main; their Git tree identities are equal; main is an ancestor of G0.5; the original nine G0.4 files are still present relative to the merge commit's first parent; and the G0.5 diff against `main` remains restricted. Corresponding unit tests now check post-merge success, unexpected native file changes and mismatching tree identity. These **new revisions still require owner execution** on Windows.
+
+### Local Windows acceptance — no merge of G0.5
+
+```cmd
+git switch dev/g05-native-module-contract
+git pull --ff-only
+git rev-parse HEAD
+python -m pytest -q -rs tests/test_g04_g05_stack_audit.py
+python scripts/audit_g04_g05_stack.py --pretty
+python scripts/verify_g05_release.py
+python scripts/verify_real_module_browser.py
+```
+
+The G0.5 collector may correctly return `REVIEW_REQUIRED` on Windows due to skipped POSIX strict-publication tests and unavailable real file symlink privileges. Report the exact JSON/skip details and keep those gaps open. A green branch topology check is **never** security approval or authorization to merge PR #61. True POSIX publication tests and a separate independent G0.5 code/security review remain outstanding.
