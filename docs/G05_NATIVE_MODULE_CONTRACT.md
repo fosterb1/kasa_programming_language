@@ -1,7 +1,7 @@
 # G0.5 — native compiler and KBC module integration contract (draft RFC)
 
 **Opened:** 2026-11-21  
-**Status:** DESIGN ONLY on `dev/g05-native-module-contract`. No native import parser, compiler, VM or bytecode format has been changed.  
+**Status:** Design plus G0.5a **read-only prelink preflight prototype** on `dev/g05-native-module-contract`; not yet independently verified on Windows. No native import parser, compiler, VM or bytecode format has been changed.  
 **Prerequisite:** G0.4.3 experimental browser-worker gate **owner-confirmed**; see `docs/G04_SHARED_MODULE_CONFORMANCE.md`. Exact latest browser-run SHA and log not supplied.
 
 ## 1. Goal and non-goals
@@ -111,3 +111,25 @@ These commands validate the **baseline**, not G0.5 native imports. No new code t
 4. Which compile-time alias-shadowing conventions are part of experimental grammar, versus reserved name policy awaiting Twi language review?
 
 **Next slice:** G0.5a build-time namespace-linker implementation, only after confirming AST/name-binding behavior. Do not merge incomplete native module support into `main`.
+
+## G0.5a first implementation — read-only prelink preflight (2026-11-21)
+
+After owner confirmation that the baseline design-branch catalog validator and parity profile passed (individual logs and commit not supplied), the following files were committed:
+
+- `scripts/preflight_native_modules.py`: parses opt-in `fa ... firi stdlib` import source into the existing experimental AST; validates the allowlisted source catalog and hashes, import ordering, duplicate IDs/aliases at the conflicting declaration, explicit export references, unknown aliases, function/parameter alias shadowing, and alias assignments. Returns deterministic JSON describing module bindings, dependency load order, referenced exported symbols and private functions. **Does not run Kasa, generate source, create KBC or modify the native compiler.**
+- `tests/test_native_module_preflight.py`: positive two-module and nested-expression cases, fail-closed diagnostics for ten invalid inputs, string literal preservation, and no-output assertions.
+
+**Important:** This preflight validates only the current allowlisted modules. It does not establish hygienic symbol rewriting, closure-equivalent capture, source maps, native source/KBC parity, arbitrary third-party modules, or any added host capabilities. The existing catalog validator is authoritative for source validity; checked module source is reread and SHA-256-verified before the result is returned.
+
+### New Windows verification gate
+
+```cmd
+git pull --ff-only
+python -m pytest -q tests/test_native_module_preflight.py
+python scripts/validate_kasa_catalog.py
+python scripts/preflight_native_modules.py stdlib/demos/group0_source_import_experiment.kasa
+python scripts/verify_local.py --profile parity
+git rev-parse --short HEAD
+```
+
+The demo path must exist in the checkout and contain a valid experimental import program; if missing, create a separate disposable `.kasa` sample under `build/` rather than altering the tracked demos. **Tests and commands are newly added but not yet run by the owner.** Next G0.5a slice is a symbol-binding/hygiene study; do not emit linked source until proven capture-avoiding.
