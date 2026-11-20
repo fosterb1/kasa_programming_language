@@ -204,3 +204,27 @@ git rev-parse --short HEAD
 ```
 
 After this gate, implement original-source location mapping and native diagnostic differential checks. Keep import grammar experimental, maintain existing KBC1 binary wire format, and do not merge incomplete behavior into `main`.
+
+## G0.5 diagnostic source maps — implementation checkpoint (2026-11-21)
+
+**Status:** New code committed on the development branch, **Windows acceptance pending**. The earlier owner-reported four-case native/KBC1 results do not certify these changes. The separate synthetic namespace-collision suite also awaits its first logged local result.
+
+- `scripts/link_kasa_modules_hygienic.py` now accepts an optional mutable `source_map={}` argument in `link_source(...)`. It records **one entry per generated source line**: the originating source file, statement start line/column, statement kind, and whether the generated line is synthetic. Existing calls without a map return the same source text. The map includes `generated_sha256` computed over the linked UTF-8 source.
+- `scripts/annotate_g05_diagnostic.py` provides a conservative `annotate(...)` function and a CLI for interpreting an already-captured native diagnostic. It requires the exact generated filename prefix, a matching SHA-256 digest and aligned map entries. It only appends the **original statement origin** when the generated line represents a real statement. It leaves other filenames, unparseable diagnostics and synthetic statements unchanged, and refuses stale or malformed mappings.
+- `tests/test_g05_source_map.py` validates generated-line alignment, nested statement origins, synthetic separators, SHA identity, and backward-compatible source emission.
+- `tests/test_g05_diagnostic_mapping.py` checks Windows drive-letter paths, statement-only accuracy, stale hash rejection, malformed mapping rejection, and no false attribution for synthetic lines.
+
+**Limits:** This is a statement-level map, **not an expression-column or debugger-grade source map**. A renamed function or a rewritten nested expression may appear at a different generated column, so the native diagnostic column is deliberately not attributed to the original source. The production linker CLI does **not yet write a map sidecar**; the map is presently available through the Python function API. Diagnostic annotation is an explicit offline helper, not wired into the native compiler or bytecode VM. Do not claim KBC1 contains embedded source maps.
+
+### Windows acceptance gate for new diagnostic mapping
+
+```cmd
+git pull --ff-only
+python -m py_compile scripts/link_kasa_modules_hygienic.py scripts/annotate_g05_diagnostic.py tests/test_g05_source_map.py tests/test_g05_diagnostic_mapping.py
+python -m pytest -q tests/test_g05_source_map.py tests/test_g05_diagnostic_mapping.py tests/test_g05_namespace_collision.py tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+python scripts/verify_g05_native_kbc.py
+python scripts/verify_local.py --profile parity
+git rev-parse --short HEAD
+```
+
+After this gate passes, add an atomic, opt-in map sidecar to the CLI and a true native-error differential test with known runtime diagnostic locations. Keep Kasa import syntax experimental and PR #61 in draft until accepted.
