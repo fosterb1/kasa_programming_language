@@ -30,6 +30,7 @@ TESTS = (
     "tests/test_g05_release_evidence.py",
     "tests/test_g05_windows_junctions.py",
     "tests/test_g05_negative_corpus.py",
+    "tests/test_g05_publication_race.py",
 )
 GATES = (
     ("native_full", [sys.executable, "scripts/verify_local.py", "--profile", "full",
