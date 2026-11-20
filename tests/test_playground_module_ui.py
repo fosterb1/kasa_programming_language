@@ -10,7 +10,7 @@ def test_experimental_module_control_and_help_are_explicit():
     assert 'type="checkbox"' in html
     assert 'aria-describedby="module-experiment-help"' in html
     assert 'value="moduleMarket"' in html
-    assert "not</strong> approved Twi import syntax" in html
+    assert "provisional pending community language review" in html
 
 
 def test_ui_sends_opt_in_flag_to_worker_and_preserves_normal_mode():
@@ -21,7 +21,7 @@ def test_ui_sends_opt_in_flag_to_worker_and_preserves_normal_mode():
     assert 'const experimentalModules = experimentalModulesInput.checked;' in js
     assert 'experimentalModules ? "javascript" : engineSelect.value' in js
     assert 'engine, experimentalModules });' in js
-    assert '@math:m' in js and 'kasa_sum(nneɛma)' in js
+    assert 'fa math: m' in js and 'kasa_sum(nneɛma)' in js
 
 
 def test_worker_only_accepts_explicit_true_and_fails_without_package():
