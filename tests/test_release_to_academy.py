@@ -24,17 +24,22 @@ class ReleaseSafetyTest(unittest.TestCase):
             elif name == "native/kasa-native.js":
                 dest.write_text("createKasaModule;" + "a" * 2000)
             elif name == "worker.js":
-                dest.write_text("const KASA_HAS_WASM = false;")
+                dest.write_text("const KASA_HAS_WASM = false;\nconst KASA_HAS_PINNED_MODULES = false;")
             elif name == "sw.js":
-                dest.write_text("const CACHE_NAME='__KASA_BUILD_HASH__';")
+                dest.write_text("const CACHE_NAME='__KASA_BUILD_HASH__';\nconst KASA_PACKAGED_MODULES = false;")
             elif name == "index.html":
                 dest.write_text('<title>Kasa Playground — Kasa Programming Language</title><div class="topbar-right"><link href="./style.css"><script src="./app.js?v=0.4.0"></script>')
+            elif name == "app.js":
+                dest.write_text('const worker = new Worker("./worker.js?v=0.4.0");')
             else:
                 dest.write_text("dummy content")
         self.patcher = patch.object(release, "ROOT", self.root)
         self.patcher.start()
+        self.modules_patcher = patch.object(release, "packaged_pinned_modules", return_value=b"self.KasaPinnedModules = Object.freeze({});\n")
+        self.modules_patcher.start()
 
     def tearDown(self):
+        self.modules_patcher.stop()
         self.patcher.stop()
         self.temp.cleanup()
 
@@ -42,6 +47,11 @@ class ReleaseSafetyTest(unittest.TestCase):
         payload, manifest = release.build_payload()
         self.assertEqual(payload["native/kasa-native.wasm"][:8], bytes([0, 97, 115, 109, 1, 0, 0, 0]))
         self.assertIn(b"KASA_HAS_WASM = true", payload["worker.js"])
+        self.assertIn(b"KASA_HAS_PINNED_MODULES = true", payload["worker.js"])
+        self.assertIn(b"KASA_PACKAGED_MODULES = true", payload["sw.js"])
+        self.assertIn(release.MODULE_ASSET, payload)
+        self.assertIn(release.MODULE_ASSET, manifest["files"])
+        self.assertIn(b"worker.js?v=", payload["app.js"])
         self.assertNotIn(b"__KASA_BUILD_HASH__", payload["sw.js"])
         self.assertIn(b"Back to Academy", payload["index.html"])
         self.assertEqual(manifest["files"]["native/kasa-native.wasm"]["sha256"], release.digest(payload["native/kasa-native.wasm"]))
@@ -62,6 +72,33 @@ class ReleaseSafetyTest(unittest.TestCase):
         (self.source / "worker.js").write_text("const KASA_HAS_WASM = true;")
         with self.assertRaises(ValueError):
             release.build_payload()
+
+    def test_module_flag_is_required(self):
+        (self.source / "worker.js").write_text("const KASA_HAS_WASM = false;")
+        with self.assertRaisesRegex(ValueError, "module flag"):
+            release.build_payload()
+
+    def test_sw_module_guard_is_required(self):
+        (self.source / "sw.js").write_text("const CACHE_NAME='__KASA_BUILD_HASH__';")
+        with self.assertRaisesRegex(ValueError, "offline-cache pinned module guard"):
+            release.build_payload()
+
+    def test_library_validation_refuses_release(self):
+        with patch.object(release, "packaged_pinned_modules", side_effect=RuntimeError("catalog digest mismatch")):
+            with self.assertRaisesRegex(RuntimeError, "catalog digest mismatch"):
+                release.build_payload()
+
+    def test_worker_url_requires_exactly_one_revision_target(self):
+        (self.source / "app.js").write_text("no worker")
+        with self.assertRaisesRegex(ValueError, "versioned worker initialization"):
+            release.build_payload()
+
+    def test_revision_changes_when_module_asset_changes(self):
+        first, original = release.build_payload()
+        with patch.object(release, "packaged_pinned_modules", return_value=b"self.KasaPinnedModules={math:{}};\\n"):
+            changed, modified = release.build_payload()
+        self.assertNotEqual(original["release"], modified["release"])
+        self.assertNotEqual(first[release.MODULE_ASSET], changed[release.MODULE_ASSET])
 
     def test_api_publish_builds_one_commit_without_force(self):
         payload,manifest=release.build_payload()
