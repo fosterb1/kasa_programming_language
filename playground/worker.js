@@ -6,6 +6,9 @@
 
 // Rewritten to true ONLY inside the deployable ZIP when .js + .wasm exist.
 const KASA_HAS_WASM = false;
+// Patched true only in a bundle containing hash-checked local libraries.
+const KASA_HAS_PINNED_MODULES = false;
+let pinnedModules = null;
 let nativeModule = null;
 let nativeError = "";
 let jsReady = false;
@@ -45,6 +48,18 @@ async function prepareNative() {
   }
 }
 
+function loadPinnedModules() {
+  if (!KASA_HAS_PINNED_MODULES) throw new Error("This deployment has no pinned Kasa module bundle");
+  if (pinnedModules) return pinnedModules;
+  importScripts("./kasa-pinned-modules.js");
+  if (!self.KasaPinnedModules || !Object.hasOwn(self.KasaPinnedModules, "math") ||
+      !Object.hasOwn(self.KasaPinnedModules, "collections")) {
+    throw new Error("Pinned Kasa libraries are unavailable");
+  }
+  pinnedModules = self.KasaPinnedModules;
+  return pinnedModules;
+}
+
 function executeNative(source, input, mode) {
   const pointer = nativeModule.ccall("kasa_run", "number", ["string", "string", "number"],
     [source, input, mode === "check" ? 1 : 0]);
@@ -64,9 +79,15 @@ function executeNative(source, input, mode) {
 
 self.onmessage = ({ data }) => {
   if (data?.type !== "EXECUTE" || !jsReady) return;
-  const { source, input, mode, requestId, engine = "auto" } = data;
+  const { source, input, mode, requestId, engine = "auto", experimentalModules = false } = data;
   let used = "javascript";
   try {
+    if (experimentalModules === true && engine === "native") {
+      notify("RESULT", { requestId, engine: "javascript", result: {
+        ok: false, output: "", error: "Experimental Kasa imports require the JavaScript engine.", steps: 0, mode,
+      } });
+      return;
+    }
     if (engine === "native" && !nativeModule) {
       notify("RESULT", { requestId, engine: "javascript", result: {
         ok: false, output: "", error: "Native WebAssembly is unavailable in this deployment. " +
@@ -75,7 +96,7 @@ self.onmessage = ({ data }) => {
       return;
     }
     let result;
-    if ((engine === "auto" || engine === "native") && nativeModule) {
+    if (!experimentalModules && (engine === "auto" || engine === "native") && nativeModule) {
       try {
         result = executeNative(source, input, mode);
         used = "native-wasm";
@@ -86,7 +107,18 @@ self.onmessage = ({ data }) => {
         notify("NATIVE_ERROR", { message: nativeError });
       }
     }
-    if (!result) result = self.KasaRuntime.executeKasa(source, input, mode);
+    if (!result) {
+      if (experimentalModules === true) {
+        try {
+          const modules = loadPinnedModules();
+          result = self.KasaRuntime.executeKasa(source, input, mode, { experimentalModules: modules });
+        } catch (error) {
+          result = { ok: false, output: "", error: String(error?.message || error), steps: 0, mode };
+        }
+      } else {
+        result = self.KasaRuntime.executeKasa(source, input, mode);
+      }
+    }
     notify("RESULT", { requestId, engine: used, result });
   } catch (error) {
     notify("EXECUTION_ERROR", { requestId, message: String(error?.message || error) });
