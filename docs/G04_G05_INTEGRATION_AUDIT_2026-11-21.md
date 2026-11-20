@@ -197,3 +197,20 @@ git rev-parse HEAD
 The audit itself was written based on the GitHub connector's current PR comparisons, **not independently executed** against the owner's Windows Git checkout. Do not confuse branch scope success with previous G0.4/G0.5 functional test passes. The script does not solve POSIX strict-publication verification or authorize public compilation.
 
 An attempt to reach GitHub directly from the available Linux runtime was blocked by DNS/network policy; **no actual POSIX G0.5 tests were run or claimed** during this step. POSIX security coverage remains open and the two PRs stay draft.
+
+## 11. Windows branch topology audit — exact owner-supplied evidence (2026-11-21)
+
+**Evidence received:** full Windows CMD terminal output, including revision and JSON report, from the user's checked-out Kasa repository. This is **owner-provided direct terminal evidence**, not a claim that the GitHub connector or assistant executed the Windows commands.
+
+- `git pull --ff-only` advanced `14ff847` to **`56083070326c663acc45c328a87ced69208a62de`**.
+- `python -m py_compile scripts/audit_g04_g05_stack.py tests/test_g04_g05_stack_audit.py` exited without reported errors.
+- `python -m pytest -q -rs tests/test_g04_g05_stack_audit.py` reported **5 passed in 0.07s**, no failures/skips shown.
+- `python scripts/audit_g04_g05_stack.py --pretty` returned `"status": "scope_ok_not_merge_approval"` with **all eight checks true**.
+- `git rev-parse HEAD` matched `56083070326c663acc45c328a87ced69208a62de`.
+- The report listed `main=84ab2e03a94b207a2d16aba52db36f880653c52f`, `g04=7ddc7d5f733432d64d5a6dd9a043221c02f60e6c`, and `g05=56083070326c663acc45c328a87ced69208a62de`.
+- Confirmed true: `main_ancestor_of_g04`, `g04_ancestor_of_g05`, `g04_exact_file_scope`, `g05_minimum_expected_files`, `g05_files_restricted_to_docs_scripts_tests`, `no_native_or_core_parser_changed_in_g05`, `local_head_matches_g05_remote`, `tracked_worktree_clean`.
+- The G0.4 changed-file list contained exactly the nine expected paths; the G0.5 list included the new audit docs/tool/tests and no unexpected changes to `native/`, `src/`, or `playground/`.
+
+**Disposition:** local Git ancestry and code-change scope are **confirmed at the cited revision**. This does not independently rerun Python/Node/browser/native functional suites at that same SHA, prove the 3 POSIX strict publication tests (which skip on Windows), clear the Windows symlink test coverage gap, certify hostile-code isolation, or approve a merge.
+
+**Next integration gate:** independent code review / explicit decision on the narrow experimental G0.4 merge, plus G0.5 POSIX and security evidence before broader adoption. Maintain both PRs in draft pending authorization; no bypass of `REVIEW_REQUIRED`.
