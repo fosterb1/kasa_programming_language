@@ -90,3 +90,35 @@ def test_direct_script_launch_without_pytest_pythonpath():
     assert result.returncode == 0, result.stderr
     assert result.stdout == "60\nnokware\n"
     assert result.stderr == ""
+
+
+def test_provisional_fa_imports_with_aliases():
+    stream = io.StringIO()
+    execute_module_source(
+        "fa math: m\nfa collections: c\n"
+        "ka m.kasa_sum([10, 20, 30])\n"
+        "ka c.kasa_contains([1, 2, 3], 2)\n",
+        stdout=stream,
+    )
+    assert stream.getvalue() == "60\nnokware\n"
+
+
+def test_provisional_fa_import_without_alias():
+    stream = io.StringIO()
+    execute_module_source("fa math\nka math.kasa_sum([1, 2, 3])\n", stdout=stream)
+    assert stream.getvalue() == "6\n"
+
+
+def test_new_fa_syntax_is_still_rejected_by_stable_parser():
+    with pytest.raises(KasaError):
+        parse("fa math\nka math.kasa_sum([1])")
+
+
+@pytest.mark.parametrize("source, message", [
+    ("fa math: ka\nka 1", "reserved"),
+    ("fa math: m\nfa collections: m\nka 1", "alias reused"),
+    ("fa math: m\nka 1\nfa collections: c", "precede statements"),
+])
+def test_provisional_fa_invalid_cases(source, message):
+    with pytest.raises(KasaError, match=message):
+        execute_module_source(source)
