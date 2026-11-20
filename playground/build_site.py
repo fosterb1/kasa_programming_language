@@ -32,6 +32,7 @@ WASM_FILES = {
 }
 WORKER_FLAG = "const KASA_HAS_WASM = false;"
 MODULE_FLAG = "const KASA_HAS_PINNED_MODULES = false;"
+SERVICE_WORKER_MODULE_FLAG = "const KASA_PACKAGED_MODULES = false;"
 MODULE_DESTINATION = "kasa-pinned-modules.js"
 
 
@@ -102,6 +103,9 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
                 text = (ROOT / source).read_text(encoding="utf-8")
                 if text.count("__KASA_BUILD_HASH__") != 1:
                     raise RuntimeError("Cannot safely version the offline cache")
+                if text.count(SERVICE_WORKER_MODULE_FLAG) != 1:
+                    raise RuntimeError("Cannot safely patch offline module cache flag")
+                text = text.replace(SERVICE_WORKER_MODULE_FLAG, "const KASA_PACKAGED_MODULES = true;")
                 archive.writestr(destination, text.replace("__KASA_BUILD_HASH__", revision).encode("utf-8"))
             elif destination == "worker.js":
                 text = (ROOT / source).read_text(encoding="utf-8")
