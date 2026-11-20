@@ -60,17 +60,17 @@ def packaged_pinned_modules(root: Path) -> bytes:
             if current.is_symlink() or (hasattr(current, "is_junction") and current.is_junction()):
                 raise RuntimeError("Linked packaged module source rejected")
         payload = current.read_bytes()
-        if b"\\r" in payload.replace(b"\\r\\n", b""):
+        if b"\r" in payload.replace(b"\r\n", b""):
             raise RuntimeError("Unexpected module line ending")
-        payload = payload.replace(b"\\r\\n", b"\\n")
+        payload = payload.replace(b"\r\n", b"\n")
         digest = "sha256:" + hashlib.sha256(payload).hexdigest()
         if entry.get("content_identity") != digest:
             raise RuntimeError("Packaged Kasa module source hash mismatch: " + module_id)
         modules[module_id] = {"source": payload.decode("utf-8", "strict"), "exports": entry["exports"]}
     # JSON is safe as inert JavaScript literal after protecting HTML-sensitive <.
-    serialized = json.dumps(modules, ensure_ascii=False, sort_keys=True).replace("<", "\\u003c")
+    serialized = json.dumps(modules, ensure_ascii=False, sort_keys=True).replace("<", "\u003c")
     return ("/* Verified, local Kasa standard libraries; generated at build time. */\\n"
-            "self.KasaPinnedModules = Object.freeze(" + serialized + ");\\n").encode("utf-8")
+            "self.KasaPinnedModules = Object.freeze(" + serialized + ");\n").encode("utf-8")
 
 
 
