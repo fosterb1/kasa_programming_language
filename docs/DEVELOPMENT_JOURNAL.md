@@ -892,3 +892,11 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Change:** `scripts/verify_real_wasm_browser.py` now selects installed `chrome` on macOS and default `chromium` on Linux; optional `KASA_BROWSER_CHANNEL` explicitly allows `chrome`, `chromium`, or `msedge`. Browser launch failures remain fatal; printed channel/version improve evidence. No bypass, no simulated result and no installer security override.
 - **Docs:** `docs/ACADEMY_RELEASE_PROCESS.md` explains Google Chrome on macOS 13, Linux Playwright Chromium and same-venv requirements.
 - **Status:** Workaround committed but **not yet verified on user's Mac**. Run `git pull --ff-only` with working network, confirm installed Google Chrome, and execute `python scripts/verify_real_wasm_browser.py`. Do not publish until real native WASM and JS pinned-module cases pass on this release candidate.
+
+
+## 2026-11-20 — macOS Chrome 157 real browser test reveals faulty test source (corrected)
+
+- **Mac observation:** Chrome **157.0.8103.79** launched successfully using the installed `chrome` channel. The expanded real-browser test timed out on line 176 waiting for the **experimental module** run to finish successfully. This is after the preceding native WASM checks in the script; the whole suite did not pass.
+- **Root cause found in the test script:** The newly added multi-line Kasa sample was written with `\\\\n` literals in Python source where `\\n` escape sequences were needed; this passed backslash-plus-n characters rather than real line breaks to the editor. The appended native recovery input and output expectations had the same issue.
+- **Fix:** `scripts/verify_real_wasm_browser.py` now uses correct newline escapes for the module source, the asserted output and subsequent native run. The module wait now detects ready/error completion and reports the actual UI status/output on failure instead of silently timing out.
+- **Status:** Fix committed but not yet revalidated on the Mac; no Academy release publication and no production changes. Next run: pull latest and execute `python scripts/verify_real_wasm_browser.py`.
