@@ -290,3 +290,16 @@ python scripts/verify_real_module_browser.py
 ```
 
 Record exact output, `build/g05-release-evidence.json` status and pytest skips. Windows POSIX strict-publication skips and any real-symlink skip must remain `REVIEW_REQUIRED`, never relabeled as a full security pass. PR #61 stays draft; no merge or deployment authorization follows from topology success.
+
+## 16. Reconciled G0.5 Windows functional verification — owner report (2026-11-21)
+
+After the documented post-merge topology check at `58e051deac69ad06048a65c4ace3c842f022f86a`, the owner ran the requested follow-up commands and replied **"all passed"**:
+
+- `python scripts/verify_g05_release.py`
+- `python scripts/verify_real_module_browser.py`
+
+The commands were given after `git pull --ff-only` on the G0.5 branch; the intended branch HEAD at the time of the run was `ed58b2c29fb1c3308540e0eb5d8976e926828433`. **No terminal output or freshly executed HEAD was pasted**, so record these results as **owner-confirmed**, not independently reproduced or tied to a proven exact SHA. The real-browser regression is reported successful; the G0.5 collector's exact final JSON status, individual stage counts and skip details are **not known from this confirmation**.
+
+**Do not reinterpret "all passed" as a zero-skip release collector:** on Windows the POSIX strict-publication tests cannot execute, and prior evidence also included an inaccessible real file-symlink test. Unless actual new evidence shows otherwise, the complete release verdict remains **not independently established** and its `REVIEW_REQUIRED` distinction must be preserved.
+
+**Next gate:** independently exercise `tests/test_g05_strict_publication.py` and `tests/test_g05_publication_race.py` in a POSIX environment with genuine `dir_fd` support, check output-directory containment assumptions, review the unresolved Windows-native TOCTOU threat and run the reconciled native full-profile on that platform. A narrowly limited, trusted-local experimental integration decision is separate from production/security approval and requires explicit owner authorization. **PR #61 remains draft, unmerged and targeted at `main`.**
