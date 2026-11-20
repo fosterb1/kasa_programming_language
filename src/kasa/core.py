@@ -199,17 +199,31 @@ class Parser:
 
     def statement(self) -> Node:
         tok = self.current
-        # Punctuation-only opt-in prototype; no unreviewed Twi keyword.
-        if self.experimental_modules and self.match("@"):
+        # G0.4 opt-in contextual import phrase. 'fa' is intentionally NOT
+        # a globally reserved token pending community language review.
+        # Legacy @module:alias remains temporarily supported for migration.
+        if self.experimental_modules and (
+            self.current.kind == "NAME" and self.current.text == "fa"
+            or self.current.kind == "@"
+        ):
+            if self.current.kind == "@":
+                self.pos += 1
+                legacy = True
+            else:
+                self.pos += 1
+                legacy = False
             module = self.expect("NAME", "catalog module ID")
-            self.expect(":", "':' between module and alias")
-            # Reserved Kasa keywords tokenize to their own kinds, so reject
-            # them explicitly here instead of reporting a generic missing NAME.
-            if self.current.kind in set(KEYWORDS.values()):
-                self.fail("reserved module alias: " + self.current.text, self.current)
-            alias = self.expect("NAME", "module alias")
+            if legacy:
+                self.expect(":", "':' between module and alias")
+            alias = module.text
+            if legacy or self.match(":"):
+                if self.current.kind in set(KEYWORDS.values()) or (
+                    self.current.kind == "NAME" and self.current.text == "fa"
+                ):
+                    self.fail("reserved module alias: " + self.current.text, self.current)
+                alias = self.expect("NAME", "module alias").text
             self.end_line()
-            return Node("module_import", tok, value=(module.text, alias.text))
+            return Node("module_import", tok, value=(module.text, alias))
         if self.match("PRINT"):
             expr = self.expression()
             self.end_line()
