@@ -1,0 +1,26 @@
+# G1 experimental pure-Kasa collection search helpers.
+# Return a zero-based index or -1 when there is no match.
+# Read-only: input lists are never mutated.
+
+dwumadie kasa_first_index(values, needle)
+    ma i = 0
+    bere_a i < tentɛn(values)
+        sɛ values[i] == needle a
+            sanma i
+        awiei
+        ma i = i + 1
+    awiei
+    sanma -1
+awiei
+
+dwumadie kasa_last_index(values, needle)
+    ma last = -1
+    ma i = 0
+    bere_a i < tentɛn(values)
+        sɛ values[i] == needle a
+            ma last = i
+        awiei
+        ma i = i + 1
+    awiei
+    sanma last
+awiei
