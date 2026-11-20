@@ -696,3 +696,12 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Fix:** Insert repository-relative `src` into `sys.path` before importing `kasa` in the experimental script (trusted script path, not input-file path); add a subprocess regression that runs the documented command with `PYTHONPATH` removed.
 - **Verification:** Patch committed but not independently executed on the Mac. Until a direct subprocess run succeeds, source-import demo **is not verified**. Parser and normal Kasa syntax remain unchanged by this fix.
 - **Next gate:** `python -m pytest -q tests/test_experimental_module_source.py tests/test_configure_kasa_modules.py tests/test_module_member_execution.py`, then actual standalone demo and `bash scripts/mac_dev.sh quick`.
+
+
+## 2026-11-20 — User-reported Mac acceptance: first executable source import demo
+
+- **Status:** User reports **"all success"** after the direct-run import-path fix (`ee8e9556`) and instructions to rerun the focused module-source pytest suite, execute `stdlib/demos/group0_source_import_experiment.kasa` using `scripts/run_kasa_modules_experimental.py`, and run `bash scripts/mac_dev.sh quick`.
+- **Evidence boundary:** The user did not paste the final exact pass counts, command transcript or stdout for this verification turn; record as **user-reported acceptance**, not independently observed 35-pass output or verified exact demo stdout. The last explicit earlier pytest transcript was **34 passed** before the import-path fix, with the standalone demo failing `ModuleNotFoundError`.
+- **Interpretation:** G0.3 opt-in Python source-level module import experiment is locally accepted by user report. Production Kasa CLI, JS browser interpreter, C++ native and KBC1 still do not implement this import syntax.
+- **Language gate:** `@math:m` is temporary punctuation notation, not approved Twi-first language design. Native-speaker and educator review required for final language-level import vocabulary.
+- **Next:** Preserve the stable parser default, add cross-runtime-compatible fixtures and investigate JavaScript experimental module loading without implying KBC1/official grammar support. Maintain the Ghanaian examples and terminology research policy.
