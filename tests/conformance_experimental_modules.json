@@ -41,7 +41,18 @@
       "source": "fa math firi stdlib: m\nfa collections firi stdlib: m\nka 1\n",
       "error_contains": "alias reused",
       "python_category": "ModuleError",
-      "js_category": "ModuleError"
+      "js_category": "ModuleError",
+      "line": 2,
+      "column": 1
+    },
+    {
+      "id": "duplicate-module",
+      "source": "fa math firi stdlib: m\nfa math firi stdlib: other\nka 1\n",
+      "error_contains": "more than once",
+      "python_category": "ModuleError",
+      "js_category": "ModuleError",
+      "line": 2,
+      "column": 1
     },
     {
       "id": "untrusted-origin",
