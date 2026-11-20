@@ -67,8 +67,8 @@ def packaged_pinned_modules(root: Path) -> bytes:
         if entry.get("content_identity") != digest:
             raise RuntimeError("Packaged Kasa module source hash mismatch: " + module_id)
         modules[module_id] = {"source": payload.decode("utf-8", "strict"), "exports": entry["exports"]}
-    # JSON is safe as inert JavaScript literal after protecting HTML-sensitive <.
-    serialized = json.dumps(modules, ensure_ascii=False, sort_keys=True).replace("<", "\u003c")
+    # Emit ASCII-safe JSON as a JavaScript literal; no source interpolation.
+    serialized = json.dumps(modules, ensure_ascii=True, sort_keys=True)
     return ("/* Verified, local Kasa standard libraries; generated at build time. */\\n"
             "self.KasaPinnedModules = Object.freeze(" + serialized + ");\n").encode("utf-8")
 
