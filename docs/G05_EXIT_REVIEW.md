@@ -177,3 +177,29 @@ The verified-scope claim is limited to the newly implemented directory identity 
 The historical Windows file-symlink test skip remains unresolved unless accompanied by new evidence, and `REVIEW_REQUIRED` continues to be the appropriate strict release status if it still skips.
 
 **Next security design milestone:** investigate a directory-handle-bound publication design with platform-appropriate controls, including safe failure and cleanup. Do not treat experimental trusted-local compilation as security-approved for hosted or adversarial workspaces, and do not close PR #61 solely on the reported passes.
+
+## G0.5 opt-in POSIX handle-bound publication — 2026-11-21
+
+**Code committed, platform verification pending.** This iteration introduces `strict_publication=True` in `compile_modules(...)` and an explicit `--strict-publication` command-line option.
+
+- **POSIX only:** when Python exposes `os.open`, `os.stat`, `os.unlink` with directory-relative operations plus `O_DIRECTORY` and `O_NOFOLLOW`, strict mode opens directory handles for the configured root, its `build` child, and its `g05-compiled` child. It verifies these identities against the pre-compilation snapshot and checks the opened parent-child chain.
+- **Publication:** compiled and checked KBC1 bytes are created exclusively using `os.open(basename, O_EXCL | O_CREAT | O_NOFOLLOW, dir_fd=output_fd)`. It writes through the returned descriptor, flushes and `fsync`s, checks the handle chain again, and uses `os.unlink(..., dir_fd=output_fd)` for cleanup after any post-creation failure. This binds output creation and cleanup to the verified directory handle instead of a newly interpreted output path.
+- **Windows:** strict mode intentionally **refuses** with `CompileError("Strict publication unavailable on this platform")` before accessing source files. Windows requires an independent implementation and review of directory-handle-relative file creation; treating POSIX-only APIs as if they secure Windows would be misleading.
+- **Default remains the earlier trusted-local behavior** so existing Windows Kasa development and checks are not broken. Even strict POSIX mode is *not* a sandbox for attacker-controlled Kasa sources or shared mutable workspaces.
+- **New tests:** `tests/test_g05_strict_publication.py` exercises strict-mode fail-closed behavior where unsupported, successful and exclusive creation on supported POSIX systems, and a deliberately swapped directory *after the last pathname-based fingerprint check* to ensure strict publication refuses without writing into the substituted destination. The release collector includes this suite. POSIX-only tests **skip on Windows**, which the strict collector continues to report as `REVIEW_REQUIRED`; do not claim those Linux behaviors were Windows tested.
+
+**Limitations:** This reduces one pathname-switching attack surface at artifact creation. It does not stop a process from renaming the already-open directory or deleting/relocating the published file after completion, does not validate arbitrary untrusted project inputs, and does not make native compilation itself safe to host. Parent root traversal and filesystem capabilities need separate audit. The cleanup attempt may itself fail under adversarial filesystem interference. Do not mark PR #61 production-ready.
+
+### Verification
+
+On **Windows** (expected: strict mode refusal test passes; three POSIX-only checks skip):
+
+```cmd
+git pull --ff-only
+python -m py_compile scripts/compile_g05_modules.py tests/test_g05_strict_publication.py
+python -m pytest -q -rs tests/test_g05_strict_publication.py tests/test_g05_release_evidence.py
+python scripts/verify_g05_release.py
+git rev-parse HEAD
+```
+
+On a **POSIX** checkout with the native tool built, run the same pytest suite and the full collector to exercise actual handle-relative creation. Record full counts and skipped-test reasons per operating system; a Windows refusal is not a substitute for a POSIX success run.
