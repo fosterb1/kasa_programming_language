@@ -206,7 +206,7 @@ class Parser:
             # Reserved Kasa keywords tokenize to their own kinds, so reject
             # them explicitly here instead of reporting a generic missing NAME.
             if self.current.kind in set(KEYWORDS.values()):
-                self.fail("Reserved module alias: " + self.current.text, self.current)
+                self.fail("reserved module alias: " + self.current.text, self.current)
             alias = self.expect("NAME", "module alias")
             self.end_line()
             return Node("module_import", tok, value=(module.text, alias.text))
