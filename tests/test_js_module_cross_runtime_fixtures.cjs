@@ -31,6 +31,9 @@ for (const item of fixtures.cases) {
     assert.equal(result.ok, false, item.id);
     assert.ok(result.error.includes(": " + item.js_category + ":"), item.id + ": " + result.error);
     assert.ok(result.error.toLowerCase().includes(item.error_contains.toLowerCase()), item.id + ": " + result.error);
+    if (Object.hasOwn(item, "line")) {
+      assert.ok(result.error.includes(`playground.kasa:${item.line}:${item.column}:`), item.id + ": " + result.error);
+    }
     assert.equal(result.output, "", item.id + ": partial output escaped preflight");
   }
   process.stdout.write("PASS " + item.id + "\n");
