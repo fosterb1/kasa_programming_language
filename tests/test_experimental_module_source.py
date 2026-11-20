@@ -147,3 +147,32 @@ def test_provisional_fa_firi_default_alias():
 def test_provisional_fa_firi_rejects_unpinned_source():
     with pytest.raises(KasaError, match="Only the pinned stdlib source"):
         execute_module_source("fa math firi unknown: m\nka m.kasa_sum([1])")
+
+
+@pytest.mark.parametrize("source", [
+    "fa math: m\nka m.kasa_sum([1, 2])",
+    "fa math firi stdlib: m\nka m.kasa_sum([1, 2])",
+    "fa math\nka math.kasa_sum([1, 2])",
+    "fa math firi stdlib\nka math.kasa_sum([1, 2])",
+])
+def test_colon_alias_is_optional_and_scoped_to_import_declarations(source):
+    out = io.StringIO()
+    execute_module_source(source, stdout=out)
+    assert out.getvalue() == "3\n"
+
+
+@pytest.mark.parametrize(("source", "message"), [
+    ("fa math:\nka 1", "Expected module alias"),
+    ("fa math firi stdlib:\nka 1", "Expected module alias"),
+    ("fa math: m: x\nka 1", "Expected a new line"),
+    ("fa math firi stdlib: m: x\nka 1", "Expected a new line"),
+])
+def test_import_alias_colon_rejects_empty_or_double_alias(source, message):
+    with pytest.raises(KasaError, match=message):
+        execute_module_source(source)
+
+
+def test_colon_in_string_never_becomes_import_alias():
+    out = io.StringIO()
+    execute_module_source('fa math firi stdlib: m\nka "su: m"\nka m.kasa_sum([2, 3])', stdout=out)
+    assert out.getvalue() == "su: m\n5\n"
