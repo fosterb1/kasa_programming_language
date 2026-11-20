@@ -169,3 +169,9 @@ The owner replied **"all pass"** after receiving the G0.5 integration command se
 **Integration assessment:** both PRs have owner-confirmed Windows acceptance for their tested alpha functionality, a reviewed G0.4 runtime delta, and a documented stack ordering. **Neither PR is yet authorized to merge**. Before an experimental G0.4 merge, gather independently reviewed test evidence at exact HEAD and an explicit merge decision; before G0.5 integration, separately execute POSIX strict-publication tests and review the remaining TOCTOU/security limitation, or approve a narrowly scoped experimental exception with a documented non-hosted restriction. Windows `REVIEW_REQUIRED` must remain visible and must never be turned green by hiding skips.
 
 **Immediate next activity:** prepare a non-destructive PR #60 experimental merge-readiness checklist (no merge, no retarget) and request code review if appropriate. After the G0.4 decision is explicitly authorized and completed, reconcile the G0.5 branch against the actual resulting `main` history, especially if G0.4 is squash-merged.
+
+## 9. PR #60 merge-readiness packet prepared (2026-11-21)
+
+[The standalone PR #60 experimental merge-readiness review](G04_PR60_EXPERIMENTAL_MERGE_READINESS.md) provides a nine-file code/diff scope audit, an evidence register, a concrete Windows exact-head command sequence and explicit non-merge controls. This packet is intentionally authored **on the existing G0.5 branch**, not on G0.4, so it does not shift the base of dependent PR #61. Both PR descriptions now link to the packet.
+
+**Current state:** PR #60 and PR #61 remain draft/open, no merge or retarget occurred. Owner reports all applicable Windows tests passed, but exact-head terminal output and independent review are still outstanding. No authorization has been requested or inferred by this documentation change.
