@@ -45,7 +45,7 @@ class KasaError(Exception):
         super().__init__(f"{filename}:{token.line}:{token.column}: {category}: {message}")
 
 
-def tokenize(source: str, filename: str = "<input>") -> list[Token]:
+def tokenize(source: str, filename: str = "<input>", *, experimental_modules: bool = False) -> list[Token]:
     """Tokenize Unicode Kasa input without executing arbitrary host code."""
     source = source.replace("\r\n", "\n").replace("\r", "\n")
     result: list[Token] = []
@@ -125,7 +125,7 @@ def tokenize(source: str, filename: str = "<input>") -> list[Token]:
             advance()
             result.append(Token(pair, pair, start_line, start_col))
             continue
-        if ch in OPERATORS:
+        if ch in OPERATORS or (experimental_modules and ch in "@:."):
             advance()
             result.append(Token(ch, ch, start_line, start_col))
             continue
@@ -145,7 +145,8 @@ class Node:
 class Parser:
     """Recursive descent for statements; Pratt parsing for expressions."""
 
-    def __init__(self, tokens: list[Token], filename: str = "<input>"):
+    def __init__(self, tokens: list[Token], filename: str = "<input>", *, experimental_modules: bool = False):
+        self.experimental_modules = experimental_modules
         self.tokens = tokens
         self.filename = filename
         self.pos = 0
@@ -198,6 +199,13 @@ class Parser:
 
     def statement(self) -> Node:
         tok = self.current
+        # Punctuation-only opt-in prototype; no unreviewed Twi keyword.
+        if self.experimental_modules and self.match("@"):
+            module = self.expect("NAME", "catalog module ID")
+            self.expect(":", "':' between module and alias")
+            alias = self.expect("NAME", "module alias")
+            self.end_line()
+            return Node("module_import", tok, value=(module.text, alias.text))
         if self.match("PRINT"):
             expr = self.expression()
             self.end_line()
@@ -315,6 +323,13 @@ class Parser:
 
         while True:
             tok = self.current
+            if self.experimental_modules and tok.kind == "." and 80 >= min_bp:
+                if left.kind != "name":
+                    self.fail("Only a module alias may precede '.'", tok)
+                self.pos += 1
+                member = self.expect("NAME", "an exported function name")
+                left = Node("module_member", tok, value=member.text, children=(left,))
+                continue
             if tok.kind == "(" and 80 >= min_bp:
                 self.pos += 1
                 args: list[Node] = []
@@ -343,9 +358,13 @@ class Parser:
         return left
 
 
-def parse(source: str, filename: str = "<input>") -> list[Node]:
-    """Parse source without executing any statements."""
-    return Parser(tokenize(source, filename), filename).parse()
+def parse(source: str, filename: str = "<input>", *, experimental_modules: bool = False) -> list[Node]:
+    """Parse source without executing any statements.
+
+    Experimental module punctuation is opt-in and not Kasa stable syntax.
+    """
+    return Parser(tokenize(source, filename, experimental_modules=experimental_modules),
+                  filename, experimental_modules=experimental_modules).parse()
 
 
 @dataclass
