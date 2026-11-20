@@ -133,3 +133,31 @@ git rev-parse --short HEAD
 ```
 
 The demo path must exist in the checkout and contain a valid experimental import program; if missing, create a separate disposable `.kasa` sample under `build/` rather than altering the tracked demos. **Tests and commands are newly added but not yet run by the owner.** Next G0.5a slice is a symbol-binding/hygiene study; do not emit linked source until proven capture-avoiding.
+
+## G0.5a second implementation — restricted hygienic source-linker (2026-11-21)
+
+**Status: Committed on development branch; acceptance verification pending.** The owner confirmed earlier **read-only preflight** acceptance passed; no precise test counts or SHA were supplied. That success is not evidence for the newly generated source.
+
+Added `scripts/link_kasa_modules_hygienic.py` and `tests/test_hygienic_module_linker.py`:
+
+- Requires the already catalog-verified, opt-in `fa ... firi stdlib` import grammar and G0.5a read-only preflight.
+- Uses the Kasa **parser AST**, not text replacement, to statically resolve qualified exported calls, rename each library function to a deterministic internal `__kasa_g05_<module>_<function>` name, and rewrite corresponding library-internal references. It keeps string literals intact, separates library function names from application declarations, and preserves the source's expression order via explicit parentheses.
+- Checks that each module is still SHA-256 pinned before emission, that module definitions are top-level functions, that they contain no unresolved free variable, nested function declaration, or param/local collision with a module function. Unsupported member-as-first-class-value syntax is **rejected** rather than silently linked with changed semantics.
+- Refuses application identifiers and function parameters using the reserved internal prefix, verifies the generated code parses in ordinary (non-module) Python Kasa mode, and imposes a maximum output source size.
+- A CLI can write a **new file only** under `build/g05-linked/` and refuses existing targets and linked output directories. The linker itself does not invoke the C++ compiler or VM. The generated file will need a source map before exact original-source diagnostics can be claimed.
+- Python tests compare output from the experimental namespace interpreter with the standalone interpreter running linked source for selected math/collections examples, nested calls and application-name collisions; they also check fail-closed behavior and no output artifact on invalid inputs.
+
+**Supported subset limits:** only direct calls to exported functions, current known function-only libraries, no arbitrary third-party packages, no dynamic member references, no reassignment of generated internal symbols, and no first-class import-function values. A larger semantic proof (including synthetic libraries with identical public and private names) and native/KBC1 execution are still required before G0.5a is accepted as a fully hygienic linker. This implementation remains experimental and must not be merged just because its files exist.
+
+### New Windows acceptance gate
+
+```cmd
+git pull --ff-only
+python -m pytest -q tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+python scripts/link_kasa_modules_hygienic.py --app stdlib/demos/group0_source_import_experiment.kasa --output build/g05-linked/market-demo-001.kasa
+python -m kasa run build/g05-linked/market-demo-001.kasa
+python scripts/verify_local.py --profile parity
+git rev-parse --short HEAD
+```
+
+Expected normal interpreter output for the sample: `60` on the first line and `nokware` on the second line. The CLI deliberately refuses reuse of `market-demo-001.kasa`; choose a fresh filename for subsequent attempts. **No claim of a passing native/KBC1 module test has been made.** After this source-level gate, explicitly test generated source with `kasa-native run`, `compile`, `check-bytecode`, and `run-bytecode` separately; record the output and checksum before expanding language support.
