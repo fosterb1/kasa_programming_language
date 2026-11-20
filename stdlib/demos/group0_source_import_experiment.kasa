@@ -1,0 +1,9 @@
+# G0.3 experimental syntax. Not final Twi vocabulary.
+# Run with: python scripts/run_kasa_modules_experimental.py stdlib/demos/group0_source_import_experiment.kasa
+@math:m
+@collections:c
+
+# Adesua: Ghanaian market basket quantities.
+ma nnoɔma = [10, 20, 30]
+ka m.kasa_sum(nnoɔma)
+ka c.kasa_contains(nnoɔma, 20)
