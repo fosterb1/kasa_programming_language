@@ -117,3 +117,25 @@ At exact tested revision `34b3a8673431cf8ab213457045e0284ff2e63cff`, owner-suppl
 - The collector returns **`REVIEW_REQUIRED`**, correctly preserving the real symlink test's missing coverage. This is **not** a functional compiler failure and must not be reclassified as a zero-skip pass.
 
 **Disposition:** G0.5 remains an experimental trusted-local candidate on the verified Windows setup. The next security evidence should run the actual filesystem symlink test in a Windows environment where symlink creation is permitted, then independently evaluate filesystem replacement/race threats before any hosted or untrusted compilation deployment. This is not grounds for a stable-module release or automatic production merge. The experimental source prelink path and KBC1 format have not changed in this checkpoint.
+
+## G0.5 additional junction and negative-input gates (2026-11-21)
+
+**New code committed; no Windows results yet.** The owner requested alternative verification without enabling Windows Developer Mode. The following checks extend the local evidence without waiving the real symlink test:
+
+- `tests/test_g05_windows_junctions.py` uses `cmd /c mklink /J` to create a **temporary Windows directory junction** pointing to a separate temporary target. It verifies `Path.is_junction()`, the compiler's `_linked_directory` rejection predicate, and preservation of the target after removing the junction. The separate simulated output-directory guard test requires fail-closed rejection before publishing output. If Windows junction creation or `Path.is_junction()` is unavailable, the real junction test explicitly **skips**, which the collector reports.
+- `tests/test_g05_negative_corpus.py` adds a **fixed eleven-case** input corpus: invalid UTF-8; unknown module; private export; late/duplicate imports; unsupported origin; reserved internal symbol; incomplete call/function; oversized source; and unknown Unicode module ID. These inputs must raise an expected Kasa/compiler/linker/catalog rejection without publishing a `.kbc` file. This is deterministic negative testing, **not** coverage-guided fuzzing or a proof of general parser safety.
+- `scripts/verify_g05_release.py` now includes both suites; `tests/test_g05_release_evidence.py` asserts they remain part of the gate.
+
+The documented **real Windows file symlink test still skips** on the owner's earlier Windows account. Do not conflate a successful junction with successful file symlink verification: they are different Windows reparse-point mechanisms. Aggregate `REVIEW_REQUIRED` remains an expected result while this skipped test persists. Do not merge PR #61 or claim the wrapper is secure for hosted/untrusted compilation on this evidence alone.
+
+### Windows verification for this revision
+
+```cmd
+git pull --ff-only
+python -m py_compile tests/test_g05_windows_junctions.py tests/test_g05_negative_corpus.py scripts/verify_g05_release.py
+python -m pytest -q -rs tests/test_g05_windows_junctions.py tests/test_g05_negative_corpus.py tests/test_g05_release_evidence.py
+python scripts/verify_g05_release.py
+git rev-parse HEAD
+```
+
+Record whether the actual junction test ran, and the final `skip_details` lines; no production source/VM changes were made in this slice.
