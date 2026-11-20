@@ -158,3 +158,14 @@ python scripts/verify_real_module_browser.py
 ```
 
 If the Windows environment still lacks real symlink privileges and POSIX-specific functionality, `REVIEW_REQUIRED` remains **expected and mandatory** despite passing executable checks. Do not bypass the release collector or claim Linux directory-handle publication passed on Windows.
+
+## 8. Combined G0.5 and inherited G0.4 Windows verification — owner confirmation (2026-11-21)
+
+The owner replied **"all pass"** after receiving the G0.5 integration command set:
+`git switch dev/g05-native-module-contract`, `git pull --ff-only`, `git rev-parse HEAD`, `python scripts/verify_g05_release.py`, and `python scripts/verify_real_module_browser.py`.
+
+**Evidence classification:** owner-confirmed successful execution of the applicable Windows tests and inherited G0.4 browser module gate. The actual terminal output, final HEAD and updated `skip_details` were not pasted. We therefore **do not** assert every OS-dependent test ran or that the release collector's overall status was `PASSED`. Its known Windows outcome is generally `REVIEW_REQUIRED` because the real file-symlink test may skip and POSIX strict-publishing checks necessarily skip.
+
+**Integration assessment:** both PRs have owner-confirmed Windows acceptance for their tested alpha functionality, a reviewed G0.4 runtime delta, and a documented stack ordering. **Neither PR is yet authorized to merge**. Before an experimental G0.4 merge, gather independently reviewed test evidence at exact HEAD and an explicit merge decision; before G0.5 integration, separately execute POSIX strict-publication tests and review the remaining TOCTOU/security limitation, or approve a narrowly scoped experimental exception with a documented non-hosted restriction. Windows `REVIEW_REQUIRED` must remain visible and must never be turned green by hiding skips.
+
+**Immediate next activity:** prepare a non-destructive PR #60 experimental merge-readiness checklist (no merge, no retarget) and request code review if appropriate. After the G0.4 decision is explicitly authorized and completed, reconcile the G0.5 branch against the actual resulting `main` history, especially if G0.4 is squash-merged.
