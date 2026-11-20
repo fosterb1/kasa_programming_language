@@ -16,7 +16,7 @@ def test_experimental_module_control_and_help_are_explicit():
 def test_ui_sends_opt_in_flag_to_worker_and_preserves_normal_mode():
     js = (ROOT / "playground/app.js").read_text(encoding="utf-8")
     assert 'const experimentalModulesInput = $("experimental-modules");' in js
-    assert 'experimentalModulesInput.checked = true;' in js
+    assert 'experimentalModulesInput.checked = exampleSelect.value === "moduleMarket";' in js
     assert 'experimentalModulesInput.checked = false;' in js
     assert 'const experimentalModules = experimentalModulesInput.checked;' in js
     assert 'experimentalModules ? "javascript" : engineSelect.value' in js
