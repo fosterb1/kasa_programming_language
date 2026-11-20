@@ -28,6 +28,8 @@ TESTS = (
     "tests/test_hygienic_module_linker.py",
     "tests/test_native_module_preflight.py",
     "tests/test_g05_release_evidence.py",
+    "tests/test_g05_windows_junctions.py",
+    "tests/test_g05_negative_corpus.py",
 )
 GATES = (
     ("native_full", [sys.executable, "scripts/verify_local.py", "--profile", "full",
