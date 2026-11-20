@@ -15,7 +15,8 @@ try:
 finally:
     sys.path.remove(str(ROOT / "scripts"))
 
-from kasa import Interpreter, parse\nfrom kasa.core import KasaError
+from kasa import Interpreter, parse
+from kasa.core import KasaError
 
 
 SOURCE = (
