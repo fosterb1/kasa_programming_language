@@ -206,6 +206,9 @@ def run_local_gates() -> None:
         ["node", "native/wasm/validate_artifacts.mjs"],
         ["node", "--test", "tests/test_kasa_wasm.cjs", "tests/test_kasa_browser.cjs"],
         [sys.executable, "playground/build_site.py", "--require-wasm"],
+        # Exercise the actual freshly compiled WASM and pinned modules inside
+        # Chromium, not simulated worker protocol mocks alone.
+        [sys.executable, "scripts/verify_real_wasm_browser.py"],
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_release_to_academy.py"],
         ["node", "tests/test_js_experimental_modules.js"],
         ["node", "tests/test_js_worker_modules.js"],
