@@ -76,14 +76,16 @@ def test_results_json_serializable():
 
 def test_packaged_web_bundle(tmp_path):
     from zipfile import ZipFile
-    from build_site import FILES, WASM_FILES, ROOT as SITE_ROOT, build_bundle
+    from build_site import FILES, WASM_FILES, MODULE_DESTINATION, ROOT as SITE_ROOT, build_bundle
 
     archive_path = build_bundle(tmp_path / "kasa_web.zip")
     with ZipFile(archive_path) as archive:
         expected = set(FILES.values())
         if all((SITE_ROOT / name).is_file() for name in WASM_FILES):
             expected.update(WASM_FILES.values())
-        assert set(archive.namelist()) == expected
+        assert set(archive.namelist()) == expected | {MODULE_DESTINATION}
+        assert b"self.KasaPinnedModules" in archive.read(MODULE_DESTINATION)
+        assert b"const KASA_HAS_PINNED_MODULES = true;" in archive.read("worker.js")
         assert b'<!doctype html>' in archive.read("index.html")
         assert b'function executeKasa' in archive.read("kasa-runtime.js")
         assert b'kasa-runtime.js' in archive.read("worker.js")
@@ -96,7 +98,7 @@ def test_wasm_bundle_requires_complete_pair(tmp_path, monkeypatch):
     from shutil import copyfile
 
     local = tmp_path / "repo"
-    for source in build_site.FILES:
+    for source in [*build_site.FILES, "stdlib/catalog.json", "stdlib/experimental/math.kasa", "stdlib/experimental/collections.kasa"]:
         (local / source).parent.mkdir(parents=True, exist_ok=True)
         copyfile(build_site.ROOT / source, local / source)
     monkeypatch.setattr(build_site, "ROOT", local)
@@ -120,7 +122,24 @@ def test_wasm_bundle_requires_complete_pair(tmp_path, monkeypatch):
     native_wasm.write_bytes(b"\x00asm\x01\x00\x00\x00")
     build_site.build_bundle(output, require_wasm=True)
     with ZipFile(output) as bundle:
-        assert set(bundle.namelist()) == set(build_site.FILES.values()) | set(build_site.WASM_FILES.values())
+        assert set(bundle.namelist()) == set(build_site.FILES.values()) | set(build_site.WASM_FILES.values()) | {build_site.MODULE_DESTINATION}
         assert b"const KASA_HAS_WASM = true;" in bundle.read("worker.js")
         assert bundle.read("native/kasa-native.wasm").startswith(b"\x00asm")
     assert b"const KASA_HAS_WASM = false;" in (local / "playground/worker.js").read_bytes()
+
+
+def test_packaging_rejects_tampered_stdlib_source(tmp_path, monkeypatch):
+    from shutil import copyfile
+    from build_site import FILES, ROOT as SITE_ROOT, build_bundle
+    import build_site
+
+    local = tmp_path / "repo"
+    for source in [*FILES, "stdlib/catalog.json", "stdlib/experimental/math.kasa", "stdlib/experimental/collections.kasa"]:
+        (local / source).parent.mkdir(parents=True, exist_ok=True)
+        copyfile(SITE_ROOT / source, local / source)
+    (local / "stdlib/experimental/math.kasa").write_text(
+        "# altered\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(build_site, "ROOT", local)
+    with pytest.raises(RuntimeError, match="source hash mismatch"):
+        build_bundle(tmp_path / "invalid.zip")
