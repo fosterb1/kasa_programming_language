@@ -214,3 +214,22 @@ An attempt to reach GitHub directly from the available Linux runtime was blocked
 **Disposition:** local Git ancestry and code-change scope are **confirmed at the cited revision**. This does not independently rerun Python/Node/browser/native functional suites at that same SHA, prove the 3 POSIX strict publication tests (which skip on Windows), clear the Windows symlink test coverage gap, certify hostile-code isolation, or approve a merge.
 
 **Next integration gate:** independent code review / explicit decision on the narrow experimental G0.4 merge, plus G0.5 POSIX and security evidence before broader adoption. Maintain both PRs in draft pending authorization; no bypass of `REVIEW_REQUIRED`.
+
+## 12. PR #60 conditional merge authorization — external deployment guard (2026-11-21)
+
+The owner explicitly authorized **a normal merge commit for PR #60 only, subject to final checks**, and explicitly prohibited merging PR #61 **or deploying anything**.
+
+Final live GitHub checks before a merge request:
+- PR #60 remains `open`, `draft`, `mergeable=true`, base `main` at `84ab2e03a94b207a2d16aba52db36f880653c52f`, head `7ddc7d5f733432d64d5a6dd9a043221c02f60e6c`.
+- Expected diff is **19 commits, nine files, zero commits behind `main`**.
+- PR #61 remains `open`, `draft`, and still bases on G0.4; no merge or retarget authorized.
+- GitHub PR #60 has **zero submitted reviews**. Prior Windows runtime/browser/native tests are owner-reported; no fresh independent exact-HEAD test transcript was fetched.
+- GitHub status on PR #60's head includes a **successful Netlify deploy-preview status** for a site named `jade-narwhal-8b90dc`. Check-run listing also contains Netlify checks.
+- Root `netlify.toml` defines a real Netlify build that builds native WASM and publishes `dist/netlify`.
+- Existing `.github/workflows/{native,tests,wasm}.yml` are restricted to `workflow_dispatch`, so these GitHub Actions themselves do not automatically run on `main` push.
+
+**Blocking check:** It cannot be established from the permitted GitHub read-only metadata whether Netlify continuous deployment is enabled for the `main` production branch, and a GitHub merge could trigger that external site automatically. A PR preview already exists, demonstrating active integration. Because the owner's instruction was **do not deploy anything**, no merge operation was performed. `mergeable=true` and conditional consent do **not** override this explicit no-deploy condition.
+
+**Required resolution before executing the authorized PR #60 merge:** verify the Netlify site's *Build & deploy → Continuous deployment → production branch/automatic deploy settings* and confirm that a merge to `main` will not trigger an automatic production deployment (e.g., temporarily stop builds under the relevant site configuration using an authorized account). Retain a simple route to resume later. If this cannot be confirmed, preserve draft state and request an explicit decision about the deployment conflict instead of risking an unintended publish.
+
+**State:** PR #60 and PR #61 both remain draft/unmerged. No GitHub merge API call, default branch mutation or Netlify deployment was initiated by this integration request. Normal merge commit remains the preferred method after deployment safety is established and final PR readiness checks are completed.
