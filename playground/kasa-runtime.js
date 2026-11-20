@@ -36,7 +36,7 @@
   }
   const syntax = (message, token) => { throw new KasaError("SyntaxError", message, token); };
 
-  function tokenize(source) {
+  function tokenize(source, experimentalModules = false) {
     source = source.replace(/\r\n?/g, "\n");
     const tokens = [];
     let i = 0, line = 1, column = 1;
@@ -99,7 +99,7 @@
       }
       const pair = source.slice(i, i + 2);
       if (pair.length === 2 && OPS.has(pair)) { advance(); advance(); tokens.push(tok(pair, pair, ln, col)); continue; }
-      if (OPS.has(ch)) { advance(); tokens.push(tok(ch, ch, ln, col)); continue; }
+      if (OPS.has(ch) || (experimentalModules && "@:.".includes(ch))) { advance(); tokens.push(tok(ch, ch, ln, col)); continue; }
       syntax(`Unexpected character '${ch}'`, tok("INVALID", ch, ln, col));
     }
     tokens.push(tok("EOF", "", line, column));
@@ -107,7 +107,7 @@
   }
 
   class Parser {
-    constructor(tokens) { this.tokens = tokens; this.pos = 0; }
+    constructor(tokens, experimentalModules = false) { this.tokens = tokens; this.pos = 0; this.experimentalModules = experimentalModules; }
     get current() { return this.tokens[this.pos]; }
     match(kind) {
       if (this.current.kind !== kind) return null;
@@ -133,6 +133,15 @@
     }
     statement() {
       const t = this.current;
+      if (this.experimentalModules && this.match("@")) {
+        const module = this.expect("NAME", "catalog module ID");
+        this.expect(":", "':' between module and alias");
+        if (Object.values(KEYWORDS).includes(this.current.kind))
+          this.fail("reserved module alias: " + this.current.text, this.current);
+        const alias = this.expect("NAME", "module alias");
+        this.endLine();
+        return literal("module_import", t, [module.text, alias.text]);
+      }
       if (this.match("PRINT")) { const expr = this.expression(); this.endLine(); return literal("print", t, null, [expr]); }
       if (this.match("ASSIGN")) {
         const target = this.expression();
@@ -218,6 +227,13 @@
       } else this.fail("Expected a value or expression");
       while (true) {
         const op = this.current;
+        if (this.experimentalModules && op.kind === "." && 80 >= minBP) {
+          if (left.kind !== "name") this.fail("Only a module alias may precede '.'", op);
+          this.pos++;
+          const member = this.expect("NAME", "an exported function name");
+          left = literal("module_member", op, member.text, [left]);
+          continue;
+        }
         if (op.kind === "(" && 80 >= minBP) {
           this.pos++; const args = [];
           if (this.current.kind !== ")") {
@@ -297,6 +313,7 @@
       this.outputCharacters = 0;
       this.inputs = inputText.match(/[^\n]*\n|[^\n]+$/g) || [];
       this.inputCursor = 0;
+      this.moduleAliases = new Map();
     }
     error(tok, cat, msg) { throw new KasaError(cat, msg, tok); }
     tick(tok) { if (++this.steps > STEP_LIMIT) this.error(tok, "ResourceError", `Execution limit (${STEP_LIMIT} steps) exceeded`); }
@@ -393,6 +410,13 @@
       this.tick(e.token);
       switch (e.kind) {
         case "literal": return this.check(e.value, e.token);
+        case "module_member": {
+          const alias = e.children[0].value;
+          if (!this.moduleAliases.has(alias)) this.error(e.token, "NameError", `Unknown module alias '${alias}'`);
+          const module = this.moduleAliases.get(alias);
+          if (!module.exports.has(e.value)) this.error(e.token, "NameError", `Module '${module.id}' does not export '${e.value}'`);
+          return module.env.values.get(e.value);
+        }
         case "name": {
           const [found, value] = env.get(e.value);
           if (found) return value;
@@ -503,15 +527,88 @@
     }
   }
 
-  function executeKasa(source, input = "", mode = "run") {
+  function executeKasa(source, input = "", mode = "run", options = {}) {
     const result = { ok: false, output: "", error: "", steps: 0, mode };
     if (mode !== "run" && mode !== "check") { result.error = "Unknown execution mode"; return result; }
     if (length(source) > SOURCE_LIMIT) { result.error = `Source exceeds the ${SOURCE_LIMIT.toLocaleString("en-US")}-character limit`; return result; }
     if (length(input) > INPUT_LIMIT) { result.error = `Input exceeds the ${INPUT_LIMIT.toLocaleString("en-US")}-character limit`; return result; }
     let runtime;
     try {
-      const program = new Parser(tokenize(source)).parse();
-      if (mode === "run") { runtime = new Interpreter(input); runtime.run(program); result.output = runtime.output; }
+      const experimentalModules = options?.experimentalModules || null;
+      const program = new Parser(tokenize(source, !!experimentalModules), !!experimentalModules).parse();
+      let app = program;
+      if (experimentalModules) {
+        const imports = [];
+        app = [];
+        let bodyStarted = false;
+        for (const stmt of program) {
+          if (stmt.kind === "module_import") {
+            if (bodyStarted) syntax("Module declarations must precede statements", stmt.token);
+            imports.push(stmt);
+          } else { bodyStarted = true; app.push(stmt); }
+        }
+        if (!imports.length) syntax("At least one module declaration is required", program[0]?.token || {line: 1, column: 1});
+        const traverse = (node, visit) => {
+          if (Array.isArray(node)) { for (const part of node) traverse(part, visit); return; }
+          if (!node || typeof node !== "object" || !node.kind) return;
+          visit(node);
+          traverse(node.children, visit);
+        };
+        for (const stmt of app) traverse(stmt, node => {
+          if (node.kind === "module_import") syntax("Module declarations must be top-level", node.token);
+        });
+        if (mode === "run") {
+          runtime = new Interpreter(input);
+          const seenModules = new Set();
+          for (const stmt of imports) {
+            const [id, alias] = stmt.value;
+            if (seenModules.has(id)) syntax("Module selected more than once: " + id, stmt.token);
+            if (runtime.moduleAliases.has(alias)) syntax("Module alias reused: " + alias, stmt.token);
+            if (["bisa", "tentɛn", "nɔma", "nsɛm", "a"].includes(alias)) syntax("reserved module alias: " + alias, stmt.token);
+            // Options must be trusted, locally packaged source metadata.
+            if (!Object.hasOwn(experimentalModules, id)) syntax("Unknown catalog module: " + id, stmt.token);
+            const metadata = experimentalModules[id];
+            if (!metadata || typeof metadata.source !== "string" || !Array.isArray(metadata.exports))
+              syntax("Invalid local module metadata: " + id, stmt.token);
+            const declarations = new Parser(tokenize(metadata.source)).parse();
+            if (!declarations.length || declarations.some(node => node.kind !== "function"))
+              syntax("Module must contain function declarations only: " + id, stmt.token);
+            const names = new Set();
+            const moduleEnv = new Environment();
+            for (const decl of declarations) {
+              if (names.has(decl.value[0])) syntax("Duplicate module function: " + decl.value[0], stmt.token);
+              names.add(decl.value[0]);
+            }
+            if (!metadata.exports.length || new Set(metadata.exports).size !== metadata.exports.length ||
+                metadata.exports.some(name => !names.has(name))) syntax("Invalid module exports: " + id, stmt.token);
+            // Declarations execute with the same interpreter budget as app calls.
+            for (const decl of declarations) runtime.execute(decl, moduleEnv);
+            runtime.moduleAliases.set(alias, { id, exports: new Set(metadata.exports), env: moduleEnv });
+            seenModules.add(id);
+          }
+          for (const stmt of app) traverse(stmt, node => {
+            if (node.kind === "module_member") {
+              const alias = node.children[0].value;
+              if (!runtime.moduleAliases.has(alias)) syntax("Unknown module alias: " + alias, node.token);
+              const mod = runtime.moduleAliases.get(alias);
+              if (!mod.exports.has(node.value)) syntax(`Module '${mod.id}' does not export '${node.value}'`, node.token);
+            }
+            if (node.kind === "function" && (runtime.moduleAliases.has(node.value[0]) ||
+                node.value[1].some(name => runtime.moduleAliases.has(name))))
+              syntax("Module alias cannot be redeclared", node.token);
+            if (node.kind === "assign") {
+              let target = node.children[0];
+              while (target.kind === "index") target = target.children[0];
+              if (target.kind === "name" && runtime.moduleAliases.has(target.value))
+                syntax("Module alias cannot be reassigned", node.token);
+            }
+          });
+        }
+      }
+      if (mode === "run") {
+        if (!runtime) runtime = new Interpreter(input);
+        runtime.run(app); result.output = runtime.output;
+      }
       result.ok = true;
     } catch (err) {
       result.error = err instanceof Error ? err.message : "Unexpected interpreter error";
