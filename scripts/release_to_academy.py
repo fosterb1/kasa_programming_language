@@ -24,6 +24,7 @@ import subprocess
 import sys
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+from playground.build_site import packaged_pinned_modules
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = (
@@ -32,6 +33,7 @@ FILES = (
     "icons/kasa-192.png", "icons/kasa-512.png",
     "native/kasa-native.js", "native/kasa-native.wasm",
 )
+MODULE_ASSET = "kasa-pinned-modules.js"
 BINARIES = {"native/kasa-native.wasm", "icons/kasa-192.png", "icons/kasa-512.png"}
 STUDIO = "public/kasa-studio/"
 GITHUB_API = "https://api.github.com"
@@ -49,11 +51,18 @@ def build_payload() -> tuple[dict[str, bytes], dict]:
         raise ValueError("Refusing to publish missing, invalid or stubbed native WASM")
     if len(inputs["native/kasa-native.js"]) < 1000:
         raise ValueError("Missing native JavaScript loader")
+    # Verify the pinned catalog source hashes before building ANY release files.
+    # Keep this generated asset consistent with the browser ZIP builder.
+    inputs[MODULE_ASSET] = packaged_pinned_modules(ROOT)
     worker = inputs["worker.js"].decode("utf-8")
     flag = "const KASA_HAS_WASM = false;"
     if worker.count(flag) != 1:
         raise ValueError("Unexpected worker flag; update release script for changed worker")
     worker = worker.replace(flag, "const KASA_HAS_WASM = true;")
+    module_flag = "const KASA_HAS_PINNED_MODULES = false;"
+    if worker.count(module_flag) != 1:
+        raise ValueError("Unexpected pinned module flag; refusing incompatible Academy release")
+    worker = worker.replace(module_flag, "const KASA_HAS_PINNED_MODULES = true;")
     inputs["worker.js"] = worker.encode("utf-8")
     html = inputs["index.html"].decode("utf-8")
     html = html.replace(
@@ -67,15 +76,35 @@ def build_payload() -> tuple[dict[str, bytes], dict]:
     css = inputs["style.css"].decode("utf-8")
     css += "\n.academy-back-link{color:#c8efb6;font-weight:750;font-size:13px;border:1px solid #597965;border-radius:9px;padding:9px 12px}.academy-back-link:hover{background:#315344}\n"
     inputs["style.css"] = css.encode("utf-8")
-    # Content-addressed version invalidates the previous offline cache.
-    version = hashlib.sha256(b"".join(name.encode() + inputs[name] for name in FILES)).hexdigest()[:12]
+    # Include locally pinned libraries and native runtime in the revision hash.
+    version = hashlib.sha256(b"".join(
+        name.encode("utf-8") + inputs[name]
+        for name in (*FILES, MODULE_ASSET)
+    )).hexdigest()[:12]
     html = html.replace('href="./style.css"', f'href="./style.css?v={version}"')
-    html = html.replace('src="./app.js?v=4c1"', f'src="./app.js?v={version}"')
-    html = html.replace('src="./diagnostics.js?v=4c1"', f'src="./diagnostics.js?v={version}"')
+    # Enforce one unambiguous revision for the Academy-hosted HTML links.
+    import re
+    html = re.sub(r'(href="./style\.css)(?:\?v=[^"]*)?(")', rf'\g<1>?v={version}\g<2>', html)
+    html = re.sub(r'(src="./app\.js)(?:\?v=[^"]*)?(")', rf'\g<1>?v={version}\g<2>', html)
+    html = re.sub(r'(src="./diagnostics\.js)(?:\?v=[^"]*)?(")', rf'\g<1>?v={version}\g<2>', html)
+    # App's versioned worker URL must also change when its source changes.
+    app = inputs["app.js"].decode("utf-8")
+    app, worker_refs = re.subn(
+        r'new Worker\("\./worker\.js\?v=[^"]+"\)',
+        f'new Worker("./worker.js?v={version}")',
+        app,
+    )
+    if worker_refs != 1:
+        raise ValueError("Expected exactly one versioned worker initialization")
+    inputs["app.js"] = app.encode("utf-8")
     inputs["index.html"] = html.encode("utf-8")
     sw = inputs["sw.js"].decode("utf-8")
     if sw.count("__KASA_BUILD_HASH__") != 1:
         raise ValueError("Offline-cache revision placeholder missing")
+    sw_flag = "const KASA_PACKAGED_MODULES = false;"
+    if sw.count(sw_flag) != 1:
+        raise ValueError("Missing offline-cache pinned module guard")
+    sw = sw.replace(sw_flag, "const KASA_PACKAGED_MODULES = true;")
     inputs["sw.js"] = sw.replace("__KASA_BUILD_HASH__", version).encode("utf-8")
     if not all(inputs.values()):
         raise ValueError("Empty file in browser release")
@@ -83,7 +112,7 @@ def build_payload() -> tuple[dict[str, bytes], dict]:
         "format": "kasa-studio-release-v1",
         "release": version,
         "source_repo": "fosterb1/kasa_programming_language",
-        "files": {name: {"sha256": digest(inputs[name]), "bytes": len(inputs[name])} for name in FILES},
+        "files": {name: {"sha256": digest(inputs[name]), "bytes": len(inputs[name])} for name in (*FILES, MODULE_ASSET)},
     }
     inputs["release-manifest.json"] = (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode("utf-8")
     return inputs, manifest
@@ -151,6 +180,9 @@ def run_local_gates() -> None:
         ["node", "--test", "tests/test_kasa_wasm.cjs", "tests/test_kasa_browser.cjs"],
         [sys.executable, "playground/build_site.py", "--require-wasm"],
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_release_to_academy.py"],
+        ["node", "tests/test_js_experimental_modules.js"],
+        ["node", "tests/test_js_worker_modules.js"],
+        [sys.executable, "-m", "pytest", "-q", "tests/test_experimental_module_source.py", "tests/test_playground.py"],
     ]
     for command in checks:
         print("Checking:", " ".join(command), flush=True)
