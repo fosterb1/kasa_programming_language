@@ -275,10 +275,10 @@ $("clear").addEventListener("click", () => { output.textContent = ""; });
 exampleSelect.addEventListener("change", () => {
   source.value = EXAMPLES[exampleSelect.value] || EXAMPLES.hello;
   exampleExplanation.textContent = EXAMPLE_GUIDES[exampleSelect.value] || EXAMPLE_GUIDES.hello;
-  if (exampleSelect.value === "moduleMarket") {
-    experimentalModulesInput.checked = true;
-    syncModuleEngine();
-  }
+  // Example picker chooses the correct execution mode; manual editing can
+  // still opt in with the separate checkbox.
+  experimentalModulesInput.checked = exampleSelect.value === "moduleMarket";
+  syncModuleEngine();
   debugGuidance.hidden = true;
   saveDraft();
 });
