@@ -660,3 +660,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Acceptance:** The experimental catalog-backed Python module-aware interpreter is verified on the user's Intel macOS test environment for this targeted scope. The previous `46 passed` result was on `b2c61f4` and must not be combined as distinct test coverage.
 - **Open blockers:** Actual source-level Kasa import declarations and dotted member grammar not implemented; no approved Twi import vocabulary; no JS/native/KBC1 module parity. Local quick profile is not full native/WASM certification.
 - **Next work:** Design the syntax-neutral parser AST contract first, record Twi terminology proposals separately for human review, then add end-to-end source examples only when grammar and cross-runtime compatibility are explicitly gated.
+
+
+## 2026-11-20 — G0.3 first executable module-source Python experiment
+
+- **Status:** Implemented on `main`, targeted Mac verification pending; this remains **experimental and opt-in**, not a stabilized or reviewed Twi syntax.
+- **Changed:** `src/kasa/core.py` gains `experimental_modules=True` tokenizer/parser mode only, supporting punctuation-based `@math:m` import declarations and `m.kasa_sum(...)` member AST without touching normal Kasa grammar. `scripts/run_kasa_modules_experimental.py` reads real source files, preflights declarations and exports, binds pinned catalog namespaces, and evaluates the program. `tests/test_experimental_module_source.py` and `stdlib/demos/group0_source_import_experiment.kasa` add positive/negative and Ghanaian marketplace examples. `docs/GROUP_0_EXECUTABLE_IMPORT_EXPERIMENT.md` records scope and gate.
+- **Intended behavior:** Only catalog module IDs, aliases and public functions resolve; reject duplicates, missing/private exports, late/nested module declarations and alias reassignment before printing program output. Internal imported functions share Python runtime execution quotas.
+- **Evidence boundary:** New parser/runner/tests have **not** been run or user-verified at this commit. Earlier 27-pass integration and 7-stage Mac quick were for previous commit `9f22df0`.
+- **Limitations:** Provisional `@` declaration is deliberately not approved Twi, nor part of normal CLI/browser/JS/C++/KBC1. No claim of production imports, module bytecode, sandboxing or full runtime parity.
+- **Next gate:** `python -m pytest -q tests/test_experimental_module_source.py tests/test_configure_kasa_modules.py tests/test_module_member_execution.py`; `python scripts/run_kasa_modules_experimental.py stdlib/demos/group0_source_import_experiment.kasa`; `bash scripts/mac_dev.sh quick`.
