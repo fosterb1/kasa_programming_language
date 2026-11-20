@@ -66,3 +66,21 @@ bash scripts/mac_dev.sh quick
 ```
 
 These tests are **not yet rerun on Mac** for this commit.
+
+
+## Punctuation decision — keep `:` for module aliases (owner direction, 2026-11-20)
+
+**Chosen for the provisional module grammar:** `fa math: m` and `fa math firi stdlib: m`. The colon is **an alias separator only in an import declaration**, not a general assignment operator, type annotation, dictionary entry, or object-field definition.
+
+Reasoning:
+
+- A colon is compact, neutral across Twi dialects and easier to type than introducing an unreviewed new language keyword for English `as`.
+- It does **not** prevent future dictionaries/maps (`{key: value}`), type annotations (`ma x: Type`) or slices (`items[1:4]`); those would have different surrounding tokens and parser productions, if separately approved.
+- **Potential ambiguity** must be controlled by grammar context. The import production ends at NEWLINE; after a single colon it accepts exactly one alias `NAME`. A second colon or a missing alias raises a syntax error. A colon embedded inside a quoted string remains text.
+- The existing stable tokenizer does not globally recognize `:`. Only the opt-in module mode currently tokenizes it. Future uses would require explicit lexer/parser changes and conformance tests; they do not happen automatically.
+- Do **not** adopt `:` for other semantics merely for consistency. Reserve judgment on type annotations, map literals, slices, named arguments or labels until those concepts are designed.
+- The contextual word `fa` itself is a more substantial compatibility risk than the colon: in experimental mode, a statement beginning with `fa` is parsed as an import declaration. Stable Kasa remains unchanged, but a future formal import grammar must explicitly address ordinary variables/functions named `fa` and contextual ambiguity.
+
+**Decision status:** Provisional syntax accepted for continued Kasa development by the owner; **no human linguistic certification** and **no stable release designation**. The current manifest-based exports/private-by-default model is retained. Research candidates for unresolved concepts remain open, and no speculative export/type/package keywords are introduced.
+
+**Regression gate:** `tests/test_experimental_module_source.py` and `tests/test_js_experimental_modules.js` cover optional aliases, source-qualified aliases, empty/double colon rejection and quoted-text safety. Test cases have been committed; Mac execution of these new tests is pending.
