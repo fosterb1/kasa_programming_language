@@ -779,3 +779,13 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Examples and tests updated:** Browser market-basket sample, its UI text/UI checks, the real `.kasa` demo and Python/JS experimental source-import tests now exercise the explicit `firi stdlib` form, default aliases and rejection of arbitrary origins.
 - **Limits:** No arbitrary file imports, package registry/network access, C++/KBC1 parity, reviewed Twi language acceptance, or approved stable grammar. The feature still requires explicit experimental mode. No website deployment was performed; owner has discontinued Netlify.
 - **Verification gate:** Latest parser and UI changes **have not been run on the user's Mac**. Run focused Python/JS suites, the source demo, and Mac quick before claiming acceptance.
+
+
+## 2026-11-20 — Expanded Akan/Twi vocabulary research before new Kasa keywords
+
+- **Owner request:** Research the complete vocabulary decision space more rigorously, beyond provisional `fa` / `firi`, rather than rushing translations into reserved language tokens.
+- **New audit:** `docs/KASA_LANGUAGE_VOCABULARY_RESEARCH_2026-11-20.md` records candidate imports, aliases, exports, private/public, modules/packages, dependencies, diagnostics, exceptions, collections, permissions, classes and async concepts with linked dictionary, academic and orthographic sources; distinguishes ordinary-language glosses from technical meaning and actual implementation.
+- **Recommendation:** Retain experimental `fa ... firi stdlib`, punctuation for alias/member, pinned manifest exports, and private-by-default behavior. Consider `kyɛ` (share) vs `kyerɛ` (show) for a future public-export declaration, **without introducing either as reserved syntax** until semantics and review are settled. `ekuo`, `boaboa ano`, `mfomsoɔ`, `sɔ hwɛ`, `ma kwan` are researched possible conceptual names, **not implemented tokens**.
+- **Evidence limits:** Individual dictionary words do not establish a complete idiomatic software grammar; official orthography bibliographic records were not treated as having been fully read. Required fluent Asante/Akuapem and computing-educator reviews remain pending; no token status changed to `accepted`.
+- **Code changes this checkpoint:** None. Repository documentation only. Previously committed provisional import changes remain pending user-reported Mac proof.
+- **Hosting:** Continue host-neutral playground and Academy development; no Netlify.
