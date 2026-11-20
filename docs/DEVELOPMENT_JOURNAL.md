@@ -924,3 +924,12 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Academy commit `0141c901f959b7d308602a5ac65192db7440596e`:** The Studio module regression test now checks a valid revisioned `CACHE_NAME` and absence of unexpanded `__KASA_BUILD_HASH__`, instead of locking to `academy-4d-modules`. Test also asserts the manifest sync script preserves `old.release` and does not hardcode the earlier release identifier.
 - **Vercel observation:** Auto-deployments were queued/building when checked; **no READY confirmation yet** for these two Academy fixes. Code change pushed is not itself a verified production build.
 - **Studio release status:** Kasa WASM candidate `53a17e183d46` (488,235 bytes) has **not** been published. Must observe Academy build READY, refresh Academy local checkout, review 14-asset candidate, then explicitly approve the separate release publisher. Current fixes only affect build scripts and tests; they do not update database, courses, video records or transcripts.
+
+
+## 2026-11-20 — Academy Windows full smoke test PASS after manifest refresh
+
+- **Owner Windows evidence:** In `C:\\Users\\User\\kasa-learning-academy`, after pulling the Academy build-order fix and running the local Studio release metadata synchronization, `npm run test:smoke` completed with **162 tests, 162 passes, zero failures, zero skipped** (approximately **974.77 ms**).
+- **Earlier regression resolved locally:** Prior Windows run had **161/162**, with an `app.js` byte count mismatch (15,536 actual versus 13,990 in stale manifest). The latest smoke result confirms the local byte-count/integrity test is now green after refreshing metadata.
+- **Academy fix:** `package.json` build script now refreshes the Studio integrity manifest before testing, and includes `tests/academy-studio.test.mjs` in the production build gate (Academy commit `8ef263ff9945bb7c4dfd976b213c4eab141bb960`).
+- **Scope:** These are owner-provided **Windows source and asset tests**, not a new Windows native Emscripten build, nor a full Next.js production build. Local `release-manifest.json` may have changed during synchronization and must be reviewed before any commit. **The Mac candidate `53a17e183d46` is still unpublished.**
+- **Next:** Inspect `git status --short` and `git diff -- public/kasa-studio/release-manifest.json` in the Windows Academy repo, and run `npm ci` + `npm run build` only with the appropriate Node/Payload environment. Keep the Mac WASM release separately gated and explicitly reviewed.
