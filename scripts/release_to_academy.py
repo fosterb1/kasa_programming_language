@@ -176,8 +176,32 @@ def publish(payload: dict[str, bytes], manifest: dict, repo: str, branch: str, t
     return next_commit["sha"]
 
 
+def verify_native_freshness() -> None:
+    """Reject stale native assets before publishing a new Academy release.
+
+    A source timestamp check complements (but does not replace) real native
+    compilation, WebAssembly validation and cross-runtime smoke tests.
+    """
+    wasm = ROOT / "playground/native/kasa-native.wasm"
+    glue = ROOT / "playground/native/kasa-native.js"
+    if not wasm.is_file() or not glue.is_file():
+        raise ValueError("Native WebAssembly build is missing; rebuild with Emscripten")
+    sources = [
+        file for file in (ROOT / "native").rglob("*")
+        if file.is_file() and
+        (file.suffix in {".c", ".cc", ".cpp", ".h", ".hpp", ".hh"} or
+         file.name == "CMakeLists.txt" or file.name == "build.sh")
+    ]
+    if not sources:
+        raise ValueError("Native source tree missing; cannot verify native build freshness")
+    newest_source = max(file.stat().st_mtime_ns for file in sources)
+    if min(wasm.stat().st_mtime_ns, glue.stat().st_mtime_ns) < newest_source:
+        raise ValueError("Native WebAssembly build older than native sources; rebuild before publishing")
+
+
 def run_local_gates() -> None:
     """No release publication until local language and native artifact checks pass."""
+    verify_native_freshness()
     checks = [
         ["node", "native/wasm/validate_artifacts.mjs"],
         ["node", "--test", "tests/test_kasa_wasm.cjs", "tests/test_kasa_browser.cjs"],
