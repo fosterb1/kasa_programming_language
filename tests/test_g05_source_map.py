@@ -53,10 +53,18 @@ def test_nested_application_statements_get_separate_origins():
     assert [(item["line"], item["kind"]) for item in rows if not item["synthetic"]] == [
         (2, "function"), (3, "if"), (4, "return"), (6, "return"), (8, "print")
     ]
-    for item in mapping["lines"]:
-        assert generated[item["generated_line"] - 1]
-        if item["synthetic"]:
-            assert item["precision"] in ("statement", "none")
+    assert len(mapping["lines"]) == len(generated)
+    for index, item in enumerate(mapping["lines"], start=1):
+        assert item["generated_line"] == index
+        generated_text = generated[index - 1]
+        if item["kind"] == "separator":
+            assert generated_text == ""
+            assert item["synthetic"] is True
+            assert item["precision"] == "none"
+        else:
+            assert generated_text.strip()
+            if item["synthetic"]:
+                assert item["precision"] == "statement"
 
 
 def test_source_map_is_opt_in_and_does_not_change_generated_bytes():
