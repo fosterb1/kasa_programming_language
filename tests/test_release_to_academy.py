@@ -100,6 +100,27 @@ class ReleaseSafetyTest(unittest.TestCase):
         self.assertNotEqual(original["release"], modified["release"])
         self.assertNotEqual(first[release.MODULE_ASSET], changed[release.MODULE_ASSET])
 
+    def test_native_freshness_refuses_stale_or_missing_rebuild(self):
+        native = self.root / "native"
+        native.mkdir()
+        source = native / "vm.cpp"
+        source.write_text("int main() { return 0; }")
+        wasm = self.source / "native/kasa-native.wasm"
+        glue = self.source / "native/kasa-native.js"
+        import os
+        os.utime(wasm, ns=(1_000_000_000, 1_000_000_000))
+        os.utime(glue, ns=(1_000_000_000, 1_000_000_000))
+        os.utime(source, ns=(2_000_000_000, 2_000_000_000))
+        with self.assertRaisesRegex(ValueError, "older than native sources"):
+            release.verify_native_freshness()
+        os.utime(wasm, ns=(3_000_000_000, 3_000_000_000))
+        os.utime(glue, ns=(3_000_000_000, 3_000_000_000))
+        release.verify_native_freshness()
+
+    def test_native_freshness_requires_source_tree(self):
+        with self.assertRaisesRegex(ValueError, "source tree missing"):
+            release.verify_native_freshness()
+
     def test_api_publish_builds_one_commit_without_force(self):
         payload,manifest=release.build_payload()
         calls=[]
