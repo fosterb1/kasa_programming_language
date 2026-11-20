@@ -7,7 +7,7 @@ A verified language release can update Kasa Academy's first-party Studio in one 
 ## Prerequisites
 - Local checked-out Kasa language repository.
 - Emscripten SDK activated (`em++` available), Python 3 and Node.js.
-- Python Playwright and its Chromium browser installed in the **same Python environment** used to run this release script: `python -m pip install playwright`, followed by `python -m playwright install chromium`. The real-browser smoke test is mandatory for `--publish`.
+- Python Playwright installed in the **same Python environment** used to run this release script: `python -m pip install playwright`. On **macOS 13 Ventura**, Playwright 1.65 cannot download its bundled Chromium; use an already installed **Google Chrome**, which the test selects automatically on macOS (`KASA_BROWSER_CHANNEL=chrome`). On supported Linux use `python -m playwright install chromium`. The real-browser smoke test is mandatory for `--publish`; absence of a compatible browser must fail the release.
 - A fine-grained GitHub token with **Contents: Read and write** access to `fosterb1/kasa-learning-academy` only.
 - The Academy's GitHub main branch must be current; do not force-push over concurrent work.
 - The Academy CMS and curricula **may be upgraded during active development**. Such upgrades belong in the Academy repository, with reviewed Payload/DB migrations, focused tests, and preservation of existing records, uploads, lesson videos and transcripts. They are not in the scope of this browser-asset publisher.
@@ -22,6 +22,7 @@ bash native/wasm/build.sh
 node native/wasm/validate_artifacts.mjs
 node --test tests/test_kasa_wasm.cjs tests/test_kasa_browser.cjs
 python playground/build_site.py --require-wasm
+# macOS: uses installed Google Chrome; Linux: Playwright-managed Chromium
 python scripts/verify_real_wasm_browser.py
 
 # 3. Check exactly which files need updating; never writes to GitHub
