@@ -325,3 +325,17 @@ git rev-parse --short HEAD
 **Do not claim reproducibility unless the new twice-compiled KBC1 comparison passes and the native-dependent tests are not skipped.** The gate is narrower than a cross-platform reproducible-build claim: compare only the same platform, compiler and configuration. A cross-toolchain/Windows-Linux bitwise reproducibility claim would need separate evidence.
 
 **Remaining G0.5 closure work:** independent review of path/symlink race handling and error categories, stronger malformed source/quota corpus, cross-platform tests, and a release decision for the opt-in command. Keep PR #61 draft until all explicitly selected acceptance gates are evidenced.
+
+## G0.5 reproducibility gate — first Windows run and correction (2026-11-21)
+
+Owner-provided terminal output: `python scripts/verify_local.py --profile parity` reports **Passed: 11 | Failed: 0 | Not run: 0**. The eight-suite pytest run reports **1 failed, 53 passed, 1 skipped**. The sole failing case `test_invalid_imports_never_publish` supplied `ma __kasa_g05_math_kasa_sum = 1`: the linker correctly raised `HygienicLinkError("Application uses reserved internal linker name")`, but the new pytest assertion accepted only `KasaError` and `CompileError`. This is a **test exception-type contract mistake**, not evidence that reserved internal names bypassed the linker. The failure occurred before the test could assert the absence of an output artifact.
+
+Commit `d2c5851` imports `HygienicLinkError` into the reproducibility tests and adds that **specific existing error type** to the expected exceptions; it does not weaken the linker or swallow arbitrary errors. **The correction has not yet been owner-tested.** The single skip was not identified by the short pytest output; determine its cause with `-rs`. Windows accounts sometimes cannot create symlinks, and such an explicit symlink test may skip; do not assume that is the reason without the skip report. The native build-dependent reproducibility test must **not** be skipped.
+
+```cmd
+git pull --ff-only
+python -m pytest -q -rs tests/test_g05_build_reproducibility.py tests/test_g05_compile_command.py tests/test_g05_native_mapped_runner.py tests/test_g05_source_map.py tests/test_g05_diagnostic_mapping.py tests/test_g05_namespace_collision.py tests/test_hygienic_module_linker.py tests/test_native_module_preflight.py
+git rev-parse --short HEAD
+```
+
+If the new test result is clean (except any explained, nonessential OS privilege-dependent skip), proceed with the independent four-case native/KBC1 and bytecode corruption scripts. Record the tested SHA; keep PR #61 draft until completion.
