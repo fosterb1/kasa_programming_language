@@ -715,3 +715,12 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Important limit:** The JavaScript runtime trusts metadata passed by its caller and **does not independently validate arbitrary source hashes**; only the Node test fixture checks hashes. This is not yet a secure or verified browser package loader. `check` mode parses experimental syntax but does not validate module catalog exports.
 - **Next test gate:** `node --check playground/kasa-runtime.js`; `node tests/test_js_experimental_modules.js`; `python -m pytest -q tests/test_experimental_module_source.py`; `bash scripts/mac_dev.sh quick`.
 - **Next implementation gate:** After actual node proof, design pinned browser asset packaging and optional worker protocol, plus cross-runtime parity corpus, with reviewed Twi-first syntax as a separate language approval step.
+
+
+## 2026-11-20 — User-reported Mac acceptance of G0.4 experimental JavaScript modules
+
+- **Status:** User replied **"all pass"** after instructions to pull commit `a2288c6` and run `node --check playground/kasa-runtime.js`, `node tests/test_js_experimental_modules.js`, `python -m pytest -q tests/test_experimental_module_source.py`, and `bash scripts/mac_dev.sh quick`.
+- **Evidence boundary:** No command transcript, exact test counts, or last tested commit hash was included in the acceptance message. Treat as **user-reported local success**, not an independently observed full-suite run.
+- **Accepted scope:** Opt-in experimental Python and JavaScript source/module execution paths have both received targeted user-reported Mac acceptance. JS `experimentalModules` trusts supplied module metadata; only the Node fixture checks local catalog hashes before passing sources to the JS runtime.
+- **Still missing:** A pinned browser asset loader, worker protocol integration, playground/Netlify controls, shared Python/JS behavior fixtures, native/KBC1 implementation and a reviewed Twi import phrase. Default code paths remain separate and unchanged.
+- **Next gate:** Implement and validate deterministic, SHA-256-verified static-browser library packaging and an explicitly opt-in worker protocol; avoid injecting untrusted arbitrary source metadata into the runtime. Preserve Twi-first review requirements and existing Kasa syntax compatibility.
