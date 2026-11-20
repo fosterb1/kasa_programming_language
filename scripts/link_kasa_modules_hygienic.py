@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 from pathlib import Path
 import re
 import sys
@@ -235,7 +236,8 @@ def link_source(source: str, *, root: Path = ROOT, filename: str = "<g05-link>",
     return result
 
 
-def write_linked_source(application: Path, output: Path, *, root: Path = ROOT) -> Path:
+def write_linked_source(application: Path, output: Path, *, root: Path = ROOT,
+                        map_output: Path | None = None) -> Path:
     root = root.absolute()
     target_dir = root / "build" / "g05-linked"
     out = output.absolute()
@@ -243,6 +245,12 @@ def write_linked_source(application: Path, output: Path, *, root: Path = ROOT) -
         raise HygienicLinkError("Output must be directly inside build/g05-linked as .kasa")
     if out.exists() or out.is_symlink():
         raise HygienicLinkError("Refusing to overwrite linked source")
+    sidecar = Path(str(out) + ".map.json") if map_output is not None else None
+    if sidecar is not None:
+        if map_output.absolute() != sidecar:
+            raise HygienicLinkError("Source-map sidecar must be <output>.map.json")
+        if sidecar.exists() or sidecar.is_symlink():
+            raise HygienicLinkError("Refusing to overwrite source map")
     if any(part.is_symlink() or (hasattr(part, "is_junction") and part.is_junction())
            for part in (root, root / "build", target_dir)):
         raise HygienicLinkError("Linked output directory refused")
@@ -251,10 +259,27 @@ def write_linked_source(application: Path, output: Path, *, root: Path = ROOT) -
     payload = application.read_bytes()
     if len(payload) > 50_000:
         raise HygienicLinkError("Application source exceeds size limit")
-    linked = link_source(payload.decode("utf-8", "strict"), root=root, filename=str(application))
+    mapping: dict | None = {} if sidecar is not None else None
+    linked = link_source(payload.decode("utf-8", "strict"), root=root,
+                         filename=str(application), source_map=mapping)
     target_dir.mkdir(parents=True, exist_ok=True)
-    with out.open("x", encoding="utf-8", newline="\n") as handle:
-        handle.write(linked)
+    created_source = False
+    created_map = False
+    try:
+        with out.open("x", encoding="utf-8", newline="\n") as handle:
+            created_source = True
+            handle.write(linked)
+        if sidecar is not None:
+            with sidecar.open("x", encoding="utf-8", newline="\n") as handle:
+                created_map = True
+                json.dump(mapping, handle, ensure_ascii=False, indent=2)
+                handle.write("\n")
+    except (OSError, UnicodeError):
+        if created_map:
+            sidecar.unlink(missing_ok=True)
+        if created_source:
+            out.unlink(missing_ok=True)
+        raise
     return out
 
 
@@ -262,10 +287,14 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--app", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--emit-map", action="store_true",
+                        help="Write a sibling .kasa.map.json source-location sidecar")
     args = parser.parse_args(argv)
     try:
         print("Created experimental G0.5 linked source:",
-              write_linked_source(args.app, args.output))
+              write_linked_source(args.app, args.output,
+                                  map_output=Path(str(args.output.absolute()) + ".map.json")
+                                  if args.emit_map else None))
     except (KasaError, HygienicLinkError, OSError, UnicodeError, ValueError) as error:
         print("G0.5 link refused: " + str(error), file=sys.stderr)
         return 2
