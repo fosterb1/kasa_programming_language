@@ -670,3 +670,12 @@ ctest --test-dir build/kasa-local -C Release -R kasa_native_kbc1_serializer --ou
 - **Evidence boundary:** New parser/runner/tests have **not** been run or user-verified at this commit. Earlier 27-pass integration and 7-stage Mac quick were for previous commit `9f22df0`.
 - **Limitations:** Provisional `@` declaration is deliberately not approved Twi, nor part of normal CLI/browser/JS/C++/KBC1. No claim of production imports, module bytecode, sandboxing or full runtime parity.
 - **Next gate:** `python -m pytest -q tests/test_experimental_module_source.py tests/test_configure_kasa_modules.py tests/test_module_member_execution.py`; `python scripts/run_kasa_modules_experimental.py stdlib/demos/group0_source_import_experiment.kasa`; `bash scripts/mac_dev.sh quick`.
+
+
+## 2026-11-20 — Mac-reported experimental import parser diagnostic fix
+
+- **Observed user evidence:** `tests/test_experimental_module_source.py` and related focused suite reported **33 passed, 1 failed in 0.45s** on Mac after the opt-in real-source import prototype was pushed.
+- **Failure:** `@math:ka` failed at the parser with `SyntaxError: Expected module alias, found ka` rather than the test's intended reserved-alias classification. The lexer recognizes `ka` as the existing `PRINT` token, not `NAME`.
+- **Fix:** In experimental module-declaration parsing, detect reserved keyword token kinds before `expect("NAME")` and emit `Reserved module alias: ka` at the original token location. The existing Twi keyword table, regular parser mode and namespace binding policies are unchanged.
+- **Verification status:** Fix committed but **not yet rerun on Mac**. The earlier 33 passing tests are not evidence that this new change passes.
+- **Next gate:** Repeat `python -m pytest -q tests/test_experimental_module_source.py tests/test_configure_kasa_modules.py tests/test_module_member_execution.py`; then run demo and `bash scripts/mac_dev.sh quick`.
