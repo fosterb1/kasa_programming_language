@@ -19,7 +19,7 @@ try:
     from compile_g05_modules import (
         CompileError, DEFAULT_NATIVE, MAX_INPUT_BYTES, compile_modules,
     )
-    from link_kasa_modules_hygienic import link_source
+    from link_kasa_modules_hygienic import HygienicLinkError, link_source
 finally:
     sys.path.remove(str(ROOT / "scripts"))
 
@@ -105,7 +105,7 @@ def test_oversized_source_fails_before_publication(tmp_path, target_factory):
 def test_invalid_imports_never_publish(tmp_path, target_factory, source, diagnostic):
     app = _app(tmp_path, source)
     output = target_factory()
-    with pytest.raises((KasaError, CompileError), match=diagnostic):
+    with pytest.raises((KasaError, CompileError, HygienicLinkError), match=diagnostic):
         compile_modules(app, output)
     assert not output.exists()
 
