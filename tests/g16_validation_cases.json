@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "status": "experimental_host_validation_only",
+  "schema": [
+    {
+      "name": "id",
+      "type": "integer",
+      "required": true
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "active",
+      "type": "boolean",
+      "required": true
+    },
+    {
+      "name": "notes",
+      "type": "text",
+      "required": false
+    }
+  ],
+  "cases": [
+    {
+      "id": "valid",
+      "record": [
+        101,
+        "Ama",
+        true,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "code": "OK",
+        "field": null
+      }
+    },
+    {
+      "id": "empty-text",
+      "record": [
+        0,
+        "",
+        false,
+        ""
+      ],
+      "expected": {
+        "ok": true,
+        "code": "OK",
+        "field": null
+      }
+    },
+    {
+      "id": "missing-required",
+      "record": [
+        101,
+        null,
+        true,
+        null
+      ],
+      "expected": {
+        "ok": false,
+        "code": "REQUIRED",
+        "field": "name"
+      }
+    },
+    {
+      "id": "boolean-as-integer",
+      "record": [
+        true,
+        "Ama",
+        true,
+        null
+      ],
+      "expected": {
+        "ok": false,
+        "code": "INVALID_TYPE",
+        "field": "id"
+      }
+    },
+    {
+      "id": "text-as-integer",
+      "record": [
+        "101",
+        "Ama",
+        true,
+        null
+      ],
+      "expected": {
+        "ok": false,
+        "code": "INVALID_TYPE",
+        "field": "id"
+      }
+    },
+    {
+      "id": "integer-as-text",
+      "record": [
+        101,
+        8,
+        true,
+        null
+      ],
+      "expected": {
+        "ok": false,
+        "code": "INVALID_TYPE",
+        "field": "name"
+      }
+    },
+    {
+      "id": "integer-as-boolean",
+      "record": [
+        101,
+        "Ama",
+        1,
+        null
+      ],
+      "expected": {
+        "ok": false,
+        "code": "INVALID_TYPE",
+        "field": "active"
+      }
+    },
+    {
+      "id": "missing-record-cell",
+      "record": [
+        101,
+        "Ama",
+        true
+      ],
+      "expected": {
+        "ok": false,
+        "code": "INVALID_SHAPE",
+        "field": null
+      }
+    },
+    {
+      "id": "extra-record-cell",
+      "record": [
+        101,
+        "Ama",
+        true,
+        null,
+        3
+      ],
+      "expected": {
+        "ok": false,
+        "code": "INVALID_SHAPE",
+        "field": null
+      }
+    },
+    {
+      "id": "safe-int-upper",
+      "record": [
+        9007199254740991,
+        "Ama",
+        true,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "code": "OK",
+        "field": null
+      }
+    },
+    {
+      "id": "unsafe-positive",
+      "record": [
+        9007199254740992,
+        "Ama",
+        true,
+        null
+      ],
+      "expected": {
+        "ok": false,
+        "code": "INVALID_TYPE",
+        "field": "id"
+      }
+    },
+    {
+      "id": "negative-safe",
+      "record": [
+        -9007199254740991,
+        "Ama",
+        false,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "code": "OK",
+        "field": null
+      }
+    },
+    {
+      "id": "optional-wrong-type",
+      "record": [
+        101,
+        "Ama",
+        true,
+        123
+      ],
+      "expected": {
+        "ok": false,
+        "code": "INVALID_TYPE",
+        "field": "notes"
+      }
+    },
+    {
+      "id": "first-error",
+      "record": [
+        null,
+        null,
+        true,
+        null
+      ],
+      "expected": {
+        "ok": false,
+        "code": "REQUIRED",
+        "field": "id"
+      }
+    },
+    {
+      "id": "nonlist",
+      "record": {},
+      "expected": {
+        "ok": false,
+        "code": "INVALID_SHAPE",
+        "field": null
+      }
+    },
+    {
+      "id": "surrogate-aware-text",
+      "record": [
+        1,
+        "😀",
+        true,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "code": "OK",
+        "field": null
+      }
+    }
+  ],
+  "invalid_schemas": [
+    {
+      "id": "duplicate",
+      "schema": [
+        {
+          "name": "id",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "required": false
+        }
+      ],
+      "reject": "Invalid or duplicate field name"
+    },
+    {
+      "id": "unsupported-decimal",
+      "schema": [
+        {
+          "name": "price",
+          "type": "decimal",
+          "required": true
+        }
+      ],
+      "reject": "Invalid field type or required flag"
+    },
+    {
+      "id": "nonboolean-required",
+      "schema": [
+        {
+          "name": "id",
+          "type": "integer",
+          "required": 1
+        }
+      ],
+      "reject": "Invalid field type or required flag"
+    },
+    {
+      "id": "unknown-field-key",
+      "schema": [
+        {
+          "name": "id",
+          "type": "integer",
+          "required": true,
+          "default": 0
+        }
+      ],
+      "reject": "Each field must have exactly"
+    },
+    {
+      "id": "invalid-identifier",
+      "schema": [
+        {
+          "name": "bad space",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "reject": "Invalid or duplicate field name"
+    },
+    {
+      "id": "not-a-list",
+      "schema": {
+        "fields": []
+      },
+      "reject": "Schema must be a list"
+    }
+  ]
+}
