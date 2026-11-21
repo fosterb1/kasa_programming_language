@@ -1,0 +1,59 @@
+# G1.5 experimental source-only positional records.
+# A schema is an ordered list of unique field-name strings.
+# A record is a list whose length matches the schema.
+# No new value type, dictionary, serialization, or runtime capability is added.
+
+dwumadie kasa_schema_unique(fields)
+    ma i = 0
+    bere_a i < tentɛn(fields)
+        ma j = 0
+        bere_a j < i
+            sɛ fields[i] == fields[j] a
+                sanma atoro
+            awiei
+            ma j = j + 1
+        awiei
+        ma i = i + 1
+    awiei
+    sanma nokware
+awiei
+
+dwumadie kasa_field_index(fields, name)
+    ma i = 0
+    bere_a i < tentɛn(fields)
+        sɛ fields[i] == name a
+            sanma i
+        awiei
+        ma i = i + 1
+    awiei
+    sanma -1
+awiei
+
+dwumadie kasa_record_shape_valid(fields, record)
+    sɛ ɛnyɛ kasa_schema_unique(fields) a
+        sanma atoro
+    awiei
+    sanma tentɛn(fields) == tentɛn(record)
+awiei
+
+dwumadie kasa_field_or(fields, record, name, fallback)
+    sɛ ɛnyɛ kasa_record_shape_valid(fields, record) a
+        sanma fallback
+    awiei
+    ma index = kasa_field_index(fields, name)
+    sɛ index == -1 a
+        sanma fallback
+    awiei
+    sanma record[index]
+awiei
+
+dwumadie kasa_required_field_present(fields, record, name)
+    sɛ ɛnyɛ kasa_record_shape_valid(fields, record) a
+        sanma atoro
+    awiei
+    ma index = kasa_field_index(fields, name)
+    sɛ index == -1 a
+        sanma atoro
+    awiei
+    sanma record[index] != hwee
+awiei

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "status": "g15_source_only_experimental",
+  "library": "stdlib/g15/records.kasa",
+  "cases": [
+    {
+      "id": "unique-fields",
+      "source": "ka kasa_schema_unique([\"id\", \"name\", \"amount\"])\nka kasa_schema_unique([\"id\", \"name\", \"id\"])\n",
+      "output": "nokware\natoro\n"
+    },
+    {
+      "id": "empty-schema",
+      "source": "ka kasa_schema_unique([])\nka kasa_record_shape_valid([], [])\nka kasa_record_shape_valid([], [1])\n",
+      "output": "nokware\nnokware\natoro\n"
+    },
+    {
+      "id": "field-search",
+      "source": "ka kasa_field_index([\"id\", \"name\", \"amount\"], \"name\")\nka kasa_field_index([\"id\", \"name\"], \"unknown\")\n",
+      "output": "1\n-1\n"
+    },
+    {
+      "id": "valid-record",
+      "source": "ma fields = [\"id\", \"name\", \"amount\"]\nma record = [101, \"Ama\", 2500]\nka kasa_record_shape_valid(fields, record)\nka kasa_field_or(fields, record, \"name\", \"missing\")\nka kasa_field_or(fields, record, \"amount\", -1)\n",
+      "output": "nokware\nAma\n2500\n"
+    },
+    {
+      "id": "width-mismatch",
+      "source": "ma fields = [\"id\", \"name\"]\nka kasa_record_shape_valid(fields, [1])\nka kasa_record_shape_valid(fields, [1, \"Ama\", 30])\nka kasa_field_or(fields, [1], \"id\", -1)\n",
+      "output": "atoro\natoro\n-1\n"
+    },
+    {
+      "id": "duplicate-schema",
+      "source": "ma fields = [\"id\", \"id\"]\nma record = [10, 20]\nka kasa_record_shape_valid(fields, record)\nka kasa_field_or(fields, record, \"id\", -1)\n",
+      "output": "atoro\n-1\n"
+    },
+    {
+      "id": "required-present",
+      "source": "ma fields = [\"name\", \"amount\"]\nka kasa_required_field_present(fields, [\"Ama\", 0], \"amount\")\nka kasa_required_field_present(fields, [\"Ama\", hwee], \"amount\")\n",
+      "output": "nokware\natoro\n"
+    },
+    {
+      "id": "required-missing",
+      "source": "ka kasa_required_field_present([\"id\"], [1], \"name\")\nka kasa_required_field_present([\"id\"], [], \"id\")\n",
+      "output": "atoro\natoro\n"
+    },
+    {
+      "id": "null-value",
+      "source": "ma fields = [\"id\", \"note\"]\nka kasa_field_or(fields, [1, hwee], \"note\", \"none\")\nka kasa_required_field_present(fields, [1, hwee], \"note\")\n",
+      "output": "hwee\natoro\n"
+    },
+    {
+      "id": "no-mutation",
+      "source": "ma names = [\"id\", \"name\"]\nma record = [7, \"Kofi\"]\nka kasa_field_or(names, record, \"name\", \"?\")\nka names[0]\nka record[0]\nka tentɛn(record)\n",
+      "output": "Kofi\nid\n7\n2\n"
+    }
+  ]
+}
