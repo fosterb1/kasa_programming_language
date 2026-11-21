@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1 opt-in browser packaging and real Chromium gate (user-verified)
+
+- **Status:** Implemented on `dev/g123-browser-g1-packaging`; user-confirmed requested tests passed in Google Cloud Shell. Not deployed.
+- **Changed:** `playground/build_site.py` adds `--include-g1` option to validate and package the separate pinned G1 sources, with worker and service-worker flags enabled only for opt-in ZIPs; `playground/sw.js` conditionally caches the G1 asset. Added unit tests `tests/test_g1_browser_packaging.py`, an actual-browser Playwright worker acceptance script `scripts/verify_real_g1_browser.py`, and `docs/G123_REAL_BROWSER_G1.md`.
+- **Decision:** Preserve default bundle (G0 only) and normal Kasa grammar, no G1 selector in Studio UI, no public website deployment. Test G1 directly through opt-in worker messages in loopback-hosted Chromium, using the same 19 G1.1 contract fixtures.
+- **Evidence:** User reports all requested checks passed: `python -m pytest -q tests/test_g1_browser_packaging.py`, `python -m pytest -q tests/test_validate_g1_catalog.py`, `node tests/test_js_g1_contract.cjs`, `node tests/test_js_g1_worker.cjs`, `python scripts/verify_real_g1_browser.py`, `python scripts/verify_real_module_browser.py`, and `python scripts/verify_local.py --profile full`. Exact terminal totals, revision and skips were not provided; this remains user-confirmed evidence.
+- **Risks:** Real Chromium local worker acceptance does not prove public-hosting compatibility, native/KBC G1 support, untrusted-code safety, or publisher signing. G0.5 remains trusted-local experimental.
+- **Next gate:** Complete final diff/conflict review and normal merge if permitted; retest integrated `main`. Netlify remains paused.
+
 ### 2026-11-21 — G1.2.3 JavaScript G1 compatibility and worker gate (user-verified)
 
 - **Status:** Implemented on `dev/g123-js-g1-compat`; user-confirmed all requested Google Cloud Shell checks passed. Not deployed.
