@@ -39,6 +39,16 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1.2.4 native/KBC1 reviewed-source prelink (user-verified)
+
+- **Status:** Implemented on `dev/g124-native-g1-prelink`; owner confirms all requested Cloud Shell checks passed. No deployment.
+- **Audit:** Native C++ and KBC1 already consume ordinary Kasa and can execute G0.5 static linked source. No native import syntax or KBC runtime module loader is present. G0.5 remains trusted-local experimental with outstanding shared-filesystem/TOCTOU concerns.
+- **Changed:** Added explicit `generation="g1"` handling to existing module preflight and restricted hygienic source linker (G0 defaults retained), added `scripts/link_g124_native.py` stdout-only experimental bridge, `tests/test_g124_native_prelink.py` for positives and fail-closed regressions, `scripts/verify_g124_native_kbc.py` for Python/native/KBC1 differential and source independence, and `docs/G124_NATIVE_G1_PRELINK.md`.
+- **Decision:** Reuse the audited G0.5 source-flattening pipeline rather than altering C++ parser, KBC1/KBC2 wire formats, default CLI, public browser or runtime source loading. G1 reads only strict pinned first-party sources; no Netlify or Studio changes.
+- **Evidence:** User reports PASS for focused G1 prelink pytest, existing G0.5 linker/preflight regressions, G1 manifest/import regressions, native/KBC1 G1 differential, existing G0.5 native/KBC1 and source-independence checks, and `python scripts/verify_local.py --profile full`. Terminal logs, exact totals and skips were not supplied; these are owner-confirmed rather than independently observed outcomes.
+- **Risks:** The existing G0.5 directory and local-input race limits remain. Hash pinning does not authenticate publishers. Not a production or adversarial security claim.
+- **Next gate:** Complete GitHub diff/conflict review and normal merge if permitted; then retest integrated `main`. Continue to G1.3 cross-runtime conformance. Netlify remains paused.
+
 ### 2026-11-21 — G1 opt-in browser packaging and real Chromium gate (user-verified)
 
 - **Status:** Implemented on `dev/g123-browser-g1-packaging`; user-confirmed requested tests passed in Google Cloud Shell. Not deployed.

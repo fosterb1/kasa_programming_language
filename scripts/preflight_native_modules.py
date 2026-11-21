@@ -23,6 +23,10 @@ from plan_kasa_modules import NamespacePlanError, plan_bindings  # noqa: E402
 from validate_kasa_catalog import (  # noqa: E402
     ALLOWED, CATALOG, CatalogError, _is_linked, load_catalog,
 )
+from validate_g1_catalog import (  # noqa: E402
+    ALLOWED as G1_ALLOWED, CATALOG as G1_CATALOG, G1CatalogError,
+    validate as validate_g1, _regular_unlinked as g1_regular_unlinked,
+)
 
 
 def _walk(value):
@@ -35,10 +39,17 @@ def _walk(value):
 
 
 def preflight(source: str, *, filename: str = "<prelink>", root: Path = ROOT,
-              catalog_path: Path | None = None) -> dict:
+              catalog_path: Path | None = None, generation: str = "g0") -> dict:
     """Validate imports, names, and pinned source without executing/writing."""
     root = root.absolute()
-    catalog = load_catalog(catalog_path or root / "stdlib/catalog.json", root)
+    if generation == "g0":
+        catalog = load_catalog(catalog_path or root / "stdlib/catalog.json", root)
+        allowed = ALLOWED
+    elif generation == "g1":
+        catalog = validate_g1(catalog_path or root / "stdlib/g1/catalog.json", root)
+        allowed = G1_ALLOWED
+    else:
+        raise ValueError("Unsupported module generation (expected g0 or g1)")
     indexed = {entry["id"]: entry for entry in catalog}
     program = parse(source, filename=filename, experimental_modules=True)
     imports = []
@@ -78,8 +89,10 @@ def preflight(source: str, *, filename: str = "<prelink>", root: Path = ROOT,
     private_names = {}
     for module in plan["load_order"]:
         entry = indexed[module]
-        path = root / ALLOWED[module]
-        if _is_linked(path, root) or not path.is_file():
+        path = root / allowed[module]
+        if ((generation == "g0" and _is_linked(path, root)) or
+                (generation == "g1" and not g1_regular_unlinked(path, root)) or
+                not path.is_file()):
             raise CatalogError("Module source is missing or linked: " + module)
         data = path.read_bytes()
         if b"\r" in data.replace(b"\r\n", b""):
@@ -119,7 +132,7 @@ def preflight(source: str, *, filename: str = "<prelink>", root: Path = ROOT,
                 if target.kind == "name" and target.value in selected_aliases:
                     raise KasaError("NameError", "Module alias cannot be reassigned", node.token, filename)
 
-    return {
+    result = {
         "schema_version": 1,
         "mode": "native_prelink_preflight_only",
         "imports": [{"module": module, "alias": alias} for _, module, alias in imports],
@@ -130,6 +143,9 @@ def preflight(source: str, *, filename: str = "<prelink>", root: Path = ROOT,
         "emits_source": False,
         "emits_bytecode": False,
     }
+    if generation == "g1":
+        result["module_generation"] = "g1"
+    return result
 
 
 def main(argv=None):
