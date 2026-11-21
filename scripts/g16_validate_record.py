@@ -5,15 +5,14 @@ builtin, a sandbox, a serializer, or a native C++ type system.
 """
 from __future__ import annotations
 
-import math
 import re
 
-TYPES = frozenset({"integer", "decimal", "text", "boolean"})
+TYPES = frozenset({"integer", "text", "boolean"})
 NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z", re.ASCII)
 MAX_FIELDS = 32
 MAX_TEXT = 1024
-INT64_MIN = -(1 << 63)
-INT64_MAX = (1 << 63) - 1
+SAFE_INT_MIN = -(1 << 53) + 1
+SAFE_INT_MAX = (1 << 53) - 1
 
 
 class ValidationContractError(ValueError):
@@ -42,7 +41,8 @@ def validate_record(schema: object, record: object) -> dict:
     """Return a stable small result; fail at first invalid field, in schema order.
 
     A null value is accepted only for fields with required=false. Empty string
-    and zero are present; no type coercion or decimal rounding is performed.
+    and zero are present; no type coercion is performed. Numeric inputs must be JSON-safe integers;
+    decimal values are intentionally excluded until a portable tagged format.
     """
     fields = validate_schema(schema)
     if type(record) is not list or len(record) != len(fields):
@@ -54,8 +54,7 @@ def validate_record(schema: object, record: object) -> dict:
                 return {"ok": False, "code": "REQUIRED", "field": name}
             continue
         valid = (
-            (kind == "integer" and type(value) is int and INT64_MIN <= value <= INT64_MAX)
-            or (kind == "decimal" and type(value) is float and math.isfinite(value))
+            (kind == "integer" and type(value) is int and SAFE_INT_MIN <= value <= SAFE_INT_MAX)
             or (kind == "text" and type(value) is str and len(value) <= MAX_TEXT)
             or (kind == "boolean" and type(value) is bool)
         )
