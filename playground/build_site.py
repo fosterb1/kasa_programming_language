@@ -93,9 +93,9 @@ def packaged_g1_modules(root: Path) -> bytes:
         if not _regular_unlinked(path, root):
             raise G1CatalogError("G1 source missing or linked after validation")
         raw = path.read_bytes()
-        if len(raw) > 50_000 or b"\\r" in raw.replace(b"\\r\\n", b""):
+        if len(raw) > 50_000 or b"\r" in raw.replace(b"\r\n", b""):
             raise G1CatalogError("G1 source size/line endings invalid")
-        canonical = raw.replace(b"\\r\\n", b"\\n")
+        canonical = raw.replace(b"\r\n", b"\n")
         if "sha256:" + hashlib.sha256(canonical).hexdigest() != entry["content_identity"]:
             raise G1CatalogError("G1 source changed after validation")
         modules[entry["id"]] = {
@@ -103,8 +103,8 @@ def packaged_g1_modules(root: Path) -> bytes:
             "exports": entry["exports"],
         }
     serialized = json.dumps(modules, ensure_ascii=True, sort_keys=True)
-    return ("/* Reviewed and SHA-256-checked G1 local Kasa libraries. */\\n"
-            "self.KasaG1PinnedModules = Object.freeze(" + serialized + ");\\n").encode("utf-8")
+    return ("/* Reviewed and SHA-256-checked G1 local Kasa libraries. */\n"
+            "self.KasaG1PinnedModules = Object.freeze(" + serialized + ");\n").encode("utf-8")
 
 
 def build_bundle(output: Path | None = None, *, require_wasm: bool = False, include_g1: bool = False) -> Path:
