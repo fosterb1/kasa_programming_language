@@ -39,14 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
-### 2026-11-21 — G1.4 source-only tabular data foundations (verification pending)
+### 2026-11-21 — G1.4 source-only tabular data foundations (user-verified)
 
-- **Status:** Prototype committed on `dev/g14-data-foundations-source`; tests not yet independently run, no merge or deployment.
+- **Status:** Prototype implemented on `dev/g14-data-foundations-source`; user confirms all requested Google Cloud Shell checks passed. Not deployed.
 - **Compatibility audit:** Existing lists of lists, indexing, `tentɛn`, comparisons, functions and integer/float arithmetic suffice for a narrow tabular data model. There is no stable record/dictionary type, CSV/JSON I/O or exact decimal money type. The pinned G1 manifest is closed to two modules and must remain unchanged in this checkpoint.
 - **Changed:** Added `stdlib/g14/tables.kasa` with five pure, source-only row-width, column-validity, count, sum and first-match helpers. Added ten source/output cases in `tests/g14_table_cases.json`, Python/JS tests, and `scripts/verify_g14_table_native_kbc.py` for source-to-KBC1 comparison. Documented contracts and limits in `docs/G14_DATA_FOUNDATIONS.md`.
 - **Decision:** Functions are not importable as a pinned G1 module and do not introduce new Kasa syntax, I/O, bytecode instructions, dynamic arrays or public packages. Validation reports false/fallback for bad columns and short rows; otherwise existing Kasa errors and resource limits apply. Financial sums should use integer minor currency units, not unrounded binary floats.
+- **Evidence:** User reports PASS for `python -m pytest -q tests/test_g14_tables.py`, `node tests/g14_table_js.cjs`, `python scripts/verify_g14_table_native_kbc.py`, `python scripts/verify_g13_cross_runtime.py`, and `python scripts/verify_local.py --profile full`. Actual console output, test totals and skipped cases were not supplied; this is owner-confirmed rather than independently observed evidence.
 - **Risks:** No untrusted table input hardening, performance guarantee, real browser acceptance or universal cross-runtime parity is implied. G0.5 trusted-local risks remain unresolved.
-- **Next gate:** Cloud Shell focused Python/JS fixture checks, native/KBC1 execution and full regression profile. Keep PR draft until verified and reviewed. Netlify paused.
+- **Next gate:** Final diff/conflict review, then normal merge if safe; retest integrated `main`. Netlify remains paused.
 
 ### 2026-11-21 — G1.3 shared cross-runtime conformance (user-verified)
 
