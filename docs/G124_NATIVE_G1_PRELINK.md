@@ -5,8 +5,10 @@
 
 ## Repository audit (2026-11-21)
 
-1. The native C++ engine already accepts ordinary Kasa source, compiles
-   KBC1 and runs checked KBC1. Existing G0.5 evidence includes a
+1. `native/src/main.cpp` confirms `kasa-native run/check/compile`
+   lexes, parses and compiles ordinary source and `run-bytecode/check-bytecode`
+   calls the existing verified bytecode reader. Default `compile` emits KBC1;
+   experimental `compile-kbc2` remains separately gated. Existing G0.5 evidence includes a
    Python/native/KBC1 differential test and a source-deletion/corruption gate
    (`scripts/verify_g05_native_kbc.py`,
    `scripts/verify_g05_kbc_independence.py`).
@@ -17,7 +19,11 @@
    compiler and KBC1 pipeline handle it.
 3. `scripts/preflight_native_modules.py` validates imports/aliases/public
    exports and checks pinned source content before linking.
-4. G0.5 output-path TOCTOU and shared-filesystem/source mutation race
+4. `native/README.md` documents a C++20 parser/compiler/stack VM, while
+   `docs/KBC2_FORMAT.md` confirms KBC2 is opt-in, not an extension of
+   default KBC1 module loading. G1 experimental imports require source
+   transformation **before** invoking the native binary.
+5. G0.5 output-path TOCTOU and shared-filesystem/source mutation race
    concerns remain, and true KBC runtime module loading is not implemented.
    There is no justification for changing the KBC1 binary format now.
 
