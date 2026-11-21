@@ -81,7 +81,9 @@ def packaged_pinned_modules(root: Path) -> bytes:
 
 def packaged_g1_modules(root: Path) -> bytes:
     """Validate the separate reviewed G1 catalog, then pin the exact emitted bytes."""
-    script_dir = str(root / "scripts")
+    root = root.absolute()
+    # Import trusted validator code from this checkout, not a caller-provided root.
+    script_dir = str(ROOT / "scripts")
     if script_dir not in sys.path:
         sys.path.insert(0, script_dir)
     from validate_g1_catalog import ALLOWED, G1CatalogError, _regular_unlinked, validate
