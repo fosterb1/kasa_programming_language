@@ -39,3 +39,17 @@ node tests/test_js_module_cross_runtime_fixtures.cjs
 ## Next decision
 
 After owner-reported Windows results, review signed-integer extremes, semantic errors and resource limits. Only then consider integrating G1 helper prototypes into a versioned library catalog once the separate G0.5 contract and content-hash changes have been formally accepted.
+
+## G1.1 owner-reported Windows acceptance (2026-11-21)
+
+Owner replied **"all passed"** after receiving the following G1.1 commands:
+
+- `python -m pytest -q tests/test_g1_foundation.py tests/test_stdlib_foundation.py`
+- `node --test tests/test_g1_foundation.cjs tests/test_stdlib_foundation.cjs`
+- `python native/tests/g1_foundation_conformance.py build/kasa-local/Release/kasa-native.exe`
+- `python -m pytest -q tests/test_module_cross_runtime_fixtures.py`
+- `node tests/test_js_module_cross_runtime_fixtures.cjs`
+
+This is **owner-confirmed** only: raw terminal output and exact tested HEAD were not supplied. It supports proposing a **limited experimental source-fragment merge review**, not public module promotion or security certification.
+
+**Current merge decision:** G1.1 may be reviewed for merge into `main` after final branch/diff checks and the owner's explicit merge authorization. G0.5 PR #61 remains a separate, unmerged draft with outstanding POSIX strict-publication evidence. G1 source helper files are not catalog imports.
