@@ -31,3 +31,37 @@ dwumadie kasa_max_or(values, fallback)
     awiei
     sanma best
 awiei
+
+# Sum a list of numeric values. Empty input sums to zero.
+# This uses ordinary Kasa numeric operations, not a decimal money type.
+dwumadie kasa_total(values)
+    ma total = 0
+    ma i = 0
+    bere_a i < tentɛn(values)
+        ma total = total + values[i]
+        ma i = i + 1
+    awiei
+    sanma total
+awiei
+
+# Average, or caller-supplied fallback on empty input.
+# Division follows current Kasa '/' semantics, including float rounding.
+dwumadie kasa_average_or(values, fallback)
+    sɛ tentɛn(values) == 0 a
+        sanma fallback
+    awiei
+    sanma kasa_total(values) / tentɛn(values)
+awiei
+
+# Count values strictly greater than a caller-supplied numeric threshold.
+dwumadie kasa_count_above(values, threshold)
+    ma count = 0
+    ma i = 0
+    bere_a i < tentɛn(values)
+        sɛ values[i] > threshold a
+            ma count = count + 1
+        awiei
+        ma i = i + 1
+    awiei
+    sanma count
+awiei
