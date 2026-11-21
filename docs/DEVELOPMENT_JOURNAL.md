@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — Offline Studio verification orchestration (proposed branch; not yet independently executed)
+
+- **Status:** Implemented on `dev/offline-studio-verification`; awaiting independent Cloud Shell verification and review. No merge or deployment.
+- **Changed:** Added `scripts/verify_studio_offline.py`, `tests/test_verify_studio_offline.py`, and `docs/OFFLINE_STUDIO_VERIFICATION.md`.
+- **Purpose:** One local entry point for the existing native full profile and the existing real Chromium/WASM Studio verification gates, with dry-run, fail-fast behavior, and JSON evidence. Does not change the compiler, VM, KBC1/KBC2, G0.5 security scope, or language semantics.
+- **Evidence:** No new tests have been reported as run. Previous user Cloud Shell checks on `main` showed native/full, standalone WASM build and packaged Chromium execution succeeded; those earlier results do not establish that this new wrapper passes.
+- **Next gate:** `python -m pytest -q tests/test_verify_studio_offline.py`, then `python scripts/verify_studio_offline.py --profile all` on Google Cloud Shell. Record exact revision, report and any failures. Keep Netlify paused.
+
+
 ### 2026-11-19 — Group 0.2 Windows catalog validation accepted
 
 - **User Windows evidence** after checkout `d7aa810`: `python -m pytest -q tests/test_validate_kasa_catalog.py tests/test_link_kasa_stdlib.py` → **36 passed, 3 skipped in 1.28s**.
