@@ -39,6 +39,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1.2.3 JavaScript G1 compatibility and worker gate (verification pending)
+
+- **Status:** Implemented on `dev/g123-js-g1-compat`, not yet independently tested, merged or deployed.
+- **Changed:** Added Node-side `scripts/load_g1_js_modules.cjs` to validate G1 source identities and reviewed exports, `tests/test_js_g1_contract.cjs` to execute all 19 source/output G1 fixtures plus negative checks, and `tests/test_js_g1_worker.cjs` for simulated worker G1 selection. `playground/worker.js` gains explicit `experimentalGeneration: "g1"` with a default-disabled separate G1 bundle gate. Added `docs/G123_JS_G1_COMPATIBILITY.md`.
+- **Decision:** Keep existing default G0 JavaScript worker imports and classic Kasa syntax unchanged. G1 is opt-in only when separately verified browser assets are packaged; no G1 bundle is generated/published by this slice.
+- **Risks:** Node fixture execution and Node VM worker simulation do **not** establish real Chromium G1 execution, native/KBC parity, or safety for untrusted code. Source hashes are consistency checks, not signatures; G0.5 security scope unchanged.
+- **Next gate:** Run focused Node tests and local full profile in Google Cloud Shell; record exact results and review the diff before merge. Real-browser G1 packaging and verification are future separate work. Netlify remains paused.
+
 ### 2026-11-21 — G1.2.2 opt-in Python G1 imports (user-verified)
 
 - **Status:** Implemented on `dev/g122-python-g1-imports`; user-confirmed all three requested verification commands passed in Google Cloud Shell. No deployment.
