@@ -3,7 +3,8 @@
 
 Usage: python scripts/run_kasa_modules_experimental.py path/to/file.kasa
 
-Prototype declaration syntax is @math:m; it is NOT final Twi grammar.
+Prototype declaration syntax is @math:m or fa math firi stdlib: m; it is NOT final Twi grammar.
+The optional --generation g1 uses a separate pinned G1 catalog; g0 is default.
 Normal Python/JS/native Kasa CLI and browser syntax remain unchanged.
 """
 from __future__ import annotations
@@ -24,6 +25,8 @@ from kasa.module_execution import ModuleAwareInterpreter
 from plan_kasa_modules import NamespacePlanError
 from validate_kasa_catalog import CatalogError
 from configure_kasa_modules import configure_module_runtime
+from configure_g1_modules import configure_g1_runtime
+from validate_g1_catalog import G1CatalogError
 
 
 def execute_module_source(
@@ -32,12 +35,15 @@ def execute_module_source(
     filename: str = "<module-experiment>",
     stdout=None,
     max_steps: int = 100_000,
+    generation: str = "g0",
 ) -> ModuleAwareInterpreter:
     """Parse complete Kasa source then preflight/bind before executing it.
 
     Only catalog-pinned modules; no filename-provided import paths.
     The prototype accepts import declarations only at the beginning.
     """
+    if generation not in ("g0", "g1"):
+        raise ValueError("Only experimental g0 and g1 generations are supported")
     program = parse(source, filename=filename, experimental_modules=True)
     declarations = []
     body = []
@@ -82,8 +88,11 @@ def execute_module_source(
 
     runtime = ModuleAwareInterpreter(filename=filename, stdout=stdout, max_steps=max_steps)
     try:
-        configure_module_runtime(runtime, declarations)
-    except (NamespacePlanError, CatalogError, ValueError) as error:
+        if generation == "g1":
+            configure_g1_runtime(runtime, declarations)
+        else:
+            configure_module_runtime(runtime, declarations)
+    except (NamespacePlanError, CatalogError, G1CatalogError, ValueError, OSError) as error:
         raise KasaError("ModuleError", str(error), program[0].token, filename) from error
 
     for stmt in body:
@@ -103,10 +112,12 @@ def execute_module_source(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
+    parser.add_argument("--generation", choices=("g0", "g1"), default="g0",
+                        help="Experimental module catalog generation; default g0")
     args = parser.parse_args(argv)
     try:
         content = args.source.read_text(encoding="utf-8")
-        execute_module_source(content, filename=str(args.source))
+        execute_module_source(content, filename=str(args.source), generation=args.generation)
     except (OSError, UnicodeError, KasaError) as error:
         print(error, file=sys.stderr)
         return 1
