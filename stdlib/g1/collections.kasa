@@ -24,3 +24,42 @@ dwumadie kasa_last_index(values, needle)
     awiei
     sanma last
 awiei
+
+# Return the number of different values in a list.
+# Equality follows the current Kasa runtime semantics. O(n^2) time,
+# O(1) extra space; designed for small classroom/business lists.
+dwumadie kasa_count_distinct(values)
+    ma distinct = 0
+    ma i = 0
+    bere_a i < tentɛn(values)
+        ma seen = atoro
+        ma j = 0
+        bere_a j < i
+            sɛ values[j] == values[i] a
+                ma seen = nokware
+                gyae
+            awiei
+            ma j = j + 1
+        awiei
+        sɛ ɛnyɛ seen a
+            ma distinct = distinct + 1
+        awiei
+        ma i = i + 1
+    awiei
+    sanma distinct
+awiei
+
+# Empty and one-element lists are considered all equal.
+dwumadie kasa_all_equal(values)
+    sɛ tentɛn(values) < 2 a
+        sanma nokware
+    awiei
+    ma i = 1
+    bere_a i < tentɛn(values)
+        sɛ values[i] != values[0] a
+            sanma atoro
+        awiei
+        ma i = i + 1
+    awiei
+    sanma nokware
+awiei
