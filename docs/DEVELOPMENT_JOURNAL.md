@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1.5 structured record design and source-only prototype (verification pending)
+
+- **Status:** Prototype on `dev/g15-structured-record-contract`, not yet independently verified, merged or deployed.
+- **Compatibility audit:** Kasa has lists/values/functions but no keyed record type, serialization, schema type introspection, CSV/JSON, or native record opcode. Existing G1 import catalog stays closed. `stdlib/g14/tables.kasa` already uses positional rows.
+- **Changed:** Added `stdlib/g15/records.kasa` with five pure positional schema/name/shape/required-value helpers. Added ten fixtures `tests/g15_record_cases.json`, Python/Node runners and `scripts/verify_g15_record_native_kbc.py`. Drafted field semantics, type/serialization future gates and risk review in `docs/G15_STRUCTURED_RECORD_DESIGN.md`.
+- **Decision:** Retain default syntax and KBC1/KBC2, use source-only concatenation, and prohibit claiming `fa records` imports, typed schemas, JSON support or universal parity. Null `hwee` indicates missing required value; zero, false, empty string are present. No I/O introduced.
+- **Risks:** Untrusted schema/type validation, hostile inputs, UTF-8 schema name policy and cycle-safe serialization are not implemented. G0.5 remains trusted-local experimental; Netlify stays paused.
+- **Next gate:** User Cloud Shell pytest/Node/native KBC1 checks plus existing G1.4/G1.3/full regressions, then diff review before optional normal merge.
+
 ### 2026-11-21 — G1.4 source-only tabular data foundations (user-verified)
 
 - **Status:** Prototype implemented on `dev/g14-data-foundations-source`; user confirms all requested Google Cloud Shell checks passed. Not deployed.
