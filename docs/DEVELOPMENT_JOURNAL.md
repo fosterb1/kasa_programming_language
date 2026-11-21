@@ -39,14 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
-### 2026-11-21 — G1.6 host-side typed record validation (verification pending)
+### 2026-11-21 — G1.6 host-side typed record validation (user-verified)
 
-- **Status:** Implemented on `dev/g16-validation-contract`, tests pending, draft PR pending; no merge or deployment.
+- **Status:** Implemented on `dev/g16-validation-contract`; user confirms all requested Google Cloud Shell tests passed. No deployment.
 - **Audit:** Native Kasa and current Python/JS runtimes lack a portable type-introspection or record schema primitive. JSON numerical decoding is not type-identical in Python versus JS. Pure-Kasa type tests based on equality would be unsound.
 - **Changed:** Added independent Python and JS **host-side pre-execution adapters** `scripts/g16_validate_record.py` and `scripts/g16_validate_record.cjs`, shared JSON fixtures `tests/g16_validation_cases.json` (16 records, six malformed schemas), Python/Node regression tests and `docs/G16_TYPED_VALIDATION_CONTRACT.md`.
 - **Contract:** Up to 32 unique ASCII field names; strictly required Boolean flags; integer/text/Boolean only; safe-integer bounds, max 1024 Unicode code points for text; no coercion; optional null allowed; deterministic first-error category and field name.
 - **Deliberate limit:** No new Kasa builtins, native/KBC1 typed validator, pinned module, decimal support, serializer or production/untrusted input path. JS JSON cannot distinguish integral floats from integers; raw arbitrary JSON type parity is not claimed. Existing G0.5 trusted-local restrictions continue.
-- **Next gate:** User runs focused Python/Node shared fixture checks plus G1.5/G1.4 and full native regression, provides results and HEAD before PR review. Netlify paused.
+- **Evidence:** User reports PASS for focused G1.6 Python and Node validation fixtures; G1.5 and G1.4 tests; G1.5/G1.4 native-KBC1 gates; G1.3 differential; and `python scripts/verify_local.py --profile full`. Exact terminal logs, skips and tested commit were not provided, so classify as user-confirmed rather than independently observed.
+- **Next gate:** Review final PR diff and conflicts then normal merge; pause new language features while Academy is upgraded. Netlify paused.
 
 ### 2026-11-21 — G1.5 structured record design and source-only prototype (user-verified)
 
