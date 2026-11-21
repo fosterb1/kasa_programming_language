@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "library_generation": "G1",
+  "status": "experimental_manifest_only",
+  "modules": [
+    {
+      "id": "math",
+      "source": "stdlib/g1/math.kasa",
+      "exports": [
+        "kasa_min_or",
+        "kasa_max_or",
+        "kasa_total",
+        "kasa_average_or",
+        "kasa_count_above"
+      ],
+      "dependencies": [],
+      "content_identity": "sha256:b0fefd06c0a367d4bd55b7ec0eac15d56712aed3a1138414c97c4020f0caaa85"
+    },
+    {
+      "id": "collections",
+      "source": "stdlib/g1/collections.kasa",
+      "exports": [
+        "kasa_first_index",
+        "kasa_last_index",
+        "kasa_count_distinct",
+        "kasa_all_equal"
+      ],
+      "dependencies": [],
+      "content_identity": "sha256:d8ef0d4dca819a190bab32aa8d400ced66adfe8d8067d3a09b02d5b2b206468e"
+    }
+  ]
+}
