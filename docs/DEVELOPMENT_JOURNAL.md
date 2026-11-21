@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1.2.2 opt-in Python G1 imports (user-verified)
+
+- **Status:** Implemented on `dev/g122-python-g1-imports`; user-confirmed all three requested verification commands passed in Google Cloud Shell. No deployment.
+- **Changed:** `scripts/configure_g1_modules.py` validates and binds pinned G1 math/collections function-only namespaces; existing `scripts/run_kasa_modules_experimental.py` accepts opt-in `--generation g1` while defaulting to G0; added acceptance tests and `docs/G122_PYTHON_G1_IMPORTS.md`.
+- **Behavior:** G1 requests reuse experimental `fa ... firi stdlib` parser with explicit generation selection; only G1 manifest exports resolve, G0 default remains intact, and no application-global injection occurs.
+- **Evidence:** User reports PASS for `python -m pytest -q tests/test_g122_python_imports.py`, `python -m pytest -q tests/test_experimental_module_source.py tests/test_validate_g1_catalog.py`, and `python scripts/verify_local.py --profile full`. Exact totals and terminal logs not supplied; classify as user-confirmed.
+- **Risks:** Python reference engine only; no native/JS/KBC parity claims. G0.5 remains trusted-local experimental and this is not a sandbox. The normal `python -m kasa run` CLI is unchanged.
+- **Next gate:** Review final diff/conflicts and merge normally if permitted; rerun focused tests on integrated `main`. Netlify paused.
+
 ### 2026-11-21 — G1.2.1 separate pinned manifest (user-verified)
 
 - **Status:** Implemented on `dev/g121-versioned-manifest`; user-confirmed the four requested local commands passed in Google Cloud Shell. No deployment.
