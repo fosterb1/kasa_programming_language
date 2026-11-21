@@ -8,7 +8,10 @@
 const KASA_HAS_WASM = false;
 // Patched true only in a bundle containing hash-checked local libraries.
 const KASA_HAS_PINNED_MODULES = false;
+// G1 remains unavailable unless a separately verified G1 bundle is packaged.
+const KASA_HAS_G1_PINNED_MODULES = false;
 let pinnedModules = null;
+let pinnedG1Modules = null;
 let nativeModule = null;
 let nativeError = "";
 let jsReady = false;
@@ -60,6 +63,18 @@ function loadPinnedModules() {
   return pinnedModules;
 }
 
+function loadPinnedG1Modules() {
+  if (!KASA_HAS_G1_PINNED_MODULES) throw new Error("This deployment has no pinned G1 Kasa module bundle");
+  if (pinnedG1Modules) return pinnedG1Modules;
+  importScripts("./kasa-g1-pinned-modules.js");
+  if (!self.KasaG1PinnedModules || !Object.hasOwn(self.KasaG1PinnedModules, "math") ||
+      !Object.hasOwn(self.KasaG1PinnedModules, "collections")) {
+    throw new Error("Pinned G1 Kasa libraries are unavailable");
+  }
+  pinnedG1Modules = self.KasaG1PinnedModules;
+  return pinnedG1Modules;
+}
+
 function executeNative(source, input, mode) {
   const pointer = nativeModule.ccall("kasa_run", "number", ["string", "string", "number"],
     [source, input, mode === "check" ? 1 : 0]);
@@ -79,9 +94,15 @@ function executeNative(source, input, mode) {
 
 self.onmessage = ({ data }) => {
   if (data?.type !== "EXECUTE" || !jsReady) return;
-  const { source, input, mode, requestId, engine = "auto", experimentalModules = false } = data;
+  const { source, input, mode, requestId, engine = "auto", experimentalModules = false, experimentalGeneration = "g0" } = data;
   let used = "javascript";
   try {
+    if (experimentalModules === true && !["g0", "g1"].includes(experimentalGeneration)) {
+      notify("RESULT", { requestId, engine: "javascript", result: {
+        ok: false, output: "", error: "Unknown experimental Kasa module generation.", steps: 0, mode,
+      } });
+      return;
+    }
     if (experimentalModules === true && engine === "native") {
       notify("RESULT", { requestId, engine: "javascript", result: {
         ok: false, output: "", error: "Experimental Kasa imports require the JavaScript engine.", steps: 0, mode,
@@ -110,7 +131,7 @@ self.onmessage = ({ data }) => {
     if (!result) {
       if (experimentalModules === true) {
         try {
-          const modules = loadPinnedModules();
+          const modules = experimentalGeneration === "g1" ? loadPinnedG1Modules() : loadPinnedModules();
           result = self.KasaRuntime.executeKasa(source, input, mode, { experimentalModules: modules });
         } catch (error) {
           result = { ok: false, output: "", error: String(error?.message || error), steps: 0, mode };
