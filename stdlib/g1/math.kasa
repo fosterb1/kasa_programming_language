@@ -1,0 +1,33 @@
+# G1 experimental pure-Kasa mathematics; not yet pinned/importable.
+# List inputs and comparable signed integers are assumed; bounds checked in tests.
+# An empty list returns the caller-supplied fallback.
+
+dwumadie kasa_min_or(values, fallback)
+    sɛ tentɛn(values) == 0 a
+        sanma fallback
+    awiei
+    ma best = values[0]
+    ma i = 1
+    bere_a i < tentɛn(values)
+        sɛ values[i] < best a
+            ma best = values[i]
+        awiei
+        ma i = i + 1
+    awiei
+    sanma best
+awiei
+
+dwumadie kasa_max_or(values, fallback)
+    sɛ tentɛn(values) == 0 a
+        sanma fallback
+    awiei
+    ma best = values[0]
+    ma i = 1
+    bere_a i < tentɛn(values)
+        sɛ values[i] > best a
+            ma best = values[i]
+        awiei
+        ma i = i + 1
+    awiei
+    sanma best
+awiei
