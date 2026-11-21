@@ -39,6 +39,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — VS Code on-demand structured diagnostics (experimental; tests pending)
+
+- **Status:** Implemented on `dev/vscode-json-diagnostics`. No merge or deployment; independent Node tests not yet run.
+- **Changed:** VS Code extension adds a disabled-by-default `kasa.jsonDiagnostics` setting, validates JSON errors from the Python Kasa CLI, and publishes on-demand Problems-panel diagnostics. Added a bounded parser and Node tests. Updated extension README and metadata tests.
+- **Behavior:** The default `kasa-native` integration remains unchanged; opting in requires a Python `kasa` executable supporting `--diagnostics-json`. Run/check are explicit user actions and spawn without a shell. Invalid/foreign-file messages remain in the output channel.
+- **Limitation:** Prototype only; no live typing diagnostics, native compiler JSON support, language server or public release. Real VS Code Extension Development Host interaction is not yet verified.
+- **Next gate:** `node --test editors/vscode-kasa/tests/*.test.cjs`, `node --check editors/vscode-kasa/src/extension.js`, `node --check editors/vscode-kasa/src/diagnostic-protocol.js`, then native/full regression and manual VS Code developer-host test. Netlify stays paused.
+
 ### 2026-11-21 — Python CLI structured diagnostics for editor tooling (user-verified)
 
 - **Status:** Implemented on `dev/cli-json-diagnostics`; user-confirmed focused and full-profile Cloud Shell checks passed. No deployment.

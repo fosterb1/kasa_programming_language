@@ -4,35 +4,91 @@
   "description": "Twi-first Kasa syntax highlighting, snippets and native runner for VS Code.",
   "version": "0.1.0",
   "private": true,
-  "engines": { "vscode": "^1.85.0" },
-  "categories": ["Programming Languages", "Snippets"],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
   "main": "./src/extension.js",
-  "activationEvents": ["onLanguage:kasa", "onCommand:kasa.runFile", "onCommand:kasa.checkFile"],
+  "activationEvents": [
+    "onLanguage:kasa",
+    "onCommand:kasa.runFile",
+    "onCommand:kasa.checkFile"
+  ],
   "contributes": {
-    "languages": [{
-      "id": "kasa", "aliases": ["Kasa", "kasa"], "extensions": [".kasa"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{"language":"kasa", "scopeName":"source.kasa", "path":"./syntaxes/kasa.tmLanguage.json"}],
-    "snippets": [{"language":"kasa", "path":"./snippets/kasa.code-snippets"}],
-    "commands": [
-      {"command":"kasa.runFile", "title":"Kasa: Run Current File"},
-      {"command":"kasa.checkFile", "title":"Kasa: Check Current File"}
+    "languages": [
+      {
+        "id": "kasa",
+        "aliases": [
+          "Kasa",
+          "kasa"
+        ],
+        "extensions": [
+          ".kasa"
+        ],
+        "configuration": "./language-configuration.json"
+      }
     ],
-    "menus": {"editor/title": [
-      {"command":"kasa.runFile", "when":"resourceLangId == kasa", "group":"navigation@1"},
-      {"command":"kasa.checkFile", "when":"resourceLangId == kasa", "group":"navigation@2"}
-    ]},
+    "grammars": [
+      {
+        "language": "kasa",
+        "scopeName": "source.kasa",
+        "path": "./syntaxes/kasa.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "kasa",
+        "path": "./snippets/kasa.code-snippets"
+      }
+    ],
+    "commands": [
+      {
+        "command": "kasa.runFile",
+        "title": "Kasa: Run Current File"
+      },
+      {
+        "command": "kasa.checkFile",
+        "title": "Kasa: Check Current File"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "kasa.runFile",
+          "when": "resourceLangId == kasa",
+          "group": "navigation@1"
+        },
+        {
+          "command": "kasa.checkFile",
+          "when": "resourceLangId == kasa",
+          "group": "navigation@2"
+        }
+      ]
+    },
     "configuration": {
-      "title":"Kasa",
+      "title": "Kasa",
       "properties": {
         "kasa.executablePath": {
-          "type":"string", "default":"kasa",
-          "description":"Path to the installed Kasa executable (default: kasa). Set an absolute path if Kasa is not on VS Code\u0027s PATH."
+          "type": "string",
+          "default": "kasa",
+          "description": "Path to the installed Kasa executable (default: kasa). Set an absolute path if Kasa is not on VS Code's PATH."
+        },
+        "kasa.jsonDiagnostics": {
+          "type": "boolean",
+          "default": false,
+          "description": "Opt into Python Kasa CLI --diagnostics-json for source error highlights. Requires kasa.executablePath to point to the Python kasa command; unsupported by kasa-native."
         }
       }
     }
   },
-  "scripts": {"test":"node --test tests/*.test.cjs"},
-  "repository": {"type":"git", "url":"https://github.com/fosterb1/kasa_programming_language.git"}
+  "scripts": {
+    "test": "node --test tests/*.test.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fosterb1/kasa_programming_language.git"
+  }
 }
