@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -11,7 +12,8 @@ from .core import Interpreter, KasaError, parse
 from .diagnostics import explain_error
 
 
-def run_file(path: str, check: bool = False, explain: bool = False) -> int:
+def run_file(path: str, check: bool = False, explain: bool = False,
+             diagnostics_json: bool = False) -> int:
     source = ""
     try:
         source = Path(path).read_text(encoding="utf-8")
@@ -20,10 +22,21 @@ def run_file(path: str, check: bool = False, explain: bool = False) -> int:
             Interpreter(filename=path).run(program)
         return 0
     except (OSError, UnicodeError) as exc:
-        print(f"kasa: cannot read {path}: {exc}", file=sys.stderr)
+        if diagnostics_json:
+            print(json.dumps({"schema_version": 1, "category": "FileError",
+                              "message": f"Cannot read source: {exc}", "file": path,
+                              "line": None, "column": None}, ensure_ascii=False), file=sys.stderr)
+        else:
+            print(f"kasa: cannot read {path}: {exc}", file=sys.stderr)
         return 2
     except KasaError as exc:
-        print(explain_error(exc, source) if explain else exc, file=sys.stderr)
+        if diagnostics_json:
+            print(json.dumps({"schema_version": 1, "category": exc.category,
+                              "message": exc.message, "file": exc.filename,
+                              "line": exc.token.line, "column": exc.token.column},
+                             ensure_ascii=False), file=sys.stderr)
+        else:
+            print(explain_error(exc, source) if explain else exc, file=sys.stderr)
         return 1
 
 
@@ -67,12 +80,16 @@ def main(argv: list[str] | None = None) -> int:
     for command in ("run", "check"):
         sub = subs.add_parser(command, help=f"{command.title()} a .kasa program")
         sub.add_argument("file", help="Path to a UTF-8 .kasa source file")
-        sub.add_argument("--explain", action="store_true", help="Show the source line and a beginner-friendly correction hint")
+        diagnostic = sub.add_mutually_exclusive_group()
+        diagnostic.add_argument("--explain", action="store_true", help="Show the source line and a beginner-friendly correction hint")
+        diagnostic.add_argument("--diagnostics-json", action="store_true",
+                                help="Emit one structured JSON object to stderr on error (schema v1)")
     subs.add_parser("repl", help="Start an interactive Kasa interpreter")
     args = parser.parse_args(argv)
     if args.command == "repl":
         return repl()
-    return run_file(args.file, check=args.command == "check", explain=args.explain)
+    return run_file(args.file, check=args.command == "check", explain=args.explain,
+                    diagnostics_json=args.diagnostics_json)
 
 
 if __name__ == "__main__":

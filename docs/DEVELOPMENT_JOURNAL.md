@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — Python CLI structured diagnostics for editor tooling (user-verified)
+
+- **Status:** Implemented on `dev/cli-json-diagnostics`; user-confirmed focused and full-profile Cloud Shell checks passed. No deployment.
+- **Changed:** `src/kasa/cli.py` adds `--diagnostics-json` to `run` and `check` only; new tests `tests/test_cli_json_diagnostics.py` and contract `docs/CLI_JSON_DIAGNOSTICS.md`.
+- **Purpose:** Emit category, message, filename, line and column in a versioned stderr JSON object for editor/Studio integrations. Preserve ordinary text diagnostics, `--explain`, source semantics and existing exit codes.
+- **Evidence:** User reports all requested checks passed: `python -m pytest -q tests/test_cli_json_diagnostics.py` and `python scripts/verify_local.py --profile full`. Exact terminal summary was not pasted; classify as user-confirmed, not separately observed logs. The new diagnostic flag is Python-only.
+- **Risk:** Experimental Python-only CLI protocol; no corresponding native or browser flag. A run may have printed program output before a runtime error, so clients must handle stdout independently.
+- **Next gate:** Review PR changes, merge normally if conflict-free, then repeat focused checks on integrated `main`. Netlify remains paused.
+
 ### 2026-11-21 — Offline Studio verification orchestration (Cloud Shell accepted; PR review)
 
 - **Status:** Implemented on `dev/offline-studio-verification`; user-confirmed Cloud Shell verification at `40aa824`, awaiting merge. No Netlify deployment.
