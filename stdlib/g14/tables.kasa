@@ -1,0 +1,75 @@
+# G1.4 experimental source-only rectangular table helpers.
+# A table is a list of equally sized row lists; column indices are zero-based.
+# This is not JSON/CSV, a mapping/record type, or a stable stdlib module.
+# Invalid column or ragged/short rows return caller-provided fallbacks.
+# The functions do not mutate rows and do not perform I/O.
+
+dwumadie kasa_rows_have_width(rows, width)
+    sɛ width < 0 a
+        sanma atoro
+    awiei
+    ma i = 0
+    bere_a i < tentɛn(rows)
+        sɛ tentɛn(rows[i]) != width a
+            sanma atoro
+        awiei
+        ma i = i + 1
+    awiei
+    sanma nokware
+awiei
+
+dwumadie kasa_column_valid(rows, column)
+    sɛ column < 0 a
+        sanma atoro
+    awiei
+    ma i = 0
+    bere_a i < tentɛn(rows)
+        sɛ tentɛn(rows[i]) <= column a
+            sanma atoro
+        awiei
+        ma i = i + 1
+    awiei
+    sanma nokware
+awiei
+
+dwumadie kasa_count_column_equal_or(rows, column, needle, fallback)
+    sɛ ɛnyɛ kasa_column_valid(rows, column) a
+        sanma fallback
+    awiei
+    ma count = 0
+    ma i = 0
+    bere_a i < tentɛn(rows)
+        sɛ rows[i][column] == needle a
+            ma count = count + 1
+        awiei
+        ma i = i + 1
+    awiei
+    sanma count
+awiei
+
+dwumadie kasa_sum_column_or(rows, column, fallback)
+    sɛ ɛnyɛ kasa_column_valid(rows, column) a
+        sanma fallback
+    awiei
+    ma total = 0
+    ma i = 0
+    bere_a i < tentɛn(rows)
+        ma total = total + rows[i][column]
+        ma i = i + 1
+    awiei
+    sanma total
+awiei
+
+dwumadie kasa_first_row_equal_or(rows, column, needle, fallback)
+    sɛ ɛnyɛ kasa_column_valid(rows, column) a
+        sanma fallback
+    awiei
+    ma i = 0
+    bere_a i < tentɛn(rows)
+        sɛ rows[i][column] == needle a
+            sanma i
+        awiei
+        ma i = i + 1
+    awiei
+    sanma fallback
+awiei
