@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1.1 standard-library contract baseline (user-verified)
+
+- **Status:** Implemented on `dev/g11-stdlib-contract`; user-confirmed focused G1.1, existing G1 and full local checks passed in Google Cloud Shell. No deployment.
+- **Changed:** Added versioned `tests/g1_contract_fixtures.json` (nine existing functions, 19 reference source/output fixtures), `tests/test_g1_contract.py` AST/catalog/behavioral checks, and `docs/G11_STDLIB_CONTRACT.md` readiness matrix.
+- **Decisions:** Preserve pinned G0 catalog, content identities and source allowlists. Contract assumes unchanged Python runtime semantics; no new Kasa syntax or implementation of module imports.
+- **Evidence:** User reported all three requested commands passed: `python -m pytest -q tests/test_g1_contract.py`, `python -m pytest -q tests/test_g1_numeric_analytics.py tests/test_g1_collection_analysis.py`, and `python scripts/verify_local.py --profile full`. Individual terminal totals were not provided, so classification is user-confirmed rather than independently observed logs.
+- **Risks/gaps:** JS and native/KBC G1 function execution and module import parity remain unverified. G1 numeric average uses floating division and is not exact-money arithmetic.
+- **Next gate:** Review the exact contract/diff, merge with a normal merge commit if conflict-free, then retest the integrated `main`. Netlify paused, G0.5 experimental.
+
 ### 2026-11-21 — G1 numeric analytics helpers (user-verified)
 
 - **Status:** Implemented on `dev/g1-numeric-analytics`; user-confirmed focused and full local verification passed on Google Cloud Shell. No deployment.
