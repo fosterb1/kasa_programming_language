@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "status": "experimental_source_only",
+  "library": "stdlib/g14/tables.kasa",
+  "cases": [
+    {
+      "id": "empty-table",
+      "source": "ka kasa_rows_have_width([], 2)\nka kasa_column_valid([], 0)\nka kasa_sum_column_or([], 0, -1)\nka kasa_count_column_equal_or([], 0, 10, -1)\n",
+      "output": "nokware\nnokware\n0\n0\n"
+    },
+    {
+      "id": "rectangular-rows",
+      "source": "ma rows = [[1, 10], [2, 20], [3, 30]]\nka kasa_rows_have_width(rows, 2)\nka kasa_rows_have_width(rows, 3)\nka kasa_column_valid(rows, 1)\n",
+      "output": "nokware\natoro\nnokware\n"
+    },
+    {
+      "id": "ragged-table",
+      "source": "ma rows = [[1, 10], [2]]\nka kasa_rows_have_width(rows, 2)\nka kasa_column_valid(rows, 1)\nka kasa_sum_column_or(rows, 1, -99)\nka kasa_count_column_equal_or(rows, 1, 10, -1)\n",
+      "output": "atoro\natoro\n-99\n-1\n"
+    },
+    {
+      "id": "sales-total",
+      "source": "ma sales = [[101, 25], [102, 40], [103, -5]]\nka kasa_sum_column_or(sales, 1, -1)\nka sales[0][1]\nka sales[2][1]\n",
+      "output": "60\n25\n-5\n"
+    },
+    {
+      "id": "count-strings",
+      "source": "ma rows = [[\"Ama\", 4], [\"Kofi\", 8], [\"Ama\", 2]]\nka kasa_count_column_equal_or(rows, 0, \"Ama\", -1)\nka kasa_count_column_equal_or(rows, 0, \"Esi\", -1)\n",
+      "output": "2\n0\n"
+    },
+    {
+      "id": "first-match",
+      "source": "ma rows = [[11, 8], [22, 5], [33, 8]]\nka kasa_first_row_equal_or(rows, 1, 8, -1)\nka kasa_first_row_equal_or(rows, 1, 9, -1)\n",
+      "output": "0\n-1\n"
+    },
+    {
+      "id": "negative-column",
+      "source": "ma rows = [[3, 4]]\nka kasa_column_valid(rows, -1)\nka kasa_sum_column_or(rows, -1, 999)\nka kasa_first_row_equal_or(rows, -1, 3, -1)\n",
+      "output": "atoro\n999\n-1\n"
+    },
+    {
+      "id": "out-of-range-column",
+      "source": "ma rows = [[3, 4]]\nka kasa_column_valid(rows, 2)\nka kasa_sum_column_or(rows, 2, 777)\n",
+      "output": "atoro\n777\n"
+    },
+    {
+      "id": "no-mutation",
+      "source": "ma rows = [[1, 10], [2, 20]]\nka kasa_sum_column_or(rows, 1, -1)\nka kasa_count_column_equal_or(rows, 0, 1, -1)\nka rows[0][0]\nka rows[1][1]\n",
+      "output": "30\n1\n1\n20\n"
+    },
+    {
+      "id": "invalid-width",
+      "source": "ka kasa_rows_have_width([[1]], -1)\nka kasa_rows_have_width([[1]], 0)\n",
+      "output": "atoro\natoro\n"
+    }
+  ]
+}
