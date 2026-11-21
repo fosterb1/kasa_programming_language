@@ -39,6 +39,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1.3 shared cross-runtime conformance (verification pending)
+
+- **Status:** Implemented on `dev/g13-cross-runtime-conformance`, unverified, draft PR pending, not merged or deployed.
+- **Changed:** `tests/g13_cross_runtime_cases.json` supplies 8 valid and 4 invalid source fixtures shared across Python and JavaScript. `tests/g13_js_fixture_runner.cjs` checks pinned JS G1 outputs; `tests/test_g13_shared_conformance.py` checks Python G1/source-link and JS results; `scripts/verify_g13_cross_runtime.py` checks Python import/flattened execution, JS, native C++ run and independent KBC1 execution for valid cases. Added `docs/G13_SHARED_CROSS_RUNTIME_CONFORMANCE.md`.
+- **Decision:** Exact source and stdout/error comparisons with no interpreter, C++, KBC1/KBC2, module catalog or Playground behavior changes. Fail closed on missing native binary or JS mismatch. Keep G0/G0.5 defaults and security restrictions intact.
+- **Risks:** Twelve curated cases are not full semantic parity, fuzzing or production-safety evidence. Native support remains trusted-local prelinking; source catalog races and hostile filesystem risks remain open. Browser Chromium verification still uses the separate G1 real-browser gate.
+- **Next gate:** Google Cloud Shell focused pytest/Node/full native regression plus separate real Chromium acceptance; capture exact revision, errors/skips, then review draft PR. Netlify remains paused.
+
 ### 2026-11-21 — G1.2.4 native/KBC1 reviewed-source prelink (user-verified)
 
 - **Status:** Implemented on `dev/g124-native-g1-prelink`; owner confirms all requested Cloud Shell checks passed. No deployment.
