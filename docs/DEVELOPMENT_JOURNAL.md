@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — Python CLI structured diagnostics for editor tooling (experimental)
+
+- **Status:** Implemented on `dev/cli-json-diagnostics`; verification pending. No merge or deployment.
+- **Changed:** `src/kasa/cli.py` adds `--diagnostics-json` to `run` and `check` only; new tests `tests/test_cli_json_diagnostics.py` and contract `docs/CLI_JSON_DIAGNOSTICS.md`.
+- **Purpose:** Emit category, message, filename, line and column in a versioned stderr JSON object for editor/Studio integrations. Preserve ordinary text diagnostics, `--explain`, source semantics and existing exit codes.
+- **Evidence:** Changes committed but not independently tested yet. No parity, native, or browser claims for this new option.
+- **Risk:** Experimental Python-only CLI protocol; no corresponding native or browser flag. A run may have printed program output before a runtime error, so clients must handle stdout independently.
+- **Next gate:** On Google Cloud Shell, run focused pytest and full local profile, record exact commit and failures before merge. Netlify remains paused.
+
 ### 2026-11-21 — Offline Studio verification orchestration (Cloud Shell accepted; PR review)
 
 - **Status:** Implemented on `dev/offline-studio-verification`; user-confirmed Cloud Shell verification at `40aa824`, awaiting merge. No Netlify deployment.
