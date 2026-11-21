@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1 numeric analytics helpers (verification pending)
+
+- **Status:** Implemented on `dev/g1-numeric-analytics`; not yet independently tested, merged or deployed.
+- **Changed:** `stdlib/g1/math.kasa` gains `kasa_total`, `kasa_average_or`, `kasa_count_above`; added focused reference-runtime regressions and `docs/G1_NUMERIC_ANALYTICS.md`.
+- **Contract:** Read-only numeric list operations; sum is 0 on empty input, average accepts a fallback for empty input, threshold count uses strict greater-than. No new Kasa keywords.
+- **Risk:** Average uses existing `/` semantics and binary float rounding; not exact currency arithmetic. G1 remains separate from the pinned G0 catalog, native bytecode and browser imports. No G0.5 security claims.
+- **Evidence:** Tests added but not yet run; no new native/browser module parity evidence.
+- **Next gate:** Run `python -m pytest -q tests/test_g1_numeric_analytics.py` and `python scripts/verify_local.py --profile full` in Cloud Shell; investigate failures before merge. Netlify remains paused.
+
 ### 2026-11-21 — G1 experimental list analysis helpers (user-verified)
 
 - **Status:** Implemented on `dev/g1-collection-analysis`; user-confirmed focused and full local verification passed on Google Cloud Shell. No deployment.
