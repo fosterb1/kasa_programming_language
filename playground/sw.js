@@ -3,12 +3,14 @@
 const CACHE_NAME = 'kasa-playground-__KASA_BUILD_HASH__';
 // Set true only in build_site.py's verified standalone web archive.
 const KASA_PACKAGED_MODULES = false;
+const KASA_PACKAGED_G1_MODULES = false;
 const CORE = [
   './', './index.html', './style.css', './app.js', './worker.js',
   './kasa-runtime.js', './diagnostics.js', './manifest.webmanifest',
   './icons/kasa-192.png', './icons/kasa-512.png',
 ];
 if (KASA_PACKAGED_MODULES) CORE.push('./kasa-pinned-modules.js');
+if (KASA_PACKAGED_G1_MODULES) CORE.push('./kasa-g1-pinned-modules.js');
 const OPTIONAL_NATIVE = ['./native/kasa-native.js', './native/kasa-native.wasm'];
 const WHITELIST = new Set([...CORE, ...OPTIONAL_NATIVE].map(path =>
   new URL(path, self.registration.scope).pathname));
