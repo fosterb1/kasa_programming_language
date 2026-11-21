@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1.3 shared cross-runtime conformance (user-verified)
+
+- **Status:** Implemented on `dev/g13-cross-runtime-conformance`; user reports every requested Google Cloud Shell test passed. No deployment.
+- **Changed:** `tests/g13_cross_runtime_cases.json` supplies 8 valid and 4 invalid source fixtures shared across Python and JavaScript. `tests/g13_js_fixture_runner.cjs` checks pinned JS G1 outputs; `tests/test_g13_shared_conformance.py` checks Python G1/source-link and JS results; `scripts/verify_g13_cross_runtime.py` checks Python import/flattened execution, JS, native C++ run and independent KBC1 execution for valid cases. Added `docs/G13_SHARED_CROSS_RUNTIME_CONFORMANCE.md`.
+- **Decision:** Exact source and stdout/error comparisons with no interpreter, C++, KBC1/KBC2, module catalog or Playground behavior changes. Fail closed on missing native binary or JS mismatch. Keep G0/G0.5 defaults and security restrictions intact.
+- **Evidence:** User reports PASS for `python -m pytest -q tests/test_g13_shared_conformance.py`, `node tests/g13_js_fixture_runner.cjs`, `python scripts/verify_g13_cross_runtime.py`, `python scripts/verify_g124_native_kbc.py`, `python scripts/verify_g05_native_kbc.py`, `python -m pytest -q tests/test_g124_native_prelink.py`, `python scripts/verify_real_g1_browser.py`, and `python scripts/verify_local.py --profile full`. Exact terminal logs, revision and any skips were not supplied, so classify as user-confirmed.
+- **Risks:** Twelve curated cases are not full semantic parity, fuzzing or production-safety evidence. Native support remains trusted-local prelinking; source catalog races and hostile filesystem risks remain open. Browser Chromium verification still uses the separate G1 real-browser gate.
+- **Next gate:** Review final PR diff and merge normally if GitHub confirms no conflicts; retest integrated main. Netlify remains paused.
+
 ### 2026-11-21 — G1.2.4 native/KBC1 reviewed-source prelink (user-verified)
 
 - **Status:** Implemented on `dev/g124-native-g1-prelink`; owner confirms all requested Cloud Shell checks passed. No deployment.

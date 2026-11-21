@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "status": "experimental_g1_shared_source_and_expected_output",
+  "scope": "Python imports and prelink, JavaScript opt-in module runner, native C++ source and KBC1; not stable imports or security certification",
+  "cases": [
+    {
+      "id": "signed-total",
+      "source": "fa math firi stdlib: m\nka m.kasa_total([30, -10, 5])\n",
+      "output": "25\n"
+    },
+    {
+      "id": "exact-average",
+      "source": "fa math firi stdlib: m\nka m.kasa_average_or([2, 3], 0)\n",
+      "output": "2.5\n"
+    },
+    {
+      "id": "fallbacks",
+      "source": "fa math firi stdlib: m\nka m.kasa_min_or([], -9)\nka m.kasa_max_or([], 7)\nka m.kasa_average_or([], -1)\n",
+      "output": "-9\n7\n-1\n"
+    },
+    {
+      "id": "strict-threshold",
+      "source": "fa math firi stdlib: m\nka m.kasa_count_above([10, 20, 20, 30], 20)\n",
+      "output": "1\n"
+    },
+    {
+      "id": "search",
+      "source": "fa collections firi stdlib: c\nka c.kasa_first_index([4, 8, 4], 4)\nka c.kasa_last_index([4, 8, 4], 4)\nka c.kasa_first_index([], 4)\n",
+      "output": "0\n2\n-1\n"
+    },
+    {
+      "id": "distinct-text",
+      "source": "fa collections firi stdlib: c\nka c.kasa_count_distinct([\"Ama\", \"Kofi\", \"Ama\"])\nka c.kasa_all_equal([7, 7, 8])\nka c.kasa_all_equal([])\n",
+      "output": "2\natoro\nnokware\n"
+    },
+    {
+      "id": "mixed-math-collections",
+      "source": "fa math firi stdlib: m\nfa collections firi stdlib: c\nma xs = [40, 60, 80, 90]\nka m.kasa_total(xs)\nka c.kasa_count_distinct(xs)\nka m.kasa_average_or(xs, 0)\n",
+      "output": "270\n4\n67.5\n"
+    },
+    {
+      "id": "read-only-collection",
+      "source": "fa collections firi stdlib: c\nma xs = [4, 4, 9]\nka c.kasa_count_distinct(xs)\nka xs[0]\nka xs[2]\nka tentɛn(xs)\n",
+      "output": "2\n4\n9\n3\n"
+    },
+    {
+      "id": "reject-g0-only-export",
+      "source": "fa math firi stdlib: m\nka m.kasa_sum([1, 2])\n",
+      "reject": "does not export"
+    },
+    {
+      "id": "reject-duplicate-alias",
+      "source": "fa math firi stdlib: x\nfa collections firi stdlib: x\nka 1\n",
+      "reject": "alias reused"
+    },
+    {
+      "id": "reject-late-import",
+      "source": "ka 1\nfa math firi stdlib: m\n",
+      "reject": "precede statements"
+    },
+    {
+      "id": "reject-invalid-origin",
+      "source": "fa math firi external: m\nka m.kasa_total([1])\n",
+      "reject": "Only the pinned stdlib"
+    }
+  ]
+}
