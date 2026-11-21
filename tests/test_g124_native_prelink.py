@@ -17,6 +17,7 @@ try:
     from preflight_native_modules import preflight
     from run_kasa_modules_experimental import execute_module_source
     from validate_g1_catalog import G1CatalogError
+    from link_g124_native import main as g124_main
 finally:
     sys.path.remove(str(ROOT / "scripts"))
 
@@ -96,10 +97,9 @@ def test_g1_manifest_tampering_rejected(tmp_path):
 
 
 def test_g1_cli_is_explicit(tmp_path, capsys):
-    from link_g124_native import main
     app = tmp_path / "demo.kasa"
     app.write_text(CASES[0][1], encoding="utf-8")
-    assert main([str(app)]) == 0
+    assert g124_main([str(app)]) == 0
     output = capsys.readouterr()
     assert output.err == ""
     assert "__kasa_g05_math_kasa_total" in output.out
