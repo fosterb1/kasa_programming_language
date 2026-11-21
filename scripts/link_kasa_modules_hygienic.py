@@ -20,6 +20,10 @@ from kasa import parse  # noqa: E402
 from kasa.core import BUILTIN_NAMES, KasaError, Node  # noqa: E402
 from preflight_native_modules import preflight  # noqa: E402
 from validate_kasa_catalog import ALLOWED, _is_linked, load_catalog  # noqa: E402
+from validate_g1_catalog import (  # noqa: E402
+    ALLOWED as G1_ALLOWED, validate as validate_g1,
+    _regular_unlinked as g1_regular_unlinked,
+)
 
 RESERVED_PREFIX = "__kasa_g05_"
 MAX_OUTPUT_BYTES = 100_000
@@ -153,14 +157,22 @@ def _statements(nodes, functions: dict[str, str], aliases: dict[str, str],
 
 
 def link_source(source: str, *, root: Path = ROOT, filename: str = "<g05-link>",
-                source_map: dict | None = None) -> str:
+                source_map: dict | None = None, generation: str = "g0") -> str:
     """Return self-contained source; no I/O side effects besides verified reads."""
     root = root.absolute()
-    plan = preflight(source, filename=filename, root=root)
+    plan = preflight(source, filename=filename, root=root, generation=generation)
     program = parse(source, filename=filename, experimental_modules=True)
     body = [stmt for stmt in program if stmt.kind != "module_import"]
     aliases = {item["alias"]: item["module"] for item in plan["imports"]}
-    catalog = {entry["id"]: entry for entry in load_catalog(root / "stdlib/catalog.json", root)}
+    if generation == "g0":
+        allowed = ALLOWED
+        entries = load_catalog(root / "stdlib/catalog.json", root)
+    elif generation == "g1":
+        allowed = G1_ALLOWED
+        entries = validate_g1(root / "stdlib/g1/catalog.json", root)
+    else:
+        raise HygienicLinkError("Unsupported module generation")
+    catalog = {entry["id"]: entry for entry in entries}
 
     # No caller may name a synthesized internal symbol. The guard checks AST
     # identifiers, not comments or literal text.
@@ -175,8 +187,10 @@ def link_source(source: str, *, root: Path = ROOT, filename: str = "<g05-link>",
     parts = []
     origins: list[dict] = []
     for module in plan["load_order"]:
-        path = root / ALLOWED[module]
-        if _is_linked(path, root) or not path.is_file():
+        path = root / allowed[module]
+        if ((generation == "g0" and _is_linked(path, root)) or
+                (generation == "g1" and not g1_regular_unlinked(path, root)) or
+                not path.is_file()):
             raise HygienicLinkError("Linked or missing module source")
         data = path.read_bytes().replace(b"\r\n", b"\n")
         if "sha256:" + hashlib.sha256(data).hexdigest() != catalog[module]["content_identity"]:
