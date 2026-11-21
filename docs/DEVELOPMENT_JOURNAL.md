@@ -39,6 +39,15 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1 experimental list analysis helpers (testing pending)
+
+- **Status:** Implemented on `dev/g1-collection-analysis`, not independently tested, not merged or deployed.
+- **Changed:** `stdlib/g1/collections.kasa` adds `kasa_count_distinct` and `kasa_all_equal`. Added `tests/test_g1_collection_analysis.py` and `docs/G1_COLLECTION_ANALYSIS.md`.
+- **Contract:** Pure-Kasa functions read list inputs without mutation; distinct count uses existing equality semantics with quadratic worst-case cost; all-equal treats empty and one-item lists as true.
+- **Boundaries:** Not exported from pinned G0 module catalog; no changes to existing import language, G0.5 security, KBC wire formats, JavaScript worker, or native VM.
+- **Evidence:** Test cases committed but not yet executed; no fresh native/browser parity claims.
+- **Next gate:** Run focused Python pytest and complete local verification on Google Cloud Shell, review failures before merge. Netlify remains paused.
+
 ### 2026-11-21 — Python CLI structured diagnostics for editor tooling (user-verified)
 
 - **Status:** Implemented on `dev/cli-json-diagnostics`; user-confirmed focused and full-profile Cloud Shell checks passed. No deployment.
