@@ -15,7 +15,8 @@ test('VS Code extension declares Kasa language, snippets and commands', () => {
 test('runner does not use shell command interpolation', () => {
   const s=fs.readFileSync(path.join(base,'src/extension.js'),'utf8');
   assert.match(s,/shell: false/);
-  assert.match(s,/spawn\(executable, \[mode, file\]/);
+  assert.match(s,/spawn\(executable, args/);
+  assert.match(s,/const args = \[mode, file/);
   assert.doesNotMatch(s,/\bexec\(/);
 });
 
@@ -26,4 +27,14 @@ test('installed Kasa CLI is the default command and missing executable yields gu
   assert.match(source,/get\('executablePath', 'kasa'\)/);
   assert.match(source,/error\.code === 'ENOENT'/);
   assert.match(source,/kasa\.executablePath/);
+});
+
+test('JSON diagnostics are opt-in and require a compatible Python CLI', () => {
+  const manifest=json('package.json');
+  const setting=manifest.contributes.configuration.properties['kasa.jsonDiagnostics'];
+  assert.equal(setting.default, false);
+  assert.equal(setting.type, 'boolean');
+  const source=fs.readFileSync(path.join(base,'src/extension.js'),'utf8');
+  assert.match(source,/createDiagnosticCollection/);
+  assert.match(source,/diagnostics-json/);
 });
