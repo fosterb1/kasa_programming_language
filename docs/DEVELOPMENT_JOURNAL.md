@@ -39,13 +39,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
-### 2026-11-21 — G1.2.1 separate pinned manifest (tests pending)
+### 2026-11-21 — G1.2.1 separate pinned manifest (user-verified)
 
-- **Status:** Implemented on `dev/g121-versioned-manifest`; not yet independently verified, merged or deployed.
+- **Status:** Implemented on `dev/g121-versioned-manifest`; user-confirmed the four requested local commands passed in Google Cloud Shell. No deployment.
 - **Changed:** Added `stdlib/g1/catalog.json` with fixed two-module G1 exports and SHA-256 source identities; strict read-only validator `scripts/validate_g1_catalog.py`; negative tests `tests/test_validate_g1_catalog.py` and documentation `docs/G121_VERSIONED_MANIFEST.md`.
 - **Decisions:** G1 is separate from G0; the old `fa ... firi stdlib` behavior and `stdlib/catalog.json` are unchanged. No executable imports, module bundling, G0.5 security, native/JS runtime or KBC changes.
-- **Risks:** Source hashes ensure consistency, not authenticity. Tests have not been run on a developer machine yet; browser/native module parity not claimed. Cross-runtime integration will require version-qualified opt-in and additional tests.
-- **Next gate:** Cloud Shell `python scripts/validate_g1_catalog.py`, focused G1/G0 tests and full local verification, then review before merge. Netlify remains paused.
+- **Evidence:** User reports PASS for `python scripts/validate_g1_catalog.py`, `python -m pytest -q tests/test_validate_g1_catalog.py tests/test_g1_contract.py`, `python -m pytest -q tests/test_validate_kasa_catalog.py`, and `python scripts/verify_local.py --profile full`. Exact test totals, skips and terminal logs were not supplied; this is user-confirmed evidence.
+- **Risks:** Source hashes ensure consistency, not authenticity. Browser/native G1 module parity is not established. Cross-runtime integration will require version-qualified opt-in and additional tests.
+- **Next gate:** Final diff and conflict review, normal merge commit if permitted, followed by integrated `main` regression check. Netlify remains paused.
 
 ### 2026-11-21 — G1.1 standard-library contract baseline (user-verified)
 
