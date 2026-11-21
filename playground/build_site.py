@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import sys
 from zipfile import ZIP_DEFLATED, ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,6 +35,9 @@ WORKER_FLAG = "const KASA_HAS_WASM = false;"
 MODULE_FLAG = "const KASA_HAS_PINNED_MODULES = false;"
 SERVICE_WORKER_MODULE_FLAG = "const KASA_PACKAGED_MODULES = false;"
 MODULE_DESTINATION = "kasa-pinned-modules.js"
+G1_MODULE_FLAG = "const KASA_HAS_G1_PINNED_MODULES = false;"
+G1_SERVICE_WORKER_FLAG = "const KASA_PACKAGED_G1_MODULES = false;"
+G1_MODULE_DESTINATION = "kasa-g1-pinned-modules.js"
 
 
 def packaged_pinned_modules(root: Path) -> bytes:
@@ -75,7 +79,35 @@ def packaged_pinned_modules(root: Path) -> bytes:
 
 
 
-def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> Path:
+def packaged_g1_modules(root: Path) -> bytes:
+    """Validate the separate reviewed G1 catalog, then pin the exact emitted bytes."""
+    script_dir = str(root / "scripts")
+    if script_dir not in sys.path:
+        sys.path.insert(0, script_dir)
+    from validate_g1_catalog import ALLOWED, G1CatalogError, _regular_unlinked, validate
+
+    entries = validate(root / "stdlib/g1/catalog.json", root)
+    modules = {}
+    for entry in entries:
+        path = root / ALLOWED[entry["id"]]
+        if not _regular_unlinked(path, root):
+            raise G1CatalogError("G1 source missing or linked after validation")
+        raw = path.read_bytes()
+        if len(raw) > 50_000 or b"\\r" in raw.replace(b"\\r\\n", b""):
+            raise G1CatalogError("G1 source size/line endings invalid")
+        canonical = raw.replace(b"\\r\\n", b"\\n")
+        if "sha256:" + hashlib.sha256(canonical).hexdigest() != entry["content_identity"]:
+            raise G1CatalogError("G1 source changed after validation")
+        modules[entry["id"]] = {
+            "source": canonical.decode("utf-8", "strict"),
+            "exports": entry["exports"],
+        }
+    serialized = json.dumps(modules, ensure_ascii=True, sort_keys=True)
+    return ("/* Reviewed and SHA-256-checked G1 local Kasa libraries. */\\n"
+            "self.KasaG1PinnedModules = Object.freeze(" + serialized + ");\\n").encode("utf-8")
+
+
+def build_bundle(output: Path | None = None, *, require_wasm: bool = False, include_g1: bool = False) -> Path:
     """Produce a hosting-neutral static ZIP; enable WASM only with complete assets."""
     output = output or ROOT / "dist" / "Kasa_Playground_Web.zip"
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -89,6 +121,7 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
         if wasm.read_bytes()[:8] != b"\x00asm\x01\x00\x00\x00":
             raise RuntimeError("WASM asset is invalid (missing WebAssembly header)")
     pinned_asset = packaged_pinned_modules(ROOT)
+    g1_asset = packaged_g1_modules(ROOT) if include_g1 else None
     # A stable content digest invalidates the previous offline cache on every update.
     digest = hashlib.sha256()
     for source in (*FILES, *(WASM_FILES if all(have_wasm) else ())):
@@ -96,6 +129,10 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
         digest.update((ROOT / source).read_bytes())
     digest.update(MODULE_DESTINATION.encode("utf-8"))
     digest.update(pinned_asset)
+    if g1_asset is not None:
+        digest.update(G1_MODULE_DESTINATION.encode("utf-8"))
+        digest.update(g1_asset)
+        digest.update(b"g1-opt-in")
     revision = digest.hexdigest()[:12]
     with ZipFile(output, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
         for source, destination in FILES.items():
@@ -106,6 +143,10 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
                 if text.count(SERVICE_WORKER_MODULE_FLAG) != 1:
                     raise RuntimeError("Cannot safely patch offline module cache flag")
                 text = text.replace(SERVICE_WORKER_MODULE_FLAG, "const KASA_PACKAGED_MODULES = true;")
+                if include_g1:
+                    if text.count(G1_SERVICE_WORKER_FLAG) != 1:
+                        raise RuntimeError("Cannot safely patch G1 offline cache flag")
+                    text = text.replace(G1_SERVICE_WORKER_FLAG, "const KASA_PACKAGED_G1_MODULES = true;")
                 archive.writestr(destination, text.replace("__KASA_BUILD_HASH__", revision).encode("utf-8"))
             elif destination == "worker.js":
                 text = (ROOT / source).read_text(encoding="utf-8")
@@ -114,12 +155,18 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
                 if text.count(MODULE_FLAG) != 1:
                     raise RuntimeError("Cannot safely patch the module worker flag")
                 text = text.replace(MODULE_FLAG, "const KASA_HAS_PINNED_MODULES = true;")
+                if include_g1:
+                    if text.count(G1_MODULE_FLAG) != 1:
+                        raise RuntimeError("Cannot safely patch the G1 module worker flag")
+                    text = text.replace(G1_MODULE_FLAG, "const KASA_HAS_G1_PINNED_MODULES = true;")
                 if all(have_wasm):
                     text = text.replace(WORKER_FLAG, "const KASA_HAS_WASM = true;")
                 archive.writestr(destination, text.encode("utf-8"))
             else:
                 archive.write(ROOT / source, destination)
         archive.writestr(MODULE_DESTINATION, pinned_asset)
+        if g1_asset is not None:
+            archive.writestr(G1_MODULE_DESTINATION, g1_asset)
         if all(have_wasm):
             for source, destination in WASM_FILES.items():
                 archive.write(ROOT / source, destination)
@@ -129,7 +176,9 @@ def build_bundle(output: Path | None = None, *, require_wasm: bool = False) -> P
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Package Kasa Playground for Netlify or other static hosts")
     parser.add_argument("--require-wasm", action="store_true", help="Fail if native WebAssembly assets are missing")
+    parser.add_argument("--include-g1", action="store_true", help="Opt-in to reviewed experimental G1 JS-only module bundle")
     arguments = parser.parse_args()
-    artifact = build_bundle(require_wasm=arguments.require_wasm)
+    artifact = build_bundle(require_wasm=arguments.require_wasm, include_g1=arguments.include_g1)
     print(f"Created {artifact}")
+    print("Experimental G1 modules: " + ("included (JS-only)" if arguments.include_g1 else "not packaged"))
     print("Native WebAssembly: " + ("included" if all((ROOT / source).is_file() for source in WASM_FILES) else "not built; JS fallback only"))
