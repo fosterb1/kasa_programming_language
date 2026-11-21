@@ -39,6 +39,14 @@ Do not claim the project is `1.0`, safe for hostile bytecode, linguistically cer
 **Progress percentages are planning judgments**, not a substitute for these verifiable milestones.
 
 ## Development entries
+### 2026-11-21 — G1 opt-in browser packaging and real Chromium gate (verification pending)
+
+- **Status:** Implemented on `dev/g123-browser-g1-packaging`, not yet independently executed, merged or deployed.
+- **Changed:** `playground/build_site.py` adds `--include-g1` option to validate and package the separate pinned G1 sources, with worker and service-worker flags enabled only for opt-in ZIPs; `playground/sw.js` conditionally caches the G1 asset. Added unit tests `tests/test_g1_browser_packaging.py`, an actual-browser Playwright worker acceptance script `scripts/verify_real_g1_browser.py`, and `docs/G123_REAL_BROWSER_G1.md`.
+- **Decision:** Preserve default bundle (G0 only) and normal Kasa grammar, no G1 selector in Studio UI, no public website deployment. Test G1 directly through opt-in worker messages in loopback-hosted Chromium, using the same 19 G1.1 contract fixtures.
+- **Risks:** Browser test is implemented but not yet run. No native/KBC G1 support, untrusted-code safety, signing or external-hosting claims. G0.5 remains trusted-local experimental.
+- **Next gate:** Cloud Shell packaging unit tests, G1 JS regression, real Chromium G1 and existing G0 browser gates, followed by full local profile. Inspect failures before merging PR. Netlify remains paused.
+
 ### 2026-11-21 — G1.2.3 JavaScript G1 compatibility and worker gate (user-verified)
 
 - **Status:** Implemented on `dev/g123-js-g1-compat`; user-confirmed all requested Google Cloud Shell checks passed. Not deployed.
